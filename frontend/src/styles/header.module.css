@@ -1,0 +1,362 @@
+/* Homepage.module.css */
+
+/* Header Layout */
+.header {
+    width: 100%;
+    background-color: var(--color-white);
+    box-shadow: 0 2px 8px var(--color-shadow);
+  }
+  
+  /* Promotion Bar */
+  .promotionBar {
+    background-color: var(--color-sage-light);
+    color: var(--color-forest-dark);
+    padding: 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  /* Main Header Container */
+  .headerContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 16px;
+  }
+  
+  .headerContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  /* Logo Section */
+  .logoSection {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logoText {
+    color: var(--color-sage);
+    font-weight: 700;
+    font-size: 28px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .logoTextAccent {
+    color: var(--color-forest);
+    font-weight: 700;
+    font-size: 28px;
+  }
+  
+  .tagline {
+    margin-left: 20px;
+    font-size: 12px;
+    color: var(--color-forest);
+    font-style: italic;
+    display: none;
+  }
+  
+  @media (min-width: 768px) {
+    .tagline {
+      display: block;
+    }
+  }
+  
+  /* Search Bar */
+  .searchBarDesktop {
+    flex: 1;
+    margin: 0 32px;
+    position: relative;
+    display: none;
+  }
+  
+  @media (min-width: 768px) {
+    .searchBarDesktop {
+      display: flex;
+    }
+  }
+  
+  .searchInput {
+    width: 100%;
+    padding: 8px 16px;
+    border-radius: 8px 0 0 8px;
+    border: 2px solid var(--color-sage-muted);
+    outline: none;
+  }
+  
+  .searchInput:focus {
+    border-color: var(--color-sage);
+  }
+  
+  .searchButton {
+    background-color: var(--color-sage);
+    color: var(--color-white);
+    padding: 0 16px;
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+  }
+  
+  .searchButton:hover {
+    background-color: var(--color-forest);
+  }
+  
+  .searchIcon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Mobile Search */
+  .searchBarMobile {
+    margin-top: 12px;
+    position: relative;
+  }
+  
+  @media (min-width: 768px) {
+    .searchBarMobile {
+      display: none;
+    }
+  }
+  
+  .searchInputMobile {
+    width: 100%;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 2px solid var(--color-sage-muted);
+    outline: none;
+  }
+  
+  .searchButtonMobile {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background-color: var(--color-sage);
+    color: var(--color-white);
+    padding: 0 16px;
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .searchIconMobile {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Action Buttons */
+  .actionButtons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  @media (min-width: 768px) {
+    .actionButtons {
+      gap: 16px;
+    }
+  }
+  
+  /* Location Selector */
+  .locationSelector {
+    display: none;
+    align-items: center;
+    font-size: 14px;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  
+  .locationSelector:hover {
+    background-color: var(--color-light-gray);
+  }
+  
+  @media (min-width: 768px) {
+    .locationSelector {
+      display: flex;
+    }
+  }
+  
+  .locationIcon {
+    width: 20px;
+    height: 20px;
+    color: var(--color-sage);
+    margin-right: 4px;
+  }
+  
+  .locationText {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .locationLabel {
+    font-size: 12px;
+    color: var(--color-gray);
+  }
+  
+  .locationValue {
+    font-weight: 500;
+  }
+  
+  .chevronIcon {
+    width: 16px;
+    height: 16px;
+    margin-left: 4px;
+    color: var(--color-gray);
+  }
+  
+  
+  .appButton:hover {
+    background-color: var(--color-forest);
+  }
+  
+  @media (min-width: 1024px) {
+    .appButton {
+      display: flex;
+    }
+  }
+  
+  .buttonIcon {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+  }
+  
+  /* Account Button */
+  .accountButton {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 8px;
+  }
+  
+  .accountButton:hover {
+    background-color: var(--color-light-gray);
+  }
+  
+  .buttonIcon {
+    width: 24px;
+    height: 24px;
+    color: var(--color-sage);
+  }
+  
+  .buttonText {
+    display: none;
+    margin-left: 8px;
+  }
+  
+  @media (min-width: 768px) {
+    .buttonText {
+      display: block;
+    }
+  }
+  
+  /* Cart Button */
+  .cartButton {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 8px;
+    position: relative;
+  }
+  
+  .cartButton:hover {
+    background-color: var(--color-light-gray);
+  }
+  
+  .cartBadge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background-color: var(--color-sunset);
+    color: var(--color-white);
+    font-size: 12px;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: bounce 2s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+  
+  /* Category Navigation */
+  .categoryNav {
+    background-color: var(--color-sage-light);
+    border-top: 1px solid var(--color-sage-muted);
+  }
+  
+  .categoryContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+  
+  .categoryList {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 8px 0;
+    font-size: 14px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  .categoryList::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+  
+  @media (min-width: 768px) {
+    .categoryList {
+      gap: 24px;
+      font-size: 16px;
+    }
+  }
+  
+  .categoryItem {
+    white-space: nowrap;
+    list-style: none;
+  }
+  
+  .categoryLink {
+    display: flex;
+    align-items: center;
+    color: var(--color-forest-dark);
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  
+  .categoryLink:hover {
+    color: var(--color-forest);
+    background-color: var(--color-white);
+    transform: translateY(-1px);
+    border-bottom: 3px solid var(--color-lavender);
+    transition: all 0.5s;
+    text-decoration: none;
+  }
+  
+  .categoryIcon {
+    margin-right: 4px;
+  }
+  
+  .categoryChevron {
+    width: 16px;
+    height: 16px;
+    margin-left: 4px;
+  }

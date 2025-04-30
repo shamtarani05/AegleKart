@@ -1,0 +1,101 @@
+:root {
+    /* Primary Colors */
+    --color-sage: #4CAF50;       /* Sage Green - Primary brand color */
+    --color-sage-light: #E8F5E9; /* Light Sage - Background, hover states */
+    --color-sage-muted: #A5D6A7; /* Muted Sage - Borders, dividers */
+    
+    --color-forest: #2E7D32;     /* Forest Green - Secondary brand color */
+    --color-forest-dark: #1B5E20;/* Dark Forest - Text on light backgrounds */
+    
+    /* Accent Colors */
+    --color-lavender: #9575CD;   /* Lavender - Accent for CTAs, highlights */
+    --color-lavender-light: #D1C4E9; /* Light Lavender - Secondary accents */
+    
+    --color-sunset: #FF5722;     /* Sunset Orange - Notifications, alerts */
+    --color-ocean: #039BE5;      /* Ocean Blue - Secondary accent, links */
+    --color-honey: #FFC107;      /* Honey Gold - Highlights, stars */
+    
+    /* Neutral Colors */
+    --color-white: #FFFFFF;      /* White - Background, cards */
+    --color-light-gray: #F5F5F5; /* Light Gray - Alternative backgrounds */
+    --color-gray: #757575;       /* Gray - Secondary text */
+    --color-dark-gray: #424242;  /* Dark Gray - Primary text */
+    --color-black: #212121;      /* Near Black - Headings */
+    
+    /* Utility Colors */
+    --color-success: #43A047;    /* Success Green - Confirmations */
+    --color-warning: #FF9800;    /* Warning Orange - Warning messages */
+    --color-error: #E53935;      /* Error Red - Error states */
+    --color-info: #2196F3;       /* Info Blue - Informational messages */
+    
+    /* Shadow */
+    --color-shadow: rgba(0, 0, 0, 0.1); /* Shadow color */
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, var(--color-sage) 0%, var(--color-forest) 100%);
+    --gradient-secondary: linear-gradient(135deg, var(--color-lavender) 0%, var(--color-ocean) 100%);
+    --gradient-light: linear-gradient(135deg, var(--color-sage-light) 0%, var(--color-white) 100%);
+  }
+  
+  /* Base Styles */
+  body {
+    font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+    color: var(--color-dark-gray);
+    background-color: var(--color-light-gray);
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-black);
+    font-weight: 600;
+  }
+  
+  a {
+    color: var(--color-ocean);
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  button {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  
+  /* Remove focus outlines for mouse users, keep for keyboard users */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+  
+  :focus-visible {
+    outline: 2px solid var(--color-sage);
+    outline-offset: 2px;
+  }
+  
+  /* Apply smooth transitions to interactive elements */
+  a, button, input, select, textarea {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  /* Scrollbar styling for WebKit browsers */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--color-light-gray);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-sage-muted);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-sage);
+  }
