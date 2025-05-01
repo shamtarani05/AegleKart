@@ -1,14 +1,26 @@
 import React from 'react'
-import {Routes, Route} from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
+import AboutUs from './pages/AboutUs'
+import ContactUs from './pages/ContactUs'
+import FAQs from './pages/FAQs'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import ReturnPolicy from './pages/ReturnPolicy'
+import ShippingPolicy from './pages/ShippingPolicy'
 
 function App() {
- 
-  return (
-     <Routes>
-        <Route path='/' element={<HomePage />}/>
-     </Routes>
-  )
+
+   return (
+      <Routes>
+         <Route path='/' element={<HomePage />} />
+         <Route path='/about' element={<AboutUs />} />
+         <Route path='/contact' element={<ContactUs />} />
+         <Route path='/faq' element={<FAQs/>} />
+         <Route path='/privacy' element={<PrivacyPolicy/>} />
+         <Route path='/returns' element={<ReturnPolicy/>} />
+         <Route path='/shipping' element={<ShippingPolicy/>} />
+      </Routes>
+   )
 }
 
 export default App
