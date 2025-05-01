@@ -29,11 +29,15 @@
     align-items: center;
     justify-content: space-between;
   }
+  .headerContent a {
+    text-decoration: none;
+  }
   
   /* Logo Section */
   .logoSection {
     display: flex;
     align-items: center;
+    
   }
   
   .logoText {
@@ -346,8 +350,8 @@
     color: var(--color-forest);
     background-color: var(--color-white);
     transform: translateY(-1px);
-    border-bottom: 3px solid var(--color-lavender);
-    transition: all 0.5s;
+    border-bottom: 1.5px solid var(--color-lavender);
+    transition: all 0.1s;
     text-decoration: none;
   }
   

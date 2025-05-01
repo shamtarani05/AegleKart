@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, MapPin, Download, ShoppingCart, User, ChevronDown, Clock, Heart } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from '../styles/header.module.css';
 
 export default function Header() {
@@ -14,6 +15,16 @@ export default function Header() {
     { name: 'Devices', icon: null }
   ];
 
+  const navigate = useNavigate();
+
+  const handleAccountClick = () => {
+    navigate('/auth'); // This will navigate to your Auth.jsx component
+  };
+
+  const handleCartClick = () => {
+    navigate('/cart');
+  }
+
   return (
     <header className={styles.header}>
       {/* Top Bar
@@ -25,11 +36,11 @@ export default function Header() {
       <div className={styles.headerContainer}>
         <div className={styles.headerContent}>
           {/* Logo Section */}
-          <div className={styles.logoSection}>
+          <Link to='/' className={styles.logoSection}>
             <span className={styles.logoText}>Aegle</span>
             <span className={styles.logoTextAccent}>Kart</span>
             <div className={styles.tagline}>Wellness at your doorstep</div>
-          </div>
+          </Link>
 
           {/* Search Bar */}
           <div className={styles.searchBarDesktop}>
@@ -58,13 +69,15 @@ export default function Header() {
             </div>
 
             {/* User Account */}
-            <button className={styles.accountButton}>
+            <button className={styles.accountButton}
+             onClick={handleAccountClick}>
               <User className={styles.buttonIcon} />
               <span className={styles.buttonText}>Account</span>
             </button>
 
             {/* Cart */}
-            <button className={styles.cartButton}>
+            <button className={styles.cartButton}
+              onClick={handleCartClick}>
               <ShoppingCart className={styles.buttonIcon} />
               <span className={styles.buttonText}>Cart</span>
               <span className={styles.cartBadge}>0</span>

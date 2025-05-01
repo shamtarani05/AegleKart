@@ -1,0 +1,378 @@
+
+.authContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 200px);
+    padding: 2rem;
+    background-color: var(--color-light-gray);
+    background-image: linear-gradient(to bottom right, #f4eefd, #eef7ee);
+  }
+  
+  .authCard {
+    width: 100%;
+    max-width: 450px;
+    background-color: var(--color-white);
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(140, 130, 190, 0.15);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .authCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(140, 130, 190, 0.25);
+  }
+  
+  .authTabs {
+    display: flex;
+    border-bottom: 1px solid #e8e4f3;
+  }
+  
+  .tabButton {
+    flex: 1;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--color-gray);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .tabButton::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-sage);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+  }
+  
+  .tabButton:hover {
+    color: var(--color-sage);
+  }
+  
+  .tabButton:hover::after {
+    width: 80%;
+    background-color: #9d8cd6;
+  }
+  
+  .activeTab {
+    color: var(--color-sage);
+    font-weight: 600;
+  }
+  
+  .activeTab::after {
+    width: 80%;
+    background-color: #9d8cd6;
+  }
+  
+  .authContent {
+    padding: 2rem;
+  }
+  
+  /* Form Styling */
+  .formContainer {
+    width: 100%;
+  }
+  
+  .formTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-sage);
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  
+  .formSubtitle {
+    font-size: 0.9rem;
+    color: var(--color-gray);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  
+  .label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #9d8cd6;
+    transition: color 0.3s ease;
+  }
+  
+  .formGroup:focus-within .label {
+    color: #9d8cd6;
+  }
+  
+  .input {
+    padding: 0.75rem;
+    border: 1px solid #e1dbf5;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #fdfcff;
+  }
+  
+  .input:focus {
+    outline: none;
+    border-color: var(--color-sage);
+    box-shadow: 0 0 0 3px rgba(157, 140, 214, 0.15);
+    transform: translateY(-2px);
+  }
+  
+  .forgotPassword {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -0.5rem;
+  }
+  
+  .forgotBtn {
+    background: none;
+    border: none;
+    color: #7b68ee;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  
+  .forgotBtn::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: #7b68ee;
+    transition: width 0.3s ease;
+  }
+  
+  .forgotBtn:hover {
+    color: #6a5acd;
+  }
+  
+  .forgotBtn:hover::after {
+    width: 100%;
+  }
+  
+  .submitButton {
+    padding: 0.85rem;
+    background-color: var(--color-sage);
+    color: var(--color-white);
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.8rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .submitButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.7s ease;
+  }
+  
+  .submitButton:hover {
+    background-color: #8a77cd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(157, 140, 214, 0.3);
+  }
+  
+  .submitButton:hover::before {
+    left: 100%;
+  }
+  
+  .submitButton:active {
+    transform: translateY(1px);
+  }
+  
+  .submitButton:disabled {
+    background-color: #c8bfe7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .secondaryButton {
+    padding: 0.85rem;
+    background-color: transparent;
+    color: #9d8cd6;
+    border: 1px solid #9d8cd6;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.8rem;
+    text-align: center;
+  }
+  
+  .secondaryButton:hover {
+    background-color: rgba(157, 140, 214, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(157, 140, 214, 0.15);
+  }
+  
+  .secondaryButton:active {
+    transform: translateY(1px);
+  }
+  
+  .errorMessage {
+    background-color: rgba(229, 57, 53, 0.08);
+    color: var(--color-error);
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+  }
+  
+  .successContainer {
+    text-align: center;
+    padding: 1rem 0;
+  }
+  
+  .successMessage {
+    color: var(--color-success);
+    margin: 1.5rem 0;
+    line-height: 1.5;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* OTP Verification Styling */
+  .otpContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  
+  .otpInput {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.5rem;
+    text-align: center;
+    border: 1px solid #e1dbf5;
+    border-radius: 8px;
+    background-color: #f7f5ff;
+    transition: all 0.3s ease;
+  }
+  
+  .otpInput:focus {
+    outline: none;
+    border-color: #9d8cd6;
+    box-shadow: 0 0 0 3px rgba(157, 140, 214, 0.15);
+    transform: scale(1.05);
+  }
+  
+  .resendContainer {
+    text-align: center;
+    margin: 1rem 0;
+  }
+  
+  .timerText {
+    color: var(--color-gray);
+    font-size: 0.9rem;
+  }
+  
+  .resendBtn {
+    background: none;
+    border: none;
+    color: #7b68ee;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  
+  .resendBtn::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: #7b68ee;
+    transition: width 0.3s ease;
+  }
+  
+  .resendBtn:hover {
+    color: #6a5acd;
+  }
+  
+  .resendBtn:hover::after {
+    width: 100%;
+  }
+  
+  /* Form appear animation */
+  .form {
+    animation: formAppear 0.5s ease-out;
+  }
+  
+  @keyframes formAppear {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive styling */
+  @media (max-width: 768px) {
+    .authCard {
+      max-width: 100%;
+    }
+    
+    .authContent {
+      padding: 1.5rem;
+    }
+    
+    .otpInput {
+      width: 3rem;
+      height: 3rem;
+      font-size: 1.25rem;
+    }
+  }
