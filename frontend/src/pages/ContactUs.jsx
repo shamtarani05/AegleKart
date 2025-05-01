@@ -138,7 +138,7 @@ const Contact = () => {
                     />
                   </div>
                   
-                  <div className={styles.formRow}>
+               
                     <div className={styles.formGroup}>
                       <label htmlFor="email" className={styles.formLabel}>Email Address</label>
                       <input
@@ -152,18 +152,8 @@ const Contact = () => {
                       />
                     </div>
                     
-                    <div className={styles.formGroup}>
-                      <label htmlFor="phone" className={styles.formLabel}>Phone Number</label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        className={styles.formInput}
-                        value={formData.phone}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
+                   
+                  
                   
                   <div className={styles.formGroup}>
                     <label htmlFor="subject" className={styles.formLabel}>Subject</label>
@@ -203,7 +193,7 @@ const Contact = () => {
             <div className={styles.mapContainer}>
               {/* This would normally be a Google Maps or other map integration */}
               <div className={styles.mapPlaceholder}>
-                <img src="/api/placeholder/600/500" alt="Our Location Map" className={styles.mapImage} />
+                <img src="./image.png" alt="Our Location Map" className={styles.mapImage} />
               </div>
             </div>
           </div>

@@ -1,0 +1,587 @@
+.container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+  }
+  
+  .main {
+    flex: 1;
+  }
+  
+  /* Hero Section */
+  .heroSection {
+    background: var(--gradient-primary);
+    color: var(--color-white);
+    padding: 4rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+  
+  .heroSection::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4rem;
+    background: var(--color-sage-light);
+    clip-path: polygon(0 100%, 100% 100%, 100% 0);
+  }
+  
+  .heroContent {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .heroTitle {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  
+  .heroSubtitle {
+    font-size: 1.3rem;
+    opacity: 0.9;
+  }
+  
+  /* Cart Section */
+  .cartSection {
+    background-color: var(--color-white);
+    padding: 4rem 2rem;
+  }
+  
+  .cartContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .cartLayout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.8rem;
+    color: var(--color-forest-dark);
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+  
+  .sectionTitle::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: var(--color-sage);
+  }
+  
+  /* Cart Items */
+  .cartItems {
+    background-color: var(--color-white);
+  }
+  
+  .cartItemsList {
+    border: 1px solid var(--color-light-gray);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .cartItem {
+    display: grid;
+    grid-template-columns: 100px 1fr auto auto;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--color-light-gray);
+    align-items: center;
+  }
+  
+  .cartItem:last-child {
+    border-bottom: none;
+  }
+  
+  .itemImageContainer {
+    width: 100%;
+  }
+  
+  .itemImage {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .placeholderImage {
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-sage-light);
+    position: relative;
+  }
+  
+  .placeholderImage::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background-color: var(--color-sage);
+    opacity: 0.5;
+    border-radius: 50%;
+  }
+  
+  .itemDetails {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .itemName {
+    font-size: 1.1rem;
+    color: var(--color-forest-dark);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .itemPrice {
+    font-size: 1rem;
+    color: var(--color-gray);
+  }
+  
+  .itemActions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .quantityControl {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .quantityButton {
+    background: var(--color-ultra-light-gray);
+    border: none;
+    height: 32px;
+    width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: var(--color-dark-gray);
+  }
+  
+  .quantityButton:hover {
+    background-color: var(--color-light-gray);
+  }
+  
+  .quantity {
+    padding: 0 1rem;
+    min-width: 40px;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .removeButton {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-gray);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .removeButton:hover {
+    color: var(--color-error);
+  }
+  
+  .itemTotal {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--color-forest-dark);
+  }
+  
+  .cartActions {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 1.5rem;
+  }
+  
+  .continueShoppingButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: 1px solid var(--color-sage);
+    color: var(--color-sage);
+    font-weight: 500;
+    padding: 0.7rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .continueShoppingButton:hover {
+    background-color: var(--color-sage-light);
+  }
+  
+  /* Order Summary */
+  .orderSummary {
+    align-self: start;
+    position: sticky;
+    top: 2rem;
+  }
+  
+  .summaryCard {
+    background-color: var(--color-sage-light);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px var(--color-shadow);
+  }
+  
+  .summaryTitle {
+    font-size: 1.5rem;
+    color: var(--color-forest-dark);
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+  
+  .summaryTitle::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: var(--color-sage);
+  }
+  
+  /* Promo Code Section */
+  .promoCodeSection {
+    background-color: var(--color-white);
+    padding: 1.2rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .promoCodeTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: var(--color-forest-dark);
+    margin-bottom: 1rem;
+  }
+  
+  .promoCodeForm {
+    width: 100%;
+  }
+  
+  .promoCodeInput {
+    display: flex;
+    width: 100%;
+  }
+  
+  .promoCodeInput input {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--color-light-gray);
+    border-right: none;
+    border-radius: 4px 0 0 4px;
+    font-size: 0.9rem;
+  }
+  
+  .promoCodeInput input:focus {
+    outline: none;
+    border-color: var(--color-sage);
+  }
+  
+  .applyPromoButton {
+    background-color: var(--color-sage);
+    color: var(--color-white);
+    border: none;
+    padding: 0 1rem;
+    border-radius: 0 4px 4px 0;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .applyPromoButton:hover {
+    background-color: var(--color-forest);
+  }
+  
+  .promoError {
+    color: var(--color-error);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+  }
+  
+  .appliedPromoCode {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(65, 137, 91, 0.1);
+    padding: 0.8rem 1rem;
+    border-radius: 4px;
+    border-left: 3px solid var(--color-sage);
+  }
+  
+  .appliedPromoInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  
+  .appliedPromoTag {
+    font-weight: 600;
+    color: var(--color-forest-dark);
+  }
+  
+  .removePromoButton {
+    background: none;
+    border: none;
+    color: var(--color-gray);
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+  }
+  
+  .removePromoButton:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--color-error);
+  }
+  
+  .summaryContent {
+    margin-bottom: 1.5rem;
+  }
+  
+  .summaryRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    color: var(--color-dark-gray);
+  }
+  
+  .summaryRow:last-child {
+    border-bottom: none;
+  }
+  
+  .discountRow {
+    color: var(--color-forest);
+    font-weight: 500;
+  }
+  
+  .summaryTotal {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--color-forest-dark);
+    padding-top: 1rem;
+  }
+  
+  .shippingNote {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-white);
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    color: var(--color-forest);
+    font-size: 0.9rem;
+  }
+  
+  .checkoutButton {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    background-color: var(--color-forest);
+    color: var(--color-white);
+    border: none;
+    padding: 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 1.5rem;
+  }
+  
+  .checkoutButton:hover {
+    background-color: var(--color-forest-dark);
+  }
+  
+  .paymentMethods {
+    text-align: center;
+    color: var(--color-gray);
+    font-size: 0.9rem;
+  }
+  
+  .paymentIcons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  
+  .paymentIcon {
+    opacity: 0.7;
+  }
+  
+  /* Empty Cart */
+  .emptyCart {
+    text-align: center;
+    padding: 4rem 2rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .emptyCartIcon {
+    color: var(--color-sage);
+    margin-bottom: 1.5rem;
+  }
+  
+  .emptyCart h2 {
+    font-size: 1.8rem;
+    color: var(--color-forest-dark);
+    margin-bottom: 1rem;
+  }
+  
+  .emptyCart p {
+    color: var(--color-gray);
+    margin-bottom: 2rem;
+  }
+  
+  .startShoppingButton {
+    background-color: var(--color-forest);
+    color: var(--color-white);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .startShoppingButton:hover {
+    background-color: var(--color-forest-dark);
+  }
+  
+  /* Benefits Section */
+  .benefitsSection {
+    background-color: var(--color-sage-light);
+    padding: 3rem 2rem;
+  }
+  
+  .benefitsContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  
+  .benefitItem {
+    flex: 1;
+    min-width: 220px;
+    max-width: 300px;
+    text-align: center;
+  }
+  
+  .benefitIcon {
+    width: 60px;
+    height: 60px;
+    background-color: var(--color-white);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 1rem;
+    color: var(--color-sage);
+  }
+  
+  .benefitItem h3 {
+    color: var(--color-forest-dark);
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+  }
+  
+  .benefitItem p {
+    color: var(--color-dark-gray);
+    font-size: 0.9rem;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 900px) {
+    .cartLayout {
+      grid-template-columns: 1fr;
+    }
+    
+    .orderSummary {
+      position: static;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .heroTitle {
+      font-size: 2.5rem;
+    }
+    
+    .heroSubtitle {
+      font-size: 1.2rem;
+    }
+    
+    .cartItem {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    
+    .itemImageContainer {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .itemDetails {
+      align-items: center;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .heroTitle {
+      font-size: 2rem;
+    }
+    
+    .heroSubtitle {
+      font-size: 1.1rem;
+    }
+    
+    .cartSection {
+      padding: 2rem 1rem;
+    }
+  }

@@ -1,0 +1,284 @@
+.container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+  }
+  
+  .main {
+    flex: 1;
+  }
+  
+  /* Hero Section */
+  .heroSection {
+    background: var(--gradient-primary);
+    color: var(--color-white);
+    padding: 4rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+  
+  .heroSection::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4rem;
+    background: var(--color-white);
+    clip-path: polygon(0 100%, 100% 100%, 100% 0);
+  }
+  
+  .heroContent {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .heroTitle {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  
+  .heroSubtitle {
+    font-size: 1.3rem;
+    opacity: 0.9;
+  }
+  
+  /* Terms Section */
+  .termsSection {
+    background-color: var(--color-white);
+    padding: 1rem 2rem;
+  }
+  
+  .termsContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .termsLayout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.8rem;
+    color: var(--color-forest-dark);
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+  
+  .sectionTitle::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: var(--color-sage);
+  }
+  
+  /* Table of Contents Sidebar */
+  .tocSidebar {
+    align-self: start;
+    position: sticky;
+    top: 1rem;
+  }
+  
+  .tocCard {
+    background-color: var(--color-sage-light);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px var(--color-shadow);
+  }
+  
+  .tocTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--color-forest-dark);
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+  
+  .tocTitle::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: var(--color-sage);
+  }
+  
+  .tocList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+  }
+  
+  .tocList li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .tocList button {
+    background: none;
+    border: none;
+    padding: 0.5rem 0;
+    text-align: left;
+    width: 100%;
+    color: var(--color-dark-gray);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .tocList button:hover {
+    color: var(--color-forest);
+  }
+  
+  .lastUpdated {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-gray);
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 1rem;
+  }
+  
+  /* Terms Content */
+  .termsContent {
+    background-color: var(--color-white);
+  }
+  
+  .termsCard {
+    background-color: var(--color-white);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px var(--color-shadow);
+  }
+  
+  .termsSection {
+    margin-bottom: 3rem;
+  }
+  
+  .termsSection:last-child {
+    margin-bottom: 0;
+  }
+  
+  .sectionContent {
+    color: var(--color-dark-gray);
+    line-height: 1.6;
+  }
+  
+  .sectionContent p {
+    margin-bottom: 1rem;
+  }
+  
+  .sectionContent p:last-child {
+    margin-bottom: 0;
+  }
+  
+  .contactAddress {
+    padding: 1rem;
+    background-color: var(--color-sage-light);
+    border-radius: 6px;
+    margin-top: 1rem;
+    font-style: normal;
+    line-height: 1.6;
+  }
+  
+  /* Features Section */
+  .featuresSection {
+    background-color: var(--color-sage-light);
+    padding: 3rem 2rem;
+  }
+  
+  .featuresContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  
+  .featureItem {
+    flex: 1;
+    min-width: 220px;
+    max-width: 300px;
+    text-align: center;
+  }
+  
+  .featureIcon {
+    width: 60px;
+    height: 60px;
+    background-color: var(--color-white);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 1rem;
+    color: var(--color-sage);
+  }
+  
+  .featureItem h3 {
+    color: var(--color-forest-dark);
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+  }
+  
+  .featureItem p {
+    color: var(--color-dark-gray);
+    font-size: 0.9rem;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 900px) {
+    .termsLayout {
+      grid-template-columns: 1fr;
+    }
+    
+    .tocSidebar {
+      position: static;
+      margin-bottom: 2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .heroTitle {
+      font-size: 2.5rem;
+    }
+    
+    .heroSubtitle {
+      font-size: 1.2rem;
+    }
+    
+    .termsCard {
+      padding: 1.5rem;
+    }
+    
+    .sectionTitle {
+      font-size: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .heroTitle {
+      font-size: 2rem;
+    }
+    
+    .heroSubtitle {
+      font-size: 1.1rem;
+    }
+    
+    .termsSection {
+      padding: 2rem 1rem;
+    }
+  }

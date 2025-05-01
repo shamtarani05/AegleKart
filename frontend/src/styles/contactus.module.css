@@ -175,9 +175,9 @@
   
   .formInput,
   .formTextarea {
-    width: 100%;
+    width: 90%;
     padding: 0.75rem;
-    border: 1px solid var(--color-light-gray);
+    border: 1px solid var(--color-sage);
     border-radius: 6px;
     font-family: inherit;
     font-size: 1rem;

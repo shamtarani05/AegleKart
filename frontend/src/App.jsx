@@ -8,6 +8,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import ReturnPolicy from './pages/ReturnPolicy'
 import ShippingPolicy from './pages/ShippingPolicy'
 
+
 function App() {
 
    return (
@@ -19,6 +20,7 @@ function App() {
          <Route path='/privacy' element={<PrivacyPolicy/>} />
          <Route path='/returns' element={<ReturnPolicy/>} />
          <Route path='/shipping' element={<ShippingPolicy/>} />
+
       </Routes>
    )
 }
