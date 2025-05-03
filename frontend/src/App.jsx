@@ -9,6 +9,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ReturnPolicy from "./pages/ReturnPolicy";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import Auth from "./pages/Auth";
+import CartPage from "./pages/CartPage";
+import TermsOfService from "./pages/TermsOfService";
+import Feedback from "./pages/Feedback"
 
 function App() {
   return (
@@ -23,8 +26,11 @@ function App() {
       <Route path="/auth/*" element={<Auth />} />
       {/* Redirect root to auth */}
       <Route path="/" element={<Navigate to="/auth" replace />} />
+      <Route path="/cart" element={<CartPage/>}/>
+      <Route path="/terms" element={<TermsOfService/>}/>
+      <Route path="/feedback" element={<Feedback/>}/>
     </Routes>
   );
-}
+} 
 
 export default App;

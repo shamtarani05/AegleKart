@@ -1,3 +1,8 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 :root {
     /* Primary Colors */
     --color-sage: #4CAF50;       /* Sage Green - Primary brand color */

@@ -63,7 +63,7 @@ const Footer = () => {
           <p><strong>Contact:</strong> +92 313-3502069 AEGLEKART | <a href="mailto:support@aeglekart.com">support@aeglekart.com</a></p>
         </div>
         <div className={styles.copyright}>
-          <p>&copy; {new Date().getFullYear()} Aegle Kart. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} AegleKart. All rights reserved.</p>
         </div>
       </div>
     </footer>
