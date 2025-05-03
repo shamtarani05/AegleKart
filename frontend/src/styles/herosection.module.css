@@ -1,0 +1,326 @@
+.heroSection {
+    position: relative;
+    width: 100%;
+    height: 450px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Main Swiper Container */
+  .heroSwiper {
+    height: 100%;
+    width: 100%;
+  }
+  
+  /* Slide Background Colors - Updated with your gradients */
+  .slideBgGreen {
+    background: linear-gradient(135deg, #8df390 0%, #5b905e 100%);
+  }
+  
+  .slideBgBlue {
+    background: linear-gradient(135deg, #9575CD 0%, #7dcff9 100%);
+  }
+  
+  .slideBgPink {
+    background: linear-gradient(135deg, #f5f172 0%, #E53935 100%);
+  }
+  
+  /* Slide Content Layout */
+  .slideContent {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  
+  /* Text Content Styling */
+  .textContent {
+    width: 50%;
+    color: white;
+    z-index: 10;
+    padding-right: 2rem;
+    margin-left: 7vw;
+    
+  }
+  
+  /* .iconContainer {
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 0.75rem;
+    border-radius: 12px;
+  } */
+  
+  .categoryIcon {
+    height: 2.5rem;
+    width: 2.5rem;
+    display: block;
+  }
+  
+  .slideTitle {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+  
+  .slideSubtitle {
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .slideTagline {
+    font-size: 1.125rem;
+    opacity: 0.9;
+    max-width: 400px;
+    margin-bottom: 2.5rem;
+    line-height: 1.5;
+  }
+  
+  /* CTA Button Styling */
+  .ctaButton {
+    background-color: white;
+    color: #2E7D32;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 1rem; 
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .ctaButton:hover {
+    background-color: #F5F5F5;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  .arrowIcon {
+    transition: transform 0.3s ease;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .ctaButton:hover .arrowIcon {
+    transform: translateX(4px);
+  }
+  
+  .buttonText {
+    display: inline-block;
+  }
+  
+  /* Product Image Styling */
+  .productImage {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+  }
+/*   
+  .imageFrame {
+    position: relative;
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    transition: transform 0.5s ease;
+  }
+  
+  .imageFrame:hover {
+    transform: translateY(-5px) scale(1.02);
+  } */
+  
+  .productImage img {
+    max-height: 400px;
+    object-fit: contain;
+    border-radius: 12px;
+  }
+  
+  /* Decorative Elements */
+  .decorativeElements {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  .decorCircle {
+    position: absolute;
+    border-radius: 50%;
+    background-color: white;
+  }
+  
+  .decorCircleLarge {
+    width: 280px;
+    height: 280px;
+    top: -100px;
+    right: -80px;
+    opacity: 0.1;
+  }
+  
+  .decorCircleMedium {
+    width: 180px;
+    height: 180px;
+    bottom: -60px;
+    left: -60px;
+    opacity: 0.08;
+  }
+  
+  .decorCircleSmall {
+    width: 80px;
+    height: 80px;
+    top: 40%;
+    left: 30%;
+    opacity: 0.06;
+  }
+  
+  .decorCircleXSmall {
+    width: 40px;
+    height: 40px;
+    top: 30%;
+    right: 35%;
+    opacity: 0.05;
+  }
+  
+  /* Navigation Buttons */
+  .swiperButtonPrev,
+  .swiperButtonNext {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.25) !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    display: grid !important;
+    place-items: center !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .swiperButtonPrev {
+    left: 20px !important;
+  }
+  
+  .swiperButtonNext {
+    right: 20px !important;
+  }
+  
+  .swiperButtonPrev:hover,
+  .swiperButtonNext:hover {
+    background-color: white !important;
+    color: #2E7D32 !important;
+    transform: scale(1.1) !important;
+  }
+  
+  .swiperButtonPrev::after,
+  .swiperButtonNext::after {
+    font-size: 18px !important;
+    font-weight: bold !important;
+  }
+  
+  /* Pagination Bullets */
+  .swiperBullet {
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+  }
+  
+  .swiperBulletActive {
+    width: 28px;
+    border-radius: 5px;
+    background-color: white;
+    opacity: 1;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 1024px) {
+    .slideTitle {
+      font-size: 3rem;
+    }
+    
+    .slideSubtitle {
+      font-size: 1.75rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .heroSection {
+      height: 600px;
+    }
+    
+    .slideContent {
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      padding-top: 1rem;
+      gap: 2rem;
+    }
+    
+    .textContent {
+      width: 100%;
+      padding-right: 3vh;
+    }
+    
+    .slideTitle {
+      font-size: 2.5rem;
+    }
+    
+    .slideSubtitle {
+      font-size: 1.5rem;
+    }
+    
+    .slideTagline {
+      margin: 0 auto 2rem auto;
+    }
+    
+    .ctaButton {
+      margin: 0 auto;
+      display: inline-flex;
+    }
+    
+    .productImage {
+      width: 90%;
+    }
+    
+    .productImage img {
+      max-height: 220px;
+    }
+    
+    .decorCircleLarge {
+      width: 200px;
+      height: 200px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .slideTitle {
+      font-size: 2rem;
+    }
+    
+    .slideSubtitle {
+      font-size: 1.25rem;
+    }
+    
+    .slideTagline {
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+  }
