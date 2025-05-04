@@ -1,28 +1,21 @@
 import { useState } from 'react';
 import styles from '../styles/medicinecard.module.css'; 
 import { Heart, ShoppingCart, Info, AlertCircle, Check } from 'lucide-react';
-
-export default function MedicineCard({
-  medicineName,
-  image,
-  price,
-  originalPrice,
-  manufacturer,
-  discount,
-  stock,
-  description,
-  delivery,
-  isPrescriptionRequired
-}) {
+import useCartStore from '../stores/cart-store';
+export default function MedicineCard({ product }) 
+ {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-
+  const addToCart = useCartStore((state) => state.addToCart);
+  console.log(product);
   const handleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
 
   const handleAddToCart = () => {
+    if (!product.stock) return; // Prevent adding to cart if out of stock
+    addToCart(product);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
@@ -36,8 +29,8 @@ export default function MedicineCard({
       <div className={styles.card}>
         <div className={styles.imageContainer}>
           <img 
-            src={image} 
-            alt={medicineName} 
+            src={product.image} 
+            alt={product.name} 
             className={styles.medicineImage} 
           />
           <button 
@@ -51,25 +44,25 @@ export default function MedicineCard({
               color={isFavorite ? "#FF5722" : "#757575"} 
             />
           </button>
-          {isPrescriptionRequired && <div className={styles.badge}>Rx</div>}
+          {product.isPrescriptionRequired && <div className={styles.badge}>Rx</div>}
         </div>
         
         <div className={styles.contentContainer}>
-          <h3 className={styles.medicineName}>{medicineName}</h3>
-          <p className={styles.manufacturer}>Manufactured by {manufacturer}</p>
+          <h3 className={styles.medicineName}>{product.name}</h3>
+          <p className={styles.manufacturer}>Manufactured by {product.manufacturer}</p>
           
           <div className={styles.priceContainer}>
-            <span className={styles.price}>₹{price}</span>
-            {originalPrice && (
+            <span className={styles.price}>₹{product.price}</span>
+            {product.originalPrice && (
               <>
-                <span className={styles.mrp}>MRP: <span className={styles.strikethrough}>₹{originalPrice}</span></span>
-                {discount && <span className={styles.discount}>{discount}% OFF</span>}
+                <span className={styles.mrp}>MRP: <span className={styles.strikethrough}>₹{product.originalPrice}</span></span>
+                {product.discount && <span className={styles.discount}>{product.discount}% OFF</span>}
               </>
             )}
           </div>
           
           <div className={styles.stockInfo}>
-            {stock ? (
+            {product.stock ? (
               <div className={styles.inStock}>
                 <Check size={16} className={styles.checkIcon} />
                 <span>In Stock</span>
@@ -80,14 +73,14 @@ export default function MedicineCard({
                 <span>Out of Stock</span>
               </div>
             )}
-            {delivery && <div className={styles.delivery}>Delivery in {delivery}</div>}
+            {product.delivery && <div className={styles.delivery}>Delivery in {product.delivery}</div>}
           </div>
           
           <div className={styles.buttonContainer}>
             <button 
               className={`${styles.addToCartButton} ${isAdded ? styles.added : ''}`}
               onClick={handleAddToCart}
-              disabled={!stock}
+              disabled={!product.stock}
             >
               {isAdded ? (
                 <>
@@ -125,9 +118,9 @@ export default function MedicineCard({
               </button>
             </div>
             <p className={styles.infoDescription}>
-              {description}
+              {product.description}
             </p>
-            {isPrescriptionRequired && (
+            {product.isPrescriptionRequired && (
               <div className={styles.infoAlert}>
                 <AlertCircle size={16} />
                 <span>Prescription required for purchase</span>

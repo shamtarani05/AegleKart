@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Search, MapPin, Download, ShoppingCart, User, ChevronDown, Clock, Heart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from '../styles/header.module.css';
+import useCartStore from '../stores/cart-store';
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
+  const cartItems = useCartStore((state) => state.cart);  
   
   const categories = [
     { name: 'Medicines', icon: null},
@@ -80,7 +82,7 @@ export default function Header() {
               onClick={handleCartClick}>
               <ShoppingCart className={styles.buttonIcon} />
               <span className={styles.buttonText}>Cart</span>
-              <span className={styles.cartBadge}>0</span>
+              <span className={styles.cartBadge}>{cartItems.reduce((acc, item) => acc + item.quantity, 0)}</span>
             </button>
           </div>
         </div>

@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import CartPage from "./pages/CartPage";
 import TermsOfService from "./pages/TermsOfService";
 import Feedback from "./pages/Feedback"
+import ProductsPage from "./pages/ProductsPage";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
       <Route path="/cart" element={<CartPage/>}/>
       <Route path="/terms" element={<TermsOfService/>}/>
       <Route path="/feedback" element={<Feedback/>}/>
+      <Route path = "/products/:category" element={<ProductsPage/>}/>
     </Routes>
   );
 } 
