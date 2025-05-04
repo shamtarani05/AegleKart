@@ -1,0 +1,364 @@
+/* productspage.module.css */
+
+.productsPageContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-light-gray);
+  font-family: 'Poppins', sans-serif;
+}
+
+.mainContent {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Search Section */
+.searchSection {
+  margin-bottom: 2rem;
+}
+
+.searchContainer {
+  display: flex;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 2px solid var(--color-sage-light);
+  transition: all 0.3s ease;
+}
+
+.searchContainer:focus-within {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-sage);
+}
+
+.searchInput {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: none;
+  font-size: 1rem;
+  color: var(--color-dark-gray);
+}
+
+.searchInput:focus {
+  outline: none;
+}
+
+.searchButton {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 0 1.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.searchButton:hover {
+  background: linear-gradient(45deg, var(--color-forest-dark), var(--color-sage));
+}
+
+/* Filter Section */
+.filterSection {
+  background-color: var(--color-white);
+  padding: 1.8rem;
+  border-radius: 12px;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid var(--color-sage);
+  position: relative;
+  overflow: hidden;
+}
+
+.filterSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: var(--color-sage-light);
+  border-radius: 50%;
+  transform: translate(40%, -40%);
+  opacity: 0.4;
+}
+
+.filterSection h2 {
+  color: var(--color-forest-dark);
+  font-size: 1.3rem;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.filterSection h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: var(--gradient-primary);
+  border-radius: 3px;
+}
+
+.filterOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.filterGroup {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filterGroup label {
+  display: block;
+  margin-bottom: 0.6rem;
+  color: var(--color-dark-gray);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.filterSelect {
+  width: 100%;
+  padding: 0.85rem;
+  border: 1px solid var(--color-sage-muted);
+  border-radius: 8px;
+  background-color: var(--color-white);
+  color: var(--color-dark-gray);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.filterSelect:focus {
+  border-color: var(--color-sage);
+  box-shadow: 0 0 0 3px var(--color-sage-light);
+  outline: none;
+}
+
+.filterSelect:hover {
+  border-color: var(--color-sage);
+}
+
+/* Section Titles */
+.sectionTitle {
+  color: var(--color-forest-dark);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  position: relative;
+  padding-left: 1rem;
+  border-left: 4px solid var(--color-sage);
+}
+
+/* Product Slider Section */
+.productSliderSection {
+  margin-bottom: 3rem;
+  background-color: var(--color-white);
+  border-radius: 12px;
+  padding: 1.8rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+/* Slider Navigation - Above the cards */
+.sliderNavigation {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  gap: 0.6rem;
+  z-index: 5;
+}
+
+/* Slider Container */
+.sliderContainer {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 1rem 0;
+  margin-top: 0.5rem;
+}
+
+.slider {
+  display: flex;
+  width: 100%;
+  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.sliderItem {
+  flex: 0 0 25%; /* Each item takes exactly 25% width */
+  padding: 0 0.75rem; /* Add padding for spacing between cards */
+  box-sizing: border-box;
+  opacity: 0.85;
+  transition: all 0.4s ease;
+}
+
+.medicineCardWrapper {
+  height: 100%;
+  transform-origin: center bottom;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.sliderItem:hover .medicineCardWrapper {
+  transform: translateY(-8px);
+  opacity: 1;
+}
+
+.sliderButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-white);
+  color: var(--color-forest);
+  border: 2px solid var(--color-sage);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  box-shadow: 0 4px 8px var(--color-shadow);
+  transition: all 0.3s ease;
+}
+
+.sliderButton:hover {
+  transform: scale(1.1);
+  background: var(--color-sage);
+  color: var(--color-white);
+  box-shadow: 0 6px 12px var(--color-shadow);
+}
+
+.sliderButton.disabled {
+  background: var(--color-light-gray);
+  color: var(--color-gray);
+  border-color: var(--color-gray);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.sliderPagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+}
+
+.paginationDot {
+  width: 24px;
+  height: 6px;
+  border-radius: 3px;
+  background-color: var(--color-sage-muted);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.paginationDot.activeDot {
+  background-color: var(--color-sage);
+  width: 32px;
+}
+
+.paginationDot:hover {
+  background-color: var(--color-sage-light);
+}
+
+/* Loading and Error states */
+.loadingContainer, .errorContainer, .noProducts {
+  background-color: var(--color-white);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.errorContainer {
+  color: var(--color-red);
+  border-left: 4px solid var(--color-red);
+}
+
+.noProducts {
+  color: var(--color-dark-gray);
+  font-style: italic;
+  padding: 3rem;
+  border-left: 4px solid var(--color-gray);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+  .sliderItem {
+    flex: 0 0 33.33%; /* 3 items per row */
+  }
+}
+
+@media (max-width: 900px) {
+  .sliderItem {
+    flex: 0 0 50%; /* 2 items per row */
+  }
+  
+  .filterOptions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .filterGroup {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .sliderItem {
+    flex: 0 0 100%; /* 1 item per row */
+  }
+  
+  .searchContainer {
+    flex-direction: column;
+  }
+  
+  .searchButton {
+    width: 100%;
+    padding: 0.8rem;
+  }
+  
+  .sliderNavigation {
+    position: static;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .productSliderSection {
+    padding: 1.2rem;
+  }
+}

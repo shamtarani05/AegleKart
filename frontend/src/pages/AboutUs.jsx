@@ -59,7 +59,7 @@ const AboutUs = () => {
             <div className={styles.historyText}>
               <h2 className={styles.sectionTitle}>Our History</h2>
               <p className={styles.historyParagraph}>
-                Founded in 1998 by Dr. Sarah Williams, Herbal Remedies began as a small apothecary shop dedicated to preserving traditional herbal remedies from around the world.
+                Founded in 2025 by Mr. Sham Tarani, Herbal Remedies began as a small apothecary shop dedicated to preserving traditional herbal remedies from around the world.
               </p>
               <p className={styles.historyParagraph}>
                 Over two decades later, we've grown into a trusted provider of natural health solutions while staying true to our roots. Our team of herbalists, naturopaths, and scientists work together to create formulations that honor tradition while meeting modern quality standards.
@@ -84,7 +84,7 @@ const AboutUs = () => {
           <div className={styles.teamGrid}>
             <div className={styles.teamMember}>
               <div className={styles.teamMemberImage}>
-                <img src="https://via.placeholder.com/200" alt="Engr. Sham Tarani" className={styles.memberImg} />
+                <img src="./shampic2.jpg" alt="Engr. Sham Tarani" className={styles.memberImg} />
               </div>
               <h3 className={styles.memberName}>Engr. Sham Tarani</h3>
               <p className={styles.memberTitle}>Founder & CEO</p>
@@ -93,7 +93,7 @@ const AboutUs = () => {
 
             <div className={styles.teamMember}>
               <div className={styles.teamMemberImage}>
-                <img src="https://via.placeholder.com/200" alt="Engr. Abdul Moiz" className={styles.memberImg} />
+                <img src="./moizpic.jpg" alt="Engr. Abdul Moiz" className={styles.memberImg} />
               </div>
               <h3 className={styles.memberName}>Engr. Abdul Moiz</h3>
               <p className={styles.memberTitle}>Head of Product Management</p>
