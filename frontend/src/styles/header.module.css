@@ -370,9 +370,8 @@
 
 .categoryLink:hover {
   color: var(--color-forest);
-  background-color: var(--color-white);
   transform: translateY(-1px);
-  border-bottom: 1.5px solid var(--color-lavender);
+  border-bottom: 2px solid var(--color-lavender);
   transition: all 0.1s;
   text-decoration: none;
 }
