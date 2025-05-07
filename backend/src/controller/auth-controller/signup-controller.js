@@ -40,12 +40,16 @@ const signupController = async (req, res) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'AegleKart Verification OTP',
-        text: `Your OTP is: ${otpCode}`,
+        text: `Your AegleKart verification code is: ${otpCode} 
+Please enter this code to complete your verification. 
+Do not share this code with anyone. It will expire in 5 minutes.
+
+Thank you for choosing AegleKart — your trusted healthcare partner.`,
       });
     } else {
       await twilioClient.messages.create({
         body: `Your OTP is: ${otpCode}`,
-        from:  process.env.TWILIO_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER,
         to: phoneNumber,
       });
     }

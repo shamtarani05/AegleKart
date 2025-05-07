@@ -1,16 +1,21 @@
 import { useState } from 'react';
 import styles from '../../styles/auth.module.css';
+import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../../stores/auth-store';
 
-const Register = ({ onRegisterSuccess }) => {
+const Register = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    phoneNumber: ''
+    phoneNumber: '',
+    preferredMethod: 'email',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,17 +38,24 @@ const Register = ({ onRegisterSuccess }) => {
     }
 
     try {
-      // Replace with your actual registration API call
-      // Example: const response = await registerUser(formData);
-      console.log('Registration attempt with:', formData);
-      
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // On successful registration, navigate to OTP verification
-      onRegisterSuccess(formData.email, formData.phoneNumber);
+      const response = await fetch('http://localhost:3000/auth/signup', {
+        method: 'POST',
+        headers: {  
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setLoading(false);
+        alert('Verification code sent to your email!');
+        setUser(formData);
+        navigate('/auth/verify-otp');
+        return;
+      }
+      setError(data.message);
     } catch (err) {
-      setError(err.message || 'Failed to register. Please try again.');
+      console.error(err);
     } finally {
       setLoading(false);
     }

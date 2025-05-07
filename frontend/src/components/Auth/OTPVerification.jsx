@@ -1,108 +1,132 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from '../../styles/auth.module.css';
+import useAuthStore from '../../stores/auth-store';
 
-const OTPVerification = ({ email, phone, onBackClick, onVerificationComplete }) => {
-  const [otp, setOtp] = useState(['', '', '', '']);
-  const [timer, setTimer] = useState(30);
+const OTPVerification = ({ onBackClick, onVerificationComplete }) => {
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [timer, setTimer] = useState(300); // 5 minutes in seconds
   const [resendDisabled, setResendDisabled] = useState(true);
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const inputRefs = useRef([]);
-  
-  // Setup references for OTP inputs
+  const user = useAuthStore((state) => state.user);
+  const clearuser = useAuthStore((state) => state.clearUser);
+
+  const contactMethod = user?.email;
+  const contactType = user?.email ? 'email' : 'phone';
+
+  const formatTime = (seconds) => {
+    const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const secs = String(seconds % 60).padStart(2, '0');
+    return `${mins}:${secs}`;
+  };
+
   useEffect(() => {
-    inputRefs.current = inputRefs.current.slice(0, 4);
+    inputRefs.current = inputRefs.current.slice(0, 6);
   }, []);
-  
-  // Countdown timer for OTP resend
+
   useEffect(() => {
     let interval = null;
     if (timer > 0 && resendDisabled) {
       interval = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
+        setTimer((prev) => prev - 1);
       }, 1000);
-    } else if (timer === 0 && resendDisabled) {
+    } else if (timer === 0) {
       setResendDisabled(false);
     }
     return () => clearInterval(interval);
   }, [timer, resendDisabled]);
-  
-  // Handle OTP input changes
+
   const handleOtpChange = (e, index) => {
     const value = e.target.value;
-    
-    // Only allow single digit
-    if (value && !/^\d{1}$/.test(value)) return;
-    
+    if (value && !/^\d$/.test(value)) return;
+
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-    
-    // Auto-focus next input
-    if (value && index < 3) {
+
+    if (value && index < 5) {
       inputRefs.current[index + 1].focus();
     }
   };
-  
-  // Handle backspace key
+
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      // Focus previous input when backspace is pressed on empty input
       inputRefs.current[index - 1].focus();
     }
   };
-  
-  // Handle paste for OTP
+
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text/plain').trim();
-    
-    // Check if pasted content is a 4 digit number
-    if (/^\d{4}$/.test(pastedData)) {
-      const digits = pastedData.split('');
+    const pasted = e.clipboardData.getData('text').trim();
+    if (/^\d{6}$/.test(pasted)) {
+      const digits = pasted.split('');
       setOtp(digits);
-      
-      // Focus last input
-      inputRefs.current[3].focus();
+      inputRefs.current[5]?.focus();
     }
   };
-  
-  // Handle OTP resend
-  const handleResendOTP = () => {
-    // Reset timer and disable button
-    setTimer(30);
-    setResendDisabled(true);
-    
-    // Here you would implement actual API call to resend OTP
-    console.log('Resending OTP to:', email || phone);
-    
-    // Clear any previous errors
-    setError('');
-  };
-  
-  // Handle OTP verification
-  const handleVerify = () => {
+
+  const handleVerify = async () => {
     const otpValue = otp.join('');
-    
-    if (otpValue.length !== 4) {
-      setError('Please enter the complete 4-digit OTP');
+    if (otpValue.length !== 6) {
+      setError('Please enter a 6-digit OTP.');
       return;
     }
-    
+
     setIsVerifying(true);
-    
-    // Here you would implement actual API call to verify OTP
-    console.log('Verifying OTP:', otpValue);
-    
-    // Mock successful verification
-    setTimeout(() => {
+    setError('');
+    console.log('Verifying OTP:', otpValue, contactMethod);
+
+    try {
+      const response = await fetch('http://localhost:3000/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: otpValue, contact: contactMethod }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        onVerificationComplete();
+        clearuser();
+        console.log('OTP verified successfully:', result);
+      } else {
+        setError(result.message || 'Verification failed.');
+        setResendDisabled(false);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Something went wrong. Please try again.');
+      setResendDisabled(false);
+    } finally {
       setIsVerifying(false);
-      onVerificationComplete();
-    }, 1000);
+    }
   };
-  
-  const contactMethod = email ? email : phone;
-  const contactType = email ? 'email' : 'phone';
+
+  const handleResendOTP = async () => {
+
+    setTimer(300); // Reset to 5 minutes
+    setResendDisabled(true);
+    setError('');
+
+    const response = await fetch('http://localhost:3000/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contact: contactMethod }), // make sure this matches your backend
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log('Resend OTP request sent successfully:', result);
+      setOtp(['', '', '', '', '', '']);
+      setResendDisabled(true);
+      return;
+    }
+    setError(result.message || 'Failed to resend OTP.');
+    setResendDisabled(false);
+
+  }
 
   return (
     <div className={styles.authContainer}>
@@ -111,13 +135,12 @@ const OTPVerification = ({ email, phone, onBackClick, onVerificationComplete }) 
           <div className={styles.formContainer}>
             <h2 className={styles.formTitle}>Verify Your Account</h2>
             <p className={styles.formSubtitle}>
-              Enter the 4-digit code sent to your {contactType}:
-              <br />
+              Enter the 6-digit code sent to your {contactType}: <br />
               <strong>{contactMethod}</strong>
             </p>
-            
+
             {error && <div className={styles.errorMessage}>{error}</div>}
-            
+
             <div className={styles.otpContainer}>
               {otp.map((digit, index) => (
                 <input
@@ -134,32 +157,28 @@ const OTPVerification = ({ email, phone, onBackClick, onVerificationComplete }) 
                 />
               ))}
             </div>
-            
-            {/* Only this button is centered */}
+
             <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-              <button 
-                onClick={handleVerify} 
+              <button
+                onClick={handleVerify}
                 className={styles.submitButton}
                 disabled={isVerifying}
               >
                 {isVerifying ? 'Verifying...' : 'Verify & Continue'}
               </button>
             </div>
-            
+
             <div className={styles.resendContainer}>
               {resendDisabled ? (
-                <p className={styles.timerText}>Resend code in {timer}s</p>
+                <p className={styles.timerText}>Resend code in {formatTime(timer)}</p>
               ) : (
                 <button onClick={handleResendOTP} className={styles.resendBtn}>
                   Resend Code
                 </button>
               )}
             </div>
-            
-            <button 
-              onClick={onBackClick} 
-              className={styles.secondaryButton}
-            >
+
+            <button onClick={onBackClick} className={styles.secondaryButton}>
               Back
             </button>
           </div>
