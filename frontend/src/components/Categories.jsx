@@ -60,7 +60,7 @@ const CategorySection = () => {
     if (!isHovering) {
       intervalRef.current = setInterval(() => {
         nextSlide();
-      }, 5000);
+      }, 4000);
     }
     
     return () => {

@@ -3,10 +3,15 @@ import { Search, MapPin, Download, ShoppingCart, User, ChevronDown, Clock, Heart
 import { Link, useNavigate } from 'react-router-dom';
 import styles from '../styles/header.module.css';
 import useCartStore from '../stores/cart-store';
+import useAuthStore from '../stores/auth-store';
+import LoggedIn from './LoggedIn';
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const cartItems = useCartStore((state) => state.cart);  
+  const user = useAuthStore((state) => state.user);
+  const isLoggedIn = !!user; // Convert user object to boolean
+  const clearUser = useAuthStore((state) => state.clearUser);
   
   const categories = [
     { name: 'Medicines', icon: null},
@@ -26,6 +31,11 @@ export default function Header() {
   const handleCartClick = () => {
     navigate('/cart');
   }
+  
+  const handleLogout = () => {
+    clearUser(); // Use the auth store's clearUser method
+    // Additional logout logic if needed
+  };
 
   return (
     <header className={styles.header}>
@@ -70,12 +80,19 @@ export default function Header() {
               <ChevronDown className={styles.chevronIcon} />
             </div>
 
-            {/* User Account */}
-            <button className={styles.accountButton}
-             onClick={handleAccountClick}>
-              <User className={styles.buttonIcon} />
-              <span className={styles.buttonText}>Account</span>
-            </button>
+            {/* Conditional rendering for Account/LoggedIn using auth store */}
+            {isLoggedIn ? (
+              <LoggedIn 
+                userName={user.name || user.email || 'User'} // Use appropriate user property
+                onLogout={handleLogout}
+              />
+            ) : (
+              <button className={styles.accountButton}
+               onClick={handleAccountClick}>
+                <User className={styles.buttonIcon} />
+                <span className={styles.buttonText}>Account</span>
+              </button>
+            )}
 
             {/* Cart */}
             <button className={styles.cartButton}
