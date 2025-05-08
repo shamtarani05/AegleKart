@@ -10,9 +10,10 @@ const OTPVerification = ({ onBackClick, onVerificationComplete }) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const inputRefs = useRef([]);
   const user = useAuthStore((state) => state.user);
-  const clearuser = useAuthStore((state) => state.clearUser);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const contactMethod = user?.email;
+  const purpose = user?.purpose;
   const contactType = user?.email ? 'email' : 'phone';
 
   const formatTime = (seconds) => {
@@ -75,58 +76,56 @@ const OTPVerification = ({ onBackClick, onVerificationComplete }) => {
 
     setIsVerifying(true);
     setError('');
-    console.log('Verifying OTP:', otpValue, contactMethod);
 
-    try {
-      const response = await fetch('http://localhost:3000/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ otp: otpValue, contact: contactMethod }),
-      });
+    const resetformdata = {
+      email: contactMethod,
+      otp: otpValue,
+      purpose: purpose,
+    };
 
-      const result = await response.json();
 
-      if (response.ok) {
-        onVerificationComplete();
-        clearuser();
-        console.log('OTP verified successfully:', result);
-      } else {
-        setError(result.message || 'Verification failed.');
-        setResendDisabled(false);
-      }
-    } catch (err) {
-      console.error(err);
-      setError('Something went wrong. Please try again.');
-      setResendDisabled(false);
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
-  const handleResendOTP = async () => {
-
-    setTimer(300); // Reset to 5 minutes
-    setResendDisabled(true);
-    setError('');
-
-    const response = await fetch('http://localhost:3000/auth/signup', {
+    const response = await fetch('http://localhost:3000/auth/verify-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contact: contactMethod }), // make sure this matches your backend
+      body: JSON.stringify({ otp: otpValue, contact: contactMethod, purpose: purpose }),
     });
 
     const result = await response.json();
 
     if (response.ok) {
-      console.log('Resend OTP request sent successfully:', result);
-      setOtp(['', '', '', '', '', '']);
+      setUser(resetformdata);
+      onVerificationComplete();
+    } else {
+      setError(result.message || 'Verification failed.');
+      setIsVerifying(false)
+      setResendDisabled(false);
+    }
+
+  };
+
+  const handleResendOTP = async () => {
+    setOtp(['', '', '', '', '', '']);
+    setError('');
+    setUser({ ...user, purpose: purpose });
+
+    const response = await fetch('http://localhost:3000/auth/resend-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(user),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+
+      setTimer(300); // Reset to 5 minutes
+      setResendDisabled(true);
       setResendDisabled(true);
       return;
     }
     setError(result.message || 'Failed to resend OTP.');
     setResendDisabled(false);
-
-  }
+  };
 
   return (
     <div className={styles.authContainer}>
