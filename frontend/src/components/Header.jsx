@@ -125,11 +125,11 @@ export default function Header() {
           <ul className={styles.categoryList}>
             {categories.map((category, index) => (
               <li key={index} className={styles.categoryItem}>
-                <a href="#" className={styles.categoryLink}>
+                <Link to={`/products/${category.name.toLowerCase().replace(/\s+/g, '-')}`} className={styles.categoryLink}>
                   {category.icon && <span className={styles.categoryIcon}>{category.icon}</span>}
                   {category.name}
                   <ChevronDown className={styles.categoryChevron} />
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

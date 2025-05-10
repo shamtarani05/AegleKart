@@ -1,0 +1,383 @@
+.adminPageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fb;
+  margin-left: 260px; /* Add margin to account for fixed sidebar */
+}
+
+.adminContentWrapper {
+  display: flex;
+  flex: 1;
+  background-color: #f8f9fb;
+}
+
+/* Reuse sidebar styles from adminDashboard.module.css */
+
+.adminMainContent {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.pageTitle {
+  display: flex;
+  align-items: center;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: #5469d4;
+  cursor: pointer;
+  margin-right: 15px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adminHeader h1 {
+  font-size: 28px;
+  color: #1c2033;
+  margin: 0;
+}
+
+/* Form Styling */
+.formContainer {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.productForm {
+  width: 100%;
+}
+
+/* Fix the grid layout to prevent overlapping */
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px; /* Add proper gap between grid items */
+  padding: 30px; /* Add padding to the entire grid */
+}
+
+.formSection {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.3s ease;
+  margin-bottom: 0; /* Remove bottom margin to let grid gap handle spacing */
+}
+
+.formSection:hover {
+  box-shadow: 0 0 15px rgba(84, 105, 212, 0.08);
+  z-index: 1;
+}
+
+.formSection h3 {
+  font-size: 20px;
+  color: #1c2033;
+  margin: 0 0 25px 0;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eaedf3;
+  font-weight: 600;
+  position: relative;
+}
+
+/* Fix for overlapping input fields */
+.formGroup {
+  margin-bottom: 20px;
+  width: 100%;
+  position: relative;
+}
+
+.formRow {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  flex-wrap: wrap; /* Allow wrapping if space is limited */
+}
+
+.formRow .formGroup {
+  flex: 1;
+  min-width: 200px; /* Ensure minimum width to prevent squishing */
+}
+
+.formControl {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #dfe3e8;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #1c2033;
+  transition: border-color 0.2s;
+  box-sizing: border-box; /* Include padding and border in element's width and height */
+  height: auto; /* Allow height to adjust to content */
+  min-height: 48px; /* Minimum height for consistency */
+}
+
+.formControl:focus {
+  border-color: #5469d4;
+  outline: none;
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.formCheckbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.formCheckbox input {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+}
+
+.formCheckbox label {
+  font-size: 15px;
+  color: #1c2033;
+}
+
+/* Array inputs styling */
+.arrayInputContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.arrayInput {
+  flex: 1;
+  min-width: 0; /* Allow input to shrink below min-content if needed */
+}
+
+.removeButton {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  margin-left: 10px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.removeButton:hover {
+  background-color: #fee2e2;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: 1px dashed #dfe3e8;
+  border-radius: 6px;
+  padding: 10px;
+  color: #5469d4;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.addButton:hover {
+  background-color: #f5f7fe;
+}
+
+.addButton svg {
+  margin-right: 8px;
+}
+
+/* Image upload styling */
+.imageUploadContainer {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.imageUploadLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #dfe3e8;
+  border-radius: 8px;
+  padding: 40px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #637381;
+}
+
+.imageUploadLabel:hover {
+  border-color: #5469d4;
+  color: #5469d4;
+}
+
+.imageUploadLabel svg {
+  margin-bottom: 15px;
+  color: #5469d4;
+}
+
+.imageUploadHint {
+  font-size: 12px;
+  margin-top: 8px;
+  color: #909090;
+}
+
+.imageUploadInput {
+  display: none;
+}
+
+/* Image upload container fixes */
+.imagePreviewContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.imagePreview {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.removeImageButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ef4444;
+}
+
+/* Form action buttons - updated to match theme */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding: 24px 30px;
+  background-color: #fafbfc;
+  border-top: 1px solid #eaedf3;
+}
+
+.cancelButton {
+  background-color: white;
+  border: 1px solid #dfe3e8;
+  color: #5469d4;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 5px rgba(84, 105, 212, 0.08);
+}
+
+.cancelButton:hover {
+  background-color: #f5f7ff;
+  border-color: #5469d4;
+}
+
+.submitButton {
+  background-color: #5469d4;
+  border: none;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(84, 105, 212, 0.3);
+}
+
+.submitButton:hover {
+  background-color: #4054b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(84, 105, 212, 0.4);
+}
+
+.submitButton:active, .cancelButton:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(84, 105, 212, 0.2);
+}
+
+/* Responsive styling */
+@media (max-width: 1200px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .adminPageContainer {
+    margin-left: 0; /* Remove margin on mobile */
+  }
+  
+  .formRow {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .adminMainContent {
+    padding: 20px 15px;
+  }
+  
+  .formGrid {
+    padding: 20px;
+  }
+  
+  .formSection {
+    padding: 20px;
+  }
+  
+  .formContainer {
+    padding: 20px;
+  }
+  
+  .formActions {
+    padding: 20px;
+  }
+}

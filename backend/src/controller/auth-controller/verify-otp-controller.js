@@ -10,13 +10,24 @@ const verifyOtpController = async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
-    const { fullName, email, password, phoneNumber } = record.payload;
+    const { fullName, email, password, phoneNumber, purpose } = record.payload;
+    if (purpose === 'signup') {
+      const user = new User({ fullName, email, password, phoneNumber });
+      await user.save();
+      return res.status(201).json({ message: 'User verified and created successfully' });
+      await OTP.deleteMany({ contact });
 
-    const user = new User({ fullName, email, password, phoneNumber });
-    await user.save();
-    await OTP.deleteMany({ contact });
+    }
+    else if (purpose === 'forgotpassword') {
 
-    res.status(201).json({ message: 'User verified and created successfully' });
+      res.status(201).json({ message: 'User verified and created successfully' });
+    }
+    else {
+      return res.status(400).json({ message: 'Invalid purpose' });
+    }
+   
+
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'OTP verification failed' });

@@ -18,7 +18,7 @@ const twilioClient = twilio(process.env.TWILIO_SID, process.env.AUTH_TOKEN);
 
 const signupController = async (req, res) => {
   try {
-    const { fullName, email, password, phoneNumber, preferredMethod } = req.body;
+    const { fullName, email, password, phoneNumber, preferredMethod,purpose } = req.body;
 
     const existingUser = await User.findOne({ $or: [{ email }, { phoneNumber }] });
     if (existingUser) {
@@ -32,20 +32,33 @@ const signupController = async (req, res) => {
     await OTP.create({
       contact,
       code: otpCode,
-      payload: { fullName, email, password: hashedPassword, phoneNumber },
+      payload: { fullName, email, password: hashedPassword, phoneNumber,purpose },
     });
 
     if (preferredMethod === 'email') {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+      const mailOptions = {
+        from: process.env.SENDER_EMAIL,
         to: email,
-        subject: 'AegleKart Verification OTP',
-        text: `Your OTP is: ${otpCode}`,
-      });
+        subject: 'AegleKart User Verification OTP',
+        html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+      <h2 style="color: #333;">AegleKart User Verification</h2>
+      <p>Your email verification code is:</p>
+      <div style="background-color: #f5f5f5; padding: 10px 15px; font-size: 24px; font-weight: bold; letter-spacing: 5px; text-align: center; margin: 20px 0; border-radius: 4px;">
+        ${otpCode}
+      </div>
+      <p>Please enter this code to complete your verification.</p>
+      <p><strong>Important:</strong> This code will expire in 5 minutes.</p>
+      <p style="color: #777; font-size: 12px; margin-top: 30px;">If you did not request a verfication, please ignore this email or contact support if you have concerns.</p>
+    </div>
+  `,
+        text: `Your AegleKart verfication code is: ${otpCode}. Please enter this code to complete your verfication. Do not share this code with anyone. It will expire in 5 minutes.`,
+    };
+    await transporter.sendMail(mailOptions);
     } else {
       await twilioClient.messages.create({
         body: `Your OTP is: ${otpCode}`,
-        from:  process.env.TWILIO_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER,
         to: phoneNumber,
       });
     }
