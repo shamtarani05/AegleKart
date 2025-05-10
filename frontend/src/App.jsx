@@ -13,6 +13,8 @@ import CartPage from "./pages/CartPage";
 import TermsOfService from "./pages/TermsOfService";
 import Feedback from "./pages/Feedback"
 import ProductsPage from "./pages/ProductsPage";
+import MedicineDescriptionPage from "./pages/MedicineDescriptionPage";
+import AddressDropdown from "./components/Address";
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
       <Route path="/terms" element={<TermsOfService/>}/>
       <Route path="/feedback" element={<Feedback/>}/>
       <Route path = "/products/:category" element={<ProductsPage/>}/>
+      <Route path = "/description" element={<MedicineDescriptionPage/>}/>
+      <Route path='/address' element={<AddressDropdown/>}/>
     </Routes>
   );
 } 

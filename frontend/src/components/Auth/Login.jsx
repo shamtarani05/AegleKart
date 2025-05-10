@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styles from '../../styles/auth.module.css';
-import  { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../../stores/auth-store';
 
 const Login = ({ navigateToForgotPassword }) => {
   const [formData, setFormData] = useState({
@@ -18,6 +19,8 @@ const Login = ({ navigateToForgotPassword }) => {
     });
   };
 
+  const setUser = useAuthStore((state) => state.setUser);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -33,12 +36,20 @@ const Login = ({ navigateToForgotPassword }) => {
 
     const data = await response.json();
     if (response.ok) {
+      console.log(data)
       alert('Login Successfully');
-      navigate('/');
-      return;
+      localStorage.setItem('token', data.token);
+      if (data.user.role === 'user') {
+        setUser(data.user)
+        navigate('/');
+        return;
+      }
+      navigate('/dashboard')
+
+
     }
     setError(data.message || 'Login failed. Please try again.');
-    setLoading(false);  
+    setLoading(false);
 
 
   }

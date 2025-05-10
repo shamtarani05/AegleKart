@@ -449,8 +449,8 @@ const ProductsPage = () => {
   // Group products into chunks of 10 for separate sliders
   useEffect(() => {
     const chunks = [];
-    for (let i = 0; i < filteredProducts.length; i += 9) {
-      chunks.push(filteredProducts.slice(i, i + 9));
+    for (let i = 0; i < filteredProducts.length; i += 12) {
+      chunks.push(filteredProducts.slice(i, i + 12));
     }
     setSliderGroups(chunks);
     

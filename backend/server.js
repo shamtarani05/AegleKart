@@ -1,20 +1,36 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const app = express();
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./src/config/mongodb-config');
 const authRoutes = require('./src/routes/auth-routes');
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const stripeRouter = require('./src/routes/stripeRoutes');
+const orderRouter = require('./src/routes/orderRoutes');
+
+
 
 dotenv.config();
 
-app.use(cors());
+app.use(helmet());
+
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true ,
+}));
+app.use('/stripe/webhook', express.raw({ type: 'application/json' }));
+app.use('/stripe', require('./src/routes/stripeWebhookRoutes'));
 app.use(express.json());
+app.use(cookieParser());
 
 const port = process.env.PORT || 3000;
 connectDB();
 
-app.use('/auth',authRoutes); // Use the auth routes for authentication-related endpoints
+app.use('/auth',authRoutes); // Use the auth routes for authentication-related 
+app.use('/stripe', stripeRouter);
+app.use('/orders', orderRouter);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
