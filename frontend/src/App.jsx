@@ -32,6 +32,7 @@ const ProtectedAdminRoute = ({ children }) => {
   
   return children;
 };
+import AddressDropdown from "./components/Address";
 
 function App() {
   return (
@@ -86,6 +87,7 @@ function App() {
           <AdminDashboard />
         </ProtectedAdminRoute>
       } />
+      <Route path='/address' element={<AddressDropdown/>}/>
     </Routes>
   );
 } 

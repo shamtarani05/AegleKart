@@ -1,24 +1,25 @@
 import { useState } from 'react';
-import styles from '../styles/medicinecard.module.css'; 
-import { Heart, ShoppingCart, Info, AlertCircle, Check } from 'lucide-react';
+import styles from '../styles/medicinecard.module.css';
+import { Heart, ShoppingCart, Info, AlertCircle, Check, X } from 'lucide-react';
 import useCartStore from '../stores/cart-store';
-export default function MedicineCard({ product }) 
- {
+
+export default function MedicineCard({ product }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const addToCart = useCartStore((state) => state.addToCart);
-  console.log(product);
+  
   const handleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
 
+  const addToCart = useCartStore((state) => state.addToCart);
   const handleAddToCart = () => {
     if (!product.stock) return; // Prevent adding to cart if out of stock
     addToCart(product);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
+
 
   const toggleInfo = () => {
     setShowInfo(!showInfo);
@@ -29,7 +30,7 @@ export default function MedicineCard({ product })
       <div className={styles.card}>
         <div className={styles.imageContainer}>
           <img 
-            src={product.image} 
+            src={product.image || "/api/placeholder/180/140"} 
             alt={product.name} 
             className={styles.medicineImage} 
           />
@@ -39,7 +40,7 @@ export default function MedicineCard({ product })
             aria-label="Add to favorites"
           >
             <Heart 
-              size={20} 
+              size={16} 
               fill={isFavorite ? "#FF5722" : "none"} 
               color={isFavorite ? "#FF5722" : "#757575"} 
             />
@@ -49,7 +50,7 @@ export default function MedicineCard({ product })
         
         <div className={styles.contentContainer}>
           <h3 className={styles.medicineName}>{product.name}</h3>
-          <p className={styles.manufacturer}>Manufactured by {product.manufacturer}</p>
+          <p className={styles.manufacturer}>By {product.manufacturer}</p>
           
           <div className={styles.priceContainer}>
             <span className={styles.price}>₹{product.price}</span>
@@ -64,16 +65,16 @@ export default function MedicineCard({ product })
           <div className={styles.stockInfo}>
             {product.stock ? (
               <div className={styles.inStock}>
-                <Check size={16} className={styles.checkIcon} />
+                <Check size={12} className={styles.checkIcon} />
                 <span>In Stock</span>
               </div>
             ) : (
               <div className={styles.outOfStock}>
-                <AlertCircle size={16} />
+                <AlertCircle size={12} />
                 <span>Out of Stock</span>
               </div>
             )}
-            {product.delivery && <div className={styles.delivery}>Delivery in {product.delivery}</div>}
+            {product.delivery && <div className={styles.delivery}>Delivery: {product.delivery}</div>}
           </div>
           
           <div className={styles.buttonContainer}>
@@ -84,11 +85,11 @@ export default function MedicineCard({ product })
             >
               {isAdded ? (
                 <>
-                  <Check size={18} /> Added
+                  <Check size={14} /> Added
                 </>
               ) : (
                 <>
-                  <ShoppingCart size={18} /> Add to Cart
+                  <ShoppingCart size={14} /> Add
                 </>
               )}
             </button>
@@ -97,37 +98,36 @@ export default function MedicineCard({ product })
               onClick={toggleInfo}
               aria-label="Show medication information"
             >
-              <Info size={20} />
+              <Info size={14} />
             </button>
           </div>
         </div>
         
-        <div className={`${styles.infoOverlay} ${showInfo ? styles.infoVisible : ''}`}>
-          <div className={styles.infoPanel}>
-            <div className={styles.infoHeader}>
-              <h4 className={styles.infoTitle}>Medication Information</h4>
-              <button 
-                className={styles.closeButton}
-                onClick={toggleInfo}
-                aria-label="Close information"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-            <p className={styles.infoDescription}>
-              {product.description}
-            </p>
-            {product.isPrescriptionRequired && (
-              <div className={styles.infoAlert}>
-                <AlertCircle size={16} />
-                <span>Prescription required for purchase</span>
+        {showInfo && (
+          <div className={styles.infoOverlay}>
+            <div className={styles.infoPanel}>
+              <div className={styles.infoHeader}>
+                <h4 className={styles.infoTitle}>Medication Info</h4>
+                <button 
+                  className={styles.closeButton}
+                  onClick={toggleInfo}
+                  aria-label="Close information"
+                >
+                  <X size={14} />
+                </button>
               </div>
-            )}
+              <p className={styles.infoDescription}>
+                {product.description || "No description available for this product."}
+              </p>
+              {product.isPrescriptionRequired && (
+                <div className={styles.infoAlert}>
+                  <AlertCircle size={12} />
+                  <span>Prescription required for purchase</span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

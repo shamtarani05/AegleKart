@@ -5,16 +5,17 @@ import styles from '../styles/header.module.css';
 import useCartStore from '../stores/cart-store';
 import useAuthStore from '../stores/auth-store';
 import LoggedIn from './LoggedIn';
+import CompactAddressDropdown from './Address';
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
-  const cartItems = useCartStore((state) => state.cart);  
+  const cartItems = useCartStore((state) => state.cart);
   const user = useAuthStore((state) => state.user);
   const isLoggedIn = !!user; // Convert user object to boolean
   const clearUser = useAuthStore((state) => state.clearUser);
-  
+
   const categories = [
-    { name: 'Medicines', icon: null},
+    { name: 'Medicines', icon: null },
     { name: 'Healthcare', icon: null },
     { name: 'Baby & Mother', icon: null },
     { name: 'Nutrition', icon: null },
@@ -31,11 +32,13 @@ export default function Header() {
   const handleCartClick = () => {
     navigate('/cart');
   }
-  
-  const handleLogout = () => {
-    clearUser(); // Use the auth store's clearUser method
-    // Additional logout logic if needed
+
+  const handleLogout = async () => {
+    console.log('Logout success');
+    localStorage.removeItem('token');
+    clearUser();
   };
+
 
   return (
     <header className={styles.header}>
@@ -43,7 +46,7 @@ export default function Header() {
       <div className={styles.promotionBar}>
         <span>🎉 Free delivery on orders above ₹499 | Use code AEGLE20 for 20% OFF on your first order</span>
       </div> */}
-      
+
       {/* Main Header */}
       <div className={styles.headerContainer}>
         <div className={styles.headerContent}>
@@ -56,9 +59,9 @@ export default function Header() {
 
           {/* Search Bar */}
           <div className={styles.searchBarDesktop}>
-            <input 
-              type="text" 
-              placeholder="Search for medicines, health products..." 
+            <input
+              type="text"
+              placeholder="Search for medicines, health products..."
               className={styles.searchInput}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -72,23 +75,18 @@ export default function Header() {
           <div className={styles.actionButtons}>
             {/* Location Selector */}
             <div className={styles.locationSelector}>
-              <MapPin className={styles.locationIcon} />
-              <div className={styles.locationText}>
-                <span className={styles.locationLabel}>Deliver to</span>
-                <span className={styles.locationValue}>Select location</span>
-              </div>
-              <ChevronDown className={styles.chevronIcon} />
+              <CompactAddressDropdown />
             </div>
 
             {/* Conditional rendering for Account/LoggedIn using auth store */}
             {isLoggedIn ? (
-              <LoggedIn 
-                userName={user.name || user.email || 'User'} // Use appropriate user property
+              <LoggedIn
+                userName={user.fullName || user.email || 'User'} // Use appropriate user property
                 onLogout={handleLogout}
               />
             ) : (
               <button className={styles.accountButton}
-               onClick={handleAccountClick}>
+                onClick={handleAccountClick}>
                 <User className={styles.buttonIcon} />
                 <span className={styles.buttonText}>Account</span>
               </button>
@@ -106,9 +104,9 @@ export default function Header() {
 
         {/* Mobile Search Bar */}
         <div className={styles.searchBarMobile}>
-          <input 
-            type="text" 
-            placeholder="Search AegleKart..." 
+          <input
+            type="text"
+            placeholder="Search AegleKart..."
             className={styles.searchInputMobile}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

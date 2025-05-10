@@ -1,298 +1,384 @@
-/* MedicineCard.module.css */
+/* CompactMedicineCard.module.css */
 .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
-  }
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem;
+  font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+  width: 100%;
+}
+
+.card {
+  position: relative;
+  width: 100%; /* Full width on smallest screens */
+  max-width: 240px; /* Maximum width on larger screens */
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 120px; /* Smaller on mobile */
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.medicineImage {
+  height: 90px; /* Smaller on mobile */
+  width: auto;
+  max-width: 80%;
+  object-fit: contain;
+  padding: 0.5rem;
+}
+
+.favoriteButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.favoriteButton:hover {
+  transform: scale(1.1);
+}
+
+.favoriteActive {
+  background-color: #FFF3F0;
+}
+
+.badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 6px;
+  background-color: #3b82f6; /* Blue color */
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 4px;
+  z-index: 2;
+}
+
+.contentContainer {
+  padding: 0.75rem;
+}
+
+.medicineName {
+  margin: 0 0 0.15rem 0;
+  font-size: 0.85rem;
+  color: #1f2937;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.manufacturer {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.7rem;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.priceContainer {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.price {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #047857; /* Green color */
+}
+
+.mrp {
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.strikethrough {
+  text-decoration: line-through;
+}
+
+.discount {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #ef4444; /* Red color */
+  background-color: #FEF2F2;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.stockInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.7rem;
+}
+
+.inStock {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #10b981; /* Green color */
+  font-weight: 500;
+}
+
+.checkIcon {
+  stroke-width: 3;
+}
+
+.outOfStock {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #ef4444; /* Red color */
+  font-weight: 500;
+}
+
+.delivery {
+  color: #6b7280;
+  font-size: 0.65rem;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.addToCartButton {
+  flex: 1;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(to right, #4f46e5, #3b82f6);
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 0.7rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addToCartButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.addToCartButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.added {
+  background: #10b981; /* Green color */
+}
+
+.infoButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.infoButton:hover {
+  background-color: #e5e7eb;
+}
+
+.infoOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(33, 33, 33, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 8px;
+}
+
+.infoPanel {
+  width: 85%;
+  max-height: 85%;
+  padding: 0.75rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+}
+
+.infoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.infoTitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.closeButton {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f3f4f6;
+  border-radius: 50%;
+  border: none;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: #e5e7eb;
+  transform: rotate(90deg);
+}
+
+.infoDescription {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.75rem;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.infoAlert {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem;
+  background-color: #FEF3C7;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  color: #92400E;
+}
+
+/* Responsive media queries */
+@media screen and (max-width: 320px) {
   .card {
-    position: relative;
-    width: 100%;
-    min-width: 315px;
-    background-color: var(--color-white);
-    border-radius: 12px;
-    box-shadow: 0 4px 16px var(--color-shadow);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    max-width: 100%;
   }
   
   .imageContainer {
-    position: relative;
-    width: 100%;
-    height: 250px;
-    background-color: var(--color-sage-light);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
+    height: 110px;
   }
   
   .medicineImage {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    padding: 1rem;
-  }
-  
-  .favoriteButton {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: var(--color-white);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 2px 8px var(--color-shadow);
-    transition: all 0.2s ease;
-  }
-  
-  .favoriteButton:hover {
-    transform: scale(1.1);
-  }
-  
-  .favoriteActive {
-    background-color: #FFF3F0;
-  }
-  
-  .badge {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    padding: 4px 8px;
-    background-color: var(--color-ocean);
-    color: var(--color-white);
-    font-size: 12px;
-    font-weight: 600;
-    border-radius: 4px;
-  }
-  
-  .contentContainer {
-    padding: 1rem;
+    height: 80px;
   }
   
   .medicineName {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.2rem;
-    color: var(--color-black);
-    font-weight: 600;
+    font-size: 0.8rem;
   }
   
   .manufacturer {
-    margin: 0 0 1rem 0;
-    font-size: 0.85rem;
-    color: var(--color-gray);
-  }
-  
-  .priceContainer {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    font-size: 0.65rem;
   }
   
   .price {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--color-forest);
-  }
-  
-  .mrp {
     font-size: 0.9rem;
-    color: var(--color-gray);
-  }
-  
-  .strikethrough {
-    text-decoration: line-through;
-  }
-  
-  .discount {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--color-sunset);
-    background-color: #FFF3F0;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-  
-  .stockInfo {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    font-size: 0.85rem;
-  }
-  
-  .inStock {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--color-success);
-    font-weight: 500;
-  }
-  
-  .checkIcon {
-    stroke-width: 3;
-  }
-  
-  .delivery {
-    color: var(--color-gray);
-  }
-  
-  .buttonContainer {
-    display: flex;
-    gap: 0.5rem;
   }
   
   .addToCartButton {
-    flex: 1;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    background: var(--gradient-primary);
-    color: var(--color-white);
-    font-weight: 500;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .addToCartButton:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
-  }
-  
-  .added {
-    background: var(--color-success);
+    height: 30px;
+    font-size: 0.65rem;
   }
   
   .infoButton {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--color-sage-light);
-    color: var(--color-forest);
-    border-radius: 8px;
-    border: 1px solid var(--color-sage-muted);
-    cursor: pointer;
-    transition: all 0.2s ease;
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media screen and (min-width: 321px) and (max-width: 480px) {
+  .card {
+    max-width: 200px;
+  }
+}
+
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .card {
+    max-width: 220px;
   }
   
-  .infoButton:hover {
-    background-color: var(--color-sage-muted);
+  .imageContainer {
+    height: 130px;
   }
   
-  .infoOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(33, 33, 33, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    z-index: 10;
-    border-radius: 12px;
+  .medicineImage {
+    height: 95px;
+  }
+}
+
+@media screen and (min-width: 769px) {
+  .card {
+    max-width: 240px;
   }
   
-  .outOfStock {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--color-error);
-    font-weight: 500;
+  .imageContainer {
+    height: 140px;
   }
   
-  .infoVisible {
-    opacity: 1;
-    visibility: visible;
+  .medicineImage {
+    height: 100px;
   }
   
-  .infoPanel {
-    width: 85%;
-    max-height: 85%;
-    padding: 1.25rem;
-    background-color: var(--color-white);
-    border-radius: 10px;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
-    overflow-y: auto;
-    transform: translateY(20px);
-    opacity: 0;
-    transition: transform 0.4s ease, opacity 0.4s ease;
-  }
-  
-  .infoVisible .infoPanel {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  
-  .infoHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  
-  .infoTitle {
-    margin: 0;
-    font-size: 1.1rem;
-    color: var(--color-black);
-  }
-  
-  .closeButton {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--color-light-gray);
-    border-radius: 50%;
-    border: none;
-    color: var(--color-dark-gray);
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .closeButton:hover {
-    background-color: #E0E0E0;
-    transform: rotate(90deg);
-  }
-  
-  .infoDescription {
-    margin: 0 0 1rem 0;
+  .medicineName {
     font-size: 0.9rem;
-    color: var(--color-dark-gray);
-    line-height: 1.5;
   }
   
-  .infoAlert {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0.75rem;
-    background-color: #FFF8E1;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    color: var(--color-warning);
-  } 
+  .manufacturer {
+    font-size: 0.7rem;
+  }
+  
+  .addToCartButton {
+    height: 32px;
+  }
+}
