@@ -1,5 +1,5 @@
-const Order = require('../models/Order');
-const Payment = require('../models/Payment');
+const Order = require('../models/order-schema');
+const Payment = require('../models/payment-schema');
 
 /**
  * Verify payment status for an order

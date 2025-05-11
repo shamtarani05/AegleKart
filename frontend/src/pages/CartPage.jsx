@@ -42,8 +42,8 @@ const CartPage = () => {
     // Get orderId from localStorage that was saved before checkout redirect
     const orderId = localStorage.getItem('pendingOrderId');
     console.log('orderId', orderId, sessionId);
-    
-    if (orderId) {
+
+    if (orderId && sessionId) {
       verifyPayment(orderId);
     }
   }, []);
@@ -54,7 +54,7 @@ const CartPage = () => {
       setIsProcessing(true); // Show loading indicator during verification
 
       const response = await fetch(`http://localhost:3000/orders/verify-payment/${orderId}`, {
-        method: 'GET', 
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,  // Pass token in the headers
@@ -68,7 +68,7 @@ const CartPage = () => {
 
       const data = await response.json();
 
-      if (data.success && data.order.status === 'paid') {
+      if (data.success) {
         // Only remove pendingOrderId AFTER successful verification
         localStorage.removeItem('pendingOrderId');
         setCheckoutSuccess('Your order was placed successfully!');
@@ -143,9 +143,9 @@ const CartPage = () => {
   }
 
   // Free shipping threshold in PKR
-  const shippingThreshold = 3000; 
+  const shippingThreshold = 3000;
   let shipping = subtotal > shippingThreshold ? 0 : 250;
-  
+
   if (appliedPromo?.discountType === 'shipping') {
     shipping = 0;
   }
@@ -159,19 +159,21 @@ const CartPage = () => {
   };
 
   // Handle Stripe checkout
+  // Modified handleCheckout function in CartPage.js
   const handleCheckout = async () => {
     try {
       setIsProcessing(true);
       setCheckoutError('');
 
-      // Prepare the line items for Stripe
+      // Prepare the line items for Stripe - WITHOUT the category field
       const line_items = cartItems.map(item => ({
         price_data: {
           currency: 'pkr',
           product_data: {
             name: item.name,
+            // Removed category field from here as Stripe doesn't accept it
           },
-          unit_amount: Math.round(item.price * 100), // Convert to paisa
+          unit_amount: Math.round(item.price * 100), // Convert to PKR paisa
         },
         quantity: item.quantity,
       }));
@@ -211,10 +213,19 @@ const CartPage = () => {
           type: appliedPromo.discountType === 'percentage' ? 'percent' : 'fixed_amount',
           amount: appliedPromo.discountType === 'percentage'
             ? appliedPromo.value * 100 // For percentage, convert to basis points
-            : Math.round(discount * 100), // For fixed amount, convert to paisa
+            : Math.round(discount * 100), // For fixed amount, convert to PKR paisa
           name: `Promo: ${appliedPromo.code}`,
         };
       }
+
+      // Create a products array with category information to send separately
+      const productsWithCategories = cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        category: item.category || 'uncategorized' // Include category here
+      }));
 
       // Call our backend API to create a Stripe checkout session
       const response = await fetch('http://localhost:3000/stripe/create-checkout-session', {
@@ -226,15 +237,17 @@ const CartPage = () => {
         credentials: 'include',
         body: JSON.stringify({
           line_items,
+          products: productsWithCategories, // Send products with categories separately
           discount: discountData,
-          // Update success_url to include session_id 
           success_url: `${window.location.origin}/cart?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${window.location.origin}/cart?canceled=true`,
-          customer_email: user?.email, // Get from user state
+          customer_email: user?.email,
           metadata: {
-            user_id: user?.id || 'guest', // Get from user state
+            user_id: user?.id || 'guest',
           },
           user: user,
+          tax: tax,
+          shipping: shipping,
         }),
       });
 
@@ -293,7 +306,7 @@ const CartPage = () => {
                 <p>{checkoutSuccess}</p>
                 <button
                   className={styles.continueShoppingButton}
-                  onClick={() => navigate('/products/medicine')}
+                  onClick={() => navigate('/products/medicines')}
                 >
                   Continue Shopping
                 </button>
@@ -312,7 +325,19 @@ const CartPage = () => {
                       <div key={item.id} className={styles.cartItem}>
                         <div className={styles.itemImageContainer}>
                           <div className={styles.itemImage}>
-                            <img src={item.image} alt={item.name} className={styles.productImage} />
+                            {item.image ? (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className={styles.productImage}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = '/images/placeholder-product.png';
+                                }}
+                              />
+                            ) : (
+                              <div className={styles.placeholderImage}></div>
+                            )}
                           </div>
                         </div>
 

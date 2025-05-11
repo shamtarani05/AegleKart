@@ -14,7 +14,7 @@ export default function MedicineCard({ product }) {
 
   const addToCart = useCartStore((state) => state.addToCart);
   const handleAddToCart = () => {
-    if (!product.stock) return; // Prevent adding to cart if out of stock
+    if (!(product.stockStatus==='In Stock')) return; // Prevent adding to cart if out of stock
     addToCart(product);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
@@ -30,7 +30,7 @@ export default function MedicineCard({ product }) {
       <div className={styles.card}>
         <div className={styles.imageContainer}>
           <img 
-            src={product.image || "/api/placeholder/180/140"} 
+            src={product.images[0] || "/api/placeholder/180/140"} 
             alt={product.name} 
             className={styles.medicineImage} 
           />
@@ -50,7 +50,7 @@ export default function MedicineCard({ product }) {
         
         <div className={styles.contentContainer}>
           <h3 className={styles.medicineName}>{product.name}</h3>
-          <p className={styles.manufacturer}>By {product.manufacturer}</p>
+          <p className={styles.manufacturer}>By {product.brandName}</p>
           
           <div className={styles.priceContainer}>
             <span className={styles.price}>₹{product.price}</span>
@@ -63,7 +63,7 @@ export default function MedicineCard({ product }) {
           </div>
           
           <div className={styles.stockInfo}>
-            {product.stock ? (
+            {product.stockStatus==='In Stock' ? (
               <div className={styles.inStock}>
                 <Check size={12} className={styles.checkIcon} />
                 <span>In Stock</span>
@@ -81,7 +81,7 @@ export default function MedicineCard({ product }) {
             <button 
               className={`${styles.addToCartButton} ${isAdded ? styles.added : ''}`}
               onClick={handleAddToCart}
-              disabled={!product.stock}
+              disabled={!(product.stockStatus==='In Stock')}
             >
               {isAdded ? (
                 <>

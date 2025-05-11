@@ -18,7 +18,7 @@ const OrderSchema = new mongoose.Schema({
   },
   
   // Order items
-  items: [{
+  products: [{
     name: {
       type: String,
       required: true
@@ -32,7 +32,7 @@ const OrderSchema = new mongoose.Schema({
       required: true,
       min: 1
     },
-    image: {
+    category: {
       type: String,
       default: null
     }
@@ -116,12 +116,16 @@ const OrderSchema = new mongoose.Schema({
     type: Number,
     default: null
   },
+  paymentMethod : {
+    type: String,
+    default : 'Card'
+  },
   
   // Order status
   status: {
     type: String,
-    enum: ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'failed', 'refunded'],
-    default: 'pending'
+    enum: ['Pending', 'Paid', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Failed', 'Refunded'],
+    default: 'Pending'
   },
   
   // Timestamps

@@ -1,5 +1,5 @@
-const Order = require('../models/Order');
-const Payment = require('../models/Payment');
+const Order = require('../models/order');
+const Payment = require('../models/payment-schema');
 const { generateOrderId, generatePaymentId } = require('../utils/generateIds');
 const { createStripeCoupon, parseSessionToOrderData } = require('../utils/stripe-helpers');
 const stripe = require('../config/stripeConfig');
@@ -12,7 +12,15 @@ const stripe = require('../config/stripeConfig');
  */
 const createCheckoutSession = async (req, res) => {
   try {
-    const { line_items, discount, success_url, cancel_url, customer_email, metadata } = req.body;
+    const { 
+      line_items, 
+      products, // New parameter containing products with categories 
+      discount, 
+      success_url, 
+      cancel_url, 
+      customer_email, 
+      metadata 
+    } = req.body;
 
     const orderId = generateOrderId();
 
@@ -41,11 +49,11 @@ const createCheckoutSession = async (req, res) => {
     );
 
     // Free shipping threshold in PKR paisa
-    const freeShippingThreshold = 500000; // PKR 5,000 in paisa
+    const freeShippingThreshold = 300000; // PKR 3,000 in paisa
     const shouldChargeShipping = !shippingIncludedInItems && subtotalAmount < freeShippingThreshold;
 
     // Standard shipping cost in PKR paisa
-    const shippingAmount = shouldChargeShipping ? 35000 : 0; // PKR 350 in paisa
+    const shippingAmount = shouldChargeShipping ? 25000 : 0; // PKR 250 in paisa
 
     // Ensure all line items have PKR currency
     const pkrLineItems = line_items.map(item => ({
@@ -94,20 +102,29 @@ const createCheckoutSession = async (req, res) => {
       cancel_url: cancel_url,
     });
 
+    // Create a new order with product categories
     const newOrder = new Order({
       orderId: orderId,
       stripeSessionId: session.id,
-      items: pkrLineItems
-        .filter(item => 
-          item.price_data?.product_data?.name !== 'Shipping' && 
-          item.price_data?.product_data?.name !== 'Estimated Tax'
-        )
-        .map(item => ({
-          name: item.price_data.product_data.name,
-          price: item.price_data.unit_amount / 100, // Convert from paisa to PKR
-          quantity: item.quantity,
-          image: item.price_data.product_data.images?.[0] || null,
-        })),
+      // Use the products array that includes categories
+      products: products 
+        ? products.map(item => ({
+            name: item.name,
+            price: item.price, // Already in PKR
+            quantity: item.quantity,
+            category: item.category || 'uncategorized' // Store category
+          }))
+        : pkrLineItems
+            .filter(item => 
+              item.price_data?.product_data?.name !== 'Shipping' && 
+              item.price_data?.product_data?.name !== 'Estimated Tax'
+            )
+            .map(item => ({
+              name: item.price_data.product_data.name,
+              price: item.price_data.unit_amount / 100, // Convert from paisa to PKR
+              quantity: item.quantity,
+              // No category available in this fallback case
+            })),
       customer: {
         email: customer_email,
       },
@@ -119,7 +136,8 @@ const createCheckoutSession = async (req, res) => {
       } : null,
       subtotal: subtotalAmount / 100, // Convert from paisa to PKR
       total: null, // Will be updated after payment is completed
-      status: 'pending',
+      status: 'Pending',
+      shipping: shippingAmount / 100, // Convert from paisa to PKR
       currency: 'PKR',
       createdAt: new Date(),
     });
@@ -174,8 +192,8 @@ const handleCheckoutSessionCompleted = async (session) => {
 
     const orderData = parseSessionToOrderData(expandedSession);
 
-    order.status = 'paid';
-    order.customer = orderData.customer;
+    order.customer = orderData.customer; 
+    order.paymentMethod = 'Card'
     order.shippingAddress = orderData.shippingAddress;
     order.total = orderData.total;
     order.updatedAt = new Date();

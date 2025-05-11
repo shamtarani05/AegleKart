@@ -33,6 +33,8 @@ const ProtectedAdminRoute = ({ children }) => {
   return children;
 };
 import AddressDropdown from "./components/Address";
+import StoreLocator from "./pages/StoreLocator";
+import Blog from "./pages/Bolgs";
 
 function App() {
   return (
@@ -88,6 +90,8 @@ function App() {
         </ProtectedAdminRoute>
       } />
       <Route path='/address' element={<AddressDropdown/>}/>
+      <Route path="/stores" element ={<StoreLocator/>} />
+      <Route path = '/blog' element = {<Blog/>}/>
     </Routes>
   );
 } 
