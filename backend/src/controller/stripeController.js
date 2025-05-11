@@ -1,4 +1,4 @@
-const Order = require('../models/order');
+const Order = require('../models/order-schema');
 const Payment = require('../models/payment-schema');
 const { generateOrderId, generatePaymentId } = require('../utils/generateIds');
 const { createStripeCoupon, parseSessionToOrderData } = require('../utils/stripe-helpers');

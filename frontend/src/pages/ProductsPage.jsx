@@ -163,7 +163,6 @@ const ProductsPage = () => {
   return (
     <div className={styles.productsPageContainer}>
       <Header />
-      <CategorySection />
       <main className={styles.mainContent}>
         <div className={styles.searchSection}>
           <form className={styles.searchContainer} onSubmit={handleSearchSubmit}>
