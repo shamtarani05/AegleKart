@@ -8,7 +8,8 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const stripeRouter = require('./src/routes/stripeRoutes');
-const orderRouter = require('./src/routes/orderRoutes');
+const orderRouter = require('./src/routes/ordersRoutes');
+const productRouter = require('./src/routes/productRoutes');
 
 
 
@@ -31,6 +32,8 @@ connectDB();
 app.use('/auth',authRoutes); // Use the auth routes for authentication-related 
 app.use('/stripe', stripeRouter);
 app.use('/orders', orderRouter);
+app.use('/products', productRouter);
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

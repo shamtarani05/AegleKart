@@ -15,6 +15,8 @@ import Feedback from "./pages/Feedback"
 import ProductsPage from "./pages/ProductsPage";
 import MedicineDescriptionPage from "./pages/MedicineDescriptionPage";
 import AddressDropdown from "./components/Address";
+import StoreLocator from "./pages/StoreLocator";
+import Blog from "./pages/Bolgs";
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
       <Route path = "/products/:category" element={<ProductsPage/>}/>
       <Route path = "/description" element={<MedicineDescriptionPage/>}/>
       <Route path='/address' element={<AddressDropdown/>}/>
+      <Route path="/stores" element ={<StoreLocator/>} />
+      <Route path = '/blog' element = {<Blog/>}/>
     </Routes>
   );
 } 
