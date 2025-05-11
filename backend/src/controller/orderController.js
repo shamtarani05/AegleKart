@@ -71,25 +71,21 @@ const getOrderDetails = async (req, res) => {
 };
 
 const getAllOrders = async (req, res) => {
-  try
-  {
-    const orders = await Order.find({})
+  try {
+    // Sort orders by createdAt in descending order (newest first)
+    const orders = await Order.find({}).sort({ createdAt: -1 });
 
-    if (!orders) {
+    if (!orders || orders.length === 0) {
       return res.status(404).json({ success: false, message: 'No Orders Yet' });
     }
 
-    res.status(200).json(
-      orders
-    );
+    res.status(200).json(orders);
+  } catch(error) {
+    console.error('Error getting orders:', error);
+    res.status(500).json({ success: false, message: 'Error retrieving orders', error: error.message });
+  }
+};
 
-  }
-  catch(error)
-  {
-    console.error('Error getting order details:', error);
-    res.status(500).json({ success: false, message: 'Error retrieving order details', error: error.message });
-  }
-}
 /**
  * Get orders by customer email
  * @param {Object} req - Express request object

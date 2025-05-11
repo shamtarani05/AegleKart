@@ -1,11 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const analyticsController = require('../controller/analyticsController');
-const { isAuth, isAdmin } = require('../middleware/authMiddleware');
-
-// Protect all analytics routes with authentication and admin checks
-router.use(isAuth);
-router.use(isAdmin);
 
 // Dashboard analytics routes
 router.get('/stats', analyticsController.getDashboardStats);

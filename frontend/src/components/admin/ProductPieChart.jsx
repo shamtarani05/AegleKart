@@ -4,10 +4,10 @@ import styles from '../../styles/adminDashboard.module.css';
 const ProductPieChart = ({ data }) => {
   const [isAnimated, setIsAnimated] = useState(false);
   
-  // Process and normalize the data to ensure percentages add up to 100%
+  // Ensure we have properly structured data with all required fields
   const processCategories = () => {
-    if (!data || !data.length) {
-      // Default fallback data
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      // Default fallback data if none provided
       return [
         { name: 'Painkillers', color: '#4e6af3', value: 40 },
         { name: 'Antibiotics', color: '#10ca93', value: 25 },
@@ -16,15 +16,20 @@ const ProductPieChart = ({ data }) => {
       ];
     }
     
-    // Calculate the total value
-    const totalValue = data.reduce((sum, category) => sum + category.value, 0);
+    // Normalize data to ensure values add up to 100%
+    const totalValue = data.reduce((sum, category) => sum + (category.value || 0), 0);
     
-    // Normalize percentages to ensure they sum to 100%
-    return data.map(category => ({
-      ...category,
-      // If totalValue is 0, avoid division by zero
+    return data.map((category, index) => ({
+      name: category.name || `Category ${index + 1}`,
+      color: category.color || getDefaultColor(index),
       value: totalValue > 0 ? Math.round((category.value / totalValue) * 100) : 0
     }));
+  };
+  
+  // Default colors if not provided in the data
+  const getDefaultColor = (index) => {
+    const colors = ['#4e6af3', '#10ca93', '#f39c12', '#9b59b6', '#e74c3c', '#3498db'];
+    return colors[index % colors.length];
   };
   
   const categories = processCategories();

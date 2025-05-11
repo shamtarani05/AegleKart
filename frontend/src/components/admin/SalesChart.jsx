@@ -38,7 +38,7 @@ const SalesChart = ({ data }) => {
         <div className={styles.yAxis}>
           {[4, 3, 2, 1, 0].map((i) => (
             <div key={i} className={styles.yAxisLabel}>
-              ₹{Math.round((maxRevenue * i) / 4).toLocaleString()}
+              PKR {Math.round((maxRevenue * i) / 4).toLocaleString()}
             </div>
           ))}
         </div>
@@ -62,7 +62,7 @@ const SalesChart = ({ data }) => {
                 <div key={index} className={styles.barGroup}>
                   {/* Value label */}
                   <div className={styles.valueLabel}>
-                    ₹{item.revenue.toLocaleString()}
+                    {item.revenue.toLocaleString()}
                   </div>
                   
                   {/* Bar */}

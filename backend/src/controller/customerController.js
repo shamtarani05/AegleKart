@@ -1,6 +1,6 @@
 const User = require('../models/user-schema');
-const Order = require('../models/Order');
-const Payment = require('../models/Payment');
+const Order = require('../models/order-schema');
+const Payment = require('../models/payment-schema');
 
 /**
  * Get all customers with order history and spending data

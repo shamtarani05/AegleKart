@@ -166,18 +166,8 @@ const AdminCustomersPage = () => {
                 <span className={styles.statValue}>{customers.length}</span>
                 <span className={styles.statLabel}>Total Customers</span>
               </div>
-              <div className={styles.headerStat}>
-                <span className={styles.statValue}>
-                  {customers.reduce((acc, customer) => acc + customer.totalOrders, 0)}
-                </span>
-                <span className={styles.statLabel}>Total Orders</span>
-              </div>
-              <div className={styles.headerStat}>
-                <span className={styles.statValue}>
-                  PKR {customers.reduce((acc, customer) => acc + customer.totalSpent, 0).toLocaleString()}
-                </span>
-                <span className={styles.statLabel}>Total Revenue</span>
-              </div>
+              
+
             </div>
           </div>
           

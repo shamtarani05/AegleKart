@@ -1,4 +1,4 @@
-const Order = require('../models/Order');
+const Order = require('../models/order-schema');
 const Product = require('../models/product-schema');
 
 // Get dashboard summary statistics
@@ -118,48 +118,39 @@ exports.getMonthlyRevenue = async (req, res) => {
 // Get product category distribution for pie chart
 exports.getProductCategoryDistribution = async (req, res) => {
   try {
-    // First get all orders with their items
-    const orderItemsData = await Order.aggregate([
-      {
-        $match: { status: { $ne: "Cancelled" } }
-      },
-      {
-        $unwind: "$products"
-      },
+    // Directly aggregate by products.category from order data
+    const categoryData = await Order.aggregate([
+      { $match: { status: { $ne: "Cancelled" } } },
+      { $unwind: "$products" },
       {
         $group: {
           _id: "$products.category",
           totalSold: { $sum: "$products.quantity" }
         }
-      }
+      },
+      { $sort: { totalSold: -1 } },
+      { $limit: 5 } // Get only top 5 categories
     ]);
 
-    // Extract product IDs to get their categories
-    const productIds = orderItemsData.map(item => item._id);
+    // Use fixed colors for consistent visualization
+    const colors = ['#4e6af3', '#10ca93', '#f39c12', '#9b59b6', '#e74c3c', '#3498db'];
     
-    // Get product categories
-    const products = await Product.find({ _id: { $in: productIds } }, 'category');
+    // Replace null or empty category with "Uncategorized"
+    // And format for the pie chart component
+    const formattedData = categoryData.map((item, index) => ({
+      name: item._id || 'Uncategorized',
+      value: item.totalSold,
+      color: colors[index % colors.length]
+    }));
+
+    // Calculate total for percentage calculation
+    const total = formattedData.reduce((sum, item) => sum + item.value, 0);
     
-    // Create a map of product ID to category
-    const productCategories = {};
-    products.forEach(product => {
-      productCategories[product._id] = product.category;
-    });
-    
-    // Aggregate sales by category
-    const categorySales = {};
-    orderItemsData.forEach(item => {
-      const category = productCategories[item._id] || 'Uncategorized';
-      if (!categorySales[category]) {
-        categorySales[category] = 0;
-      }
-      categorySales[category] += item.totalSold;
-    });
-    
-    // Format for pie chart
-    const result = Object.keys(categorySales).map(category => ({
-      name: category,
-      value: categorySales[category]
+    // Add percentage to each category
+    const result = formattedData.map(item => ({
+      ...item,
+      // Convert raw value to percentage of total
+      value: Math.round((item.value / total) * 100)
     }));
 
     return res.status(200).json(result);
