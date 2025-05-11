@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search,
   Eye,
@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import useAuthStore from '../stores/auth-store';
 import AdminSidebar from '../components/admin/AdminSidebar';
+import LoadingState from '../components/common/LoadingState';
+import ErrorState from '../components/common/ErrorState';
 import styles from '../styles/adminCustomers.module.css';
 
 const AdminCustomersPage = () => {
@@ -21,119 +23,34 @@ const AdminCustomersPage = () => {
   const [sortOrder, setSortOrder] = useState('asc');
   const customersPerPage = 8;
 
-  // Mock customer data - in a real app, fetch from API
-  const [customers] = useState([
-    {
-      id: 'CUST001',
-      name: 'Raj Sharma',
-      email: 'raj.sharma@example.com',
-      phone: '+91 98765 43210',
-      totalOrders: 12,
-      totalSpent: 14500,
-      lastOrder: '2023-11-12',
-      joinDate: '2023-01-15',
-      location: 'Mumbai, Maharashtra'
-    },
-    {
-      id: 'CUST002',
-      name: 'Priya Patel',
-      email: 'priya.patel@example.com',
-      phone: '+91 87654 32109',
-      totalOrders: 8,
-      totalSpent: 9800,
-      lastOrder: '2023-11-05',
-      joinDate: '2023-02-20',
-      location: 'Ahmedabad, Gujarat'
-    },
-    {
-      id: 'CUST003',
-      name: 'Amit Kumar',
-      email: 'amit.kumar@example.com',
-      phone: '+91 76543 21098',
-      totalOrders: 15,
-      totalSpent: 18600,
-      lastOrder: '2023-11-15',
-      joinDate: '2022-11-10',
-      location: 'Delhi, NCR'
-    },
-    {
-      id: 'CUST004',
-      name: 'Sneha Gupta',
-      email: 'sneha.gupta@example.com',
-      phone: '+91 65432 10987',
-      totalOrders: 6,
-      totalSpent: 7200,
-      lastOrder: '2023-10-30',
-      joinDate: '2023-04-05',
-      location: 'Bangalore, Karnataka'
-    },
-    {
-      id: 'CUST005',
-      name: 'Vikas Singh',
-      email: 'vikas.singh@example.com',
-      phone: '+91 54321 09876',
-      totalOrders: 10,
-      totalSpent: 12300,
-      lastOrder: '2023-11-08',
-      joinDate: '2023-03-12',
-      location: 'Pune, Maharashtra'
-    },
-    {
-      id: 'CUST006',
-      name: 'Neha Sharma',
-      email: 'neha.sharma@example.com',
-      phone: '+91 43210 98765',
-      totalOrders: 4,
-      totalSpent: 5600,
-      lastOrder: '2023-09-25',
-      joinDate: '2023-06-18',
-      location: 'Chennai, Tamil Nadu'
-    },
-    {
-      id: 'CUST007',
-      name: 'Rahul Verma',
-      email: 'rahul.verma@example.com',
-      phone: '+91 32109 87654',
-      totalOrders: 9,
-      totalSpent: 10800,
-      lastOrder: '2023-11-11',
-      joinDate: '2023-01-05',
-      location: 'Hyderabad, Telangana'
-    },
-    {
-      id: 'CUST008',
-      name: 'Ananya Mishra',
-      email: 'ananya.mishra@example.com',
-      phone: '+91 21098 76543',
-      totalOrders: 7,
-      totalSpent: 8700,
-      lastOrder: '2023-10-20',
-      joinDate: '2023-05-22',
-      location: 'Kolkata, West Bengal'
-    },
-    {
-      id: 'CUST009',
-      name: 'Deepak Joshi',
-      email: 'deepak.joshi@example.com',
-      phone: '+91 10987 65432',
-      totalOrders: 11,
-      totalSpent: 13400,
-      lastOrder: '2023-11-02',
-      joinDate: '2022-12-15',
-      location: 'Jaipur, Rajasthan'
-    },
-    {
-      id: 'CUST010',
-      name: 'Meena Patel',
-      email: 'meena.patel@example.com',
-      phone: '+91 09876 54321',
-      totalOrders: 5,
-      totalSpent: 6200,
-      lastOrder: '2023-10-15',
-      joinDate: '2023-07-10',
-      location: 'Surat, Gujarat'
+  // State for API data
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Fetch customers from API
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+  
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:3000/customers',{});
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setCustomers(data.data || []);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching customers:', err);
+      setError('Failed to load customers. Please try again.');
+      setLoading(false);
     }
-  ]);
+  };
 
   // Filter customers based on search
   const filteredCustomers = customers.filter(customer => 
@@ -158,6 +75,13 @@ const AdminCustomersPage = () => {
       return sortOrder === 'asc' 
         ? aValue.localeCompare(bValue) 
         : bValue.localeCompare(aValue);
+    }
+    
+    // Handle date values
+    if (sortBy === 'joinDate' || sortBy === 'lastOrder') {
+      return sortOrder === 'asc'
+        ? new Date(aValue) - new Date(bValue)
+        : new Date(bValue) - new Date(aValue);
     }
     
     return 0;
@@ -187,18 +111,46 @@ const AdminCustomersPage = () => {
 
   // Format date
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-IN', options);
   };
 
   // View customer details
   const handleViewCustomer = (customerId) => {
-    // In a real app, navigate to customer details page
-    alert(`View customer details for: ${customerId}`);
+    window.location.href = `/admin/customers/${customerId}`;
   };
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className={styles.adminPageContainer}>
+        <div className={styles.adminContentWrapper}>
+          <AdminSidebar user={user} />
+          <main className={styles.adminMainContent}>
+            <LoadingState message="Loading customers..." />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={styles.adminPageContainer}>
+        <div className={styles.adminContentWrapper}>
+          <AdminSidebar user={user} />
+          <main className={styles.adminMainContent}>
+            <ErrorState error={error} onRetry={fetchCustomers} />
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.adminPageContainer}>
@@ -222,7 +174,7 @@ const AdminCustomersPage = () => {
               </div>
               <div className={styles.headerStat}>
                 <span className={styles.statValue}>
-                  ₹{customers.reduce((acc, customer) => acc + customer.totalSpent, 0).toLocaleString()}
+                  PKR {customers.reduce((acc, customer) => acc + customer.totalSpent, 0).toLocaleString()}
                 </span>
                 <span className={styles.statLabel}>Total Revenue</span>
               </div>
@@ -253,12 +205,7 @@ const AdminCustomersPage = () => {
                     </span>
                   </th>
                   <th>Contact Info</th>
-                  <th onClick={() => handleSort('location')} className={styles.sortableHeader}>
-                    Location
-                    <span className={sortBy === 'location' ? styles.activeSortIcon : styles.sortIcon}>
-                      {sortBy === 'location' && sortOrder === 'asc' ? '↑' : '↓'}
-                    </span>
-                  </th>
+          
                   <th onClick={() => handleSort('totalOrders')} className={styles.sortableHeader}>
                     Orders
                     <span className={sortBy === 'totalOrders' ? styles.activeSortIcon : styles.sortIcon}>
@@ -306,7 +253,6 @@ const AdminCustomersPage = () => {
                           </div>
                         </div>
                       </td>
-                      <td>{customer.location}</td>
                       <td>
                         <div className={styles.ordersInfo}>
                           <ShoppingBag size={14} className={styles.infoIcon} />
@@ -316,7 +262,7 @@ const AdminCustomersPage = () => {
                           </span>
                         </div>
                       </td>
-                      <td className={styles.amountCell}>₹{customer.totalSpent.toLocaleString()}</td>
+                      <td className={styles.amountCell}>PKR {customer.totalSpent.toLocaleString()}</td>
                       <td>
                         <div className={styles.joinInfo}>
                           <Calendar size={14} className={styles.infoIcon} />

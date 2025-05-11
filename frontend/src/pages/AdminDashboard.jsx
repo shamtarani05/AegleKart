@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   DollarSign,
@@ -7,74 +7,121 @@ import {
   AlertCircle,
   Plus
 } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import useAuthStore from '../stores/auth-store';
 import styles from '../styles/adminDashboard.module.css';
 
-// Import the new components
+// Import components
 import AdminSidebar from '../components/admin/AdminSidebar';
 import StatCard from '../components/admin/StatCard';
 import SalesChart from '../components/admin/SalesChart';
 import ProductPieChart from '../components/admin/ProductPieChart';
 import RecentOrdersTable from '../components/admin/RecentOrdersTable';
+import ErrorState from '../components/common/ErrorState';
+import LoadingState from '../components/common/LoadingState';
 
 const AdminDashboard = () => {
   const user = useAuthStore((state) => state.user);
   
-  // Mock data for statistics
-  const salesData = {
-    totalRevenue: 125000,
-    monthlySales: 42500,
-    ordersCompleted: 189,
-    pendingOrders: 23
+  // State for API data
+  const [dashboardStats, setDashboardStats] = useState({
+    totalRevenue: 0,
+    monthlySales: 0,
+    ordersCompleted: 0,
+    pendingOrders: 0
+  });
+  const [monthlyRevenue, setMonthlyRevenue] = useState([]);
+  const [categoryDistribution, setCategoryDistribution] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch dashboard data from APIs
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Fetch all required data in parallel
+      const [statsRes, revenueRes, categoryRes, ordersRes] = await Promise.all([
+        fetch('http://localhost:3000/dashboard/stats'),
+        fetch('http://localhost:3000/dashboard/monthly-revenue'),
+        fetch('http://localhost:3000/dashboard/category-distribution'),
+        fetch('http://localhost:3000/dashboard/recent-orders')
+      ]);
+      
+      // Check if any request failed
+      if (!statsRes.ok || !revenueRes.ok || !categoryRes.ok || !ordersRes.ok) {
+        throw new Error('Failed to fetch dashboard data');
+      }
+      
+      // Parse all responses
+      const stats = await statsRes.json();
+      const revenue = await revenueRes.json();
+      const category = await categoryRes.json();
+      const orders = await ordersRes.json();
+      
+      // Update state with fetched data
+      setDashboardStats(stats);
+      setMonthlyRevenue(revenue);
+      setCategoryDistribution(category);
+      setRecentOrders(formatOrdersForTable(orders));
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('Failed to load dashboard data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Mock data for charts
-  const monthlyRevenue = [
-    { month: 'Jan', revenue: 15000 },
-    { month: 'Feb', revenue: 18500 },
-    { month: 'Mar', revenue: 21000 },
-    { month: 'Apr', revenue: 19000 },
-    { month: 'May', revenue: 22500 },
-    { month: 'Jun', revenue: 25000 }
-  ];
-
-  // Mock data for recent orders
-  const recentOrders = [
-    {
-      id: '#AEG12345',
-      customer: 'Raj Sharma',
-      products: '3 items',
-      total: '₹1,250',
-      status: 'Pending'
-    },
-    {
-      id: '#AEG12344',
-      customer: 'Priya Patel',
-      products: '2 items',
-      total: '₹890',
-      status: 'Delivered'
-    },
-    {
-      id: '#AEG12343',
-      customer: 'Amit Kumar',
-      products: '5 items',
-      total: '₹2,100',
-      status: 'Shipped'
-    },
-    {
-      id: '#AEG12342',
-      customer: 'Sneha Gupta',
-      products: '1 item',
-      total: '₹550',
-      status: 'Delivered'
+  // Format orders data for the recent orders table
+  const formatOrdersForTable = (ordersData) => {
+    if (!ordersData || !Array.isArray(ordersData) || ordersData.length === 0) {
+      return [];
     }
-  ];
+    
+    return ordersData.map(order => ({
+      id: order.orderId || order._id,
+      customer: order.customer?.name || 'Unknown Customer',
+      products: `${order.items?.length || 0} items`,
+      total: `PKR ${(order.total || 0).toLocaleString()}`,
+      status: order.status || 'Unknown'
+    }));
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className={styles.adminPageContainer}>
+        <div className={styles.adminContentWrapper}>
+          <AdminSidebar user={user} />
+          <main className={styles.adminMainContent}>
+            <LoadingState message="Loading dashboard data..." />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={styles.adminPageContainer}>
+        <div className={styles.adminContentWrapper}>
+          <AdminSidebar user={user} />
+          <main className={styles.adminMainContent}>
+            <ErrorState error={error} onRetry={fetchDashboardData} />
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.adminPageContainer}>
-      
       <div className={styles.adminContentWrapper}>
         <AdminSidebar user={user} />
         
@@ -93,44 +140,43 @@ const AdminDashboard = () => {
             <StatCard 
               icon={<DollarSign size={24} className={styles.statIcon} />}
               title="Total Revenue"
-              value={`₹${salesData.totalRevenue.toLocaleString()}`}
-              trend={{ text: '+8% from last month' }}
+              value={`PKR ${dashboardStats.totalRevenue.toLocaleString()}`}
+              trend={{ text: 'All time revenue' }}
             />
             
             <StatCard 
               icon={<ShoppingBag size={24} className={styles.statIcon} />}
               title="Monthly Sales"
-              value={`₹${salesData.monthlySales.toLocaleString()}`}
-              trend={{ text: '+5.2% from last month' }}
+              value={`PKR ${dashboardStats.monthlySales.toLocaleString()}`}
+              trend={{ text: 'This month' }}
               iconClassName={styles.iconGreen}
             />
             
             <StatCard 
               icon={<Package size={24} className={styles.statIcon} />}
               title="Orders Completed"
-              value={salesData.ordersCompleted}
-              trend={{ text: 'Last 30 days', icon: null }}
+              value={dashboardStats.ordersCompleted}
+              trend={{ text: 'Total delivered orders' }}
               iconClassName={styles.iconPurple}
             />
             
             <StatCard 
               icon={<AlertCircle size={24} className={styles.statIcon} />}
               title="Pending Orders"
-              value={salesData.pendingOrders}
-              trend={{ text: 'Requires action', icon: null }}
+              value={dashboardStats.pendingOrders}
+              trend={{ text: 'Requires action' }}
               iconClassName={styles.iconOrange}
             />
           </div>
           
           <div className={styles.chartsContainer}>
             <SalesChart data={monthlyRevenue} />
-            <ProductPieChart />
+            <ProductPieChart data={categoryDistribution} />
           </div>
           
           <RecentOrdersTable orders={recentOrders} />
         </main>
       </div>
-      
     </div>
   );
 };

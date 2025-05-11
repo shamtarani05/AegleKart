@@ -11,4 +11,7 @@ orderRouter.get('/:orderId', orderController.getOrderDetails);
 // Get customer orders
 orderRouter.get('/customer/:email', orderController.getCustomerOrders);
 
+//Get All Orders
+orderRouter.get('/', orderController.getAllOrders)
+
 module.exports = orderRouter;

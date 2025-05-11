@@ -263,8 +263,8 @@ const AdminProductsPage = () => {
                   <th>Product Name</th>
                   <th>Category</th>
                   <th>Brand</th>
-                  <th>Price (₹)</th>
-                  <th>Discounted (₹)</th>
+                  <th>Price </th>
+                  <th>Discounted </th>
                   <th>Stock Status</th>
                   <th>Qty</th>
                   <th>Rx</th>
@@ -285,9 +285,9 @@ const AdminProductsPage = () => {
                       <td className={styles.productNameCell}>{product.name}</td>
                       <td>{product.category}</td>
                       <td>{product.brandName}</td>
-                      <td>₹{product.price}</td>
+                      <td>PKR {product.price}</td>
                       <td>
-                        {product.discountedPrice ? `₹${product.discountedPrice}` : '-'}
+                        {product.discountedPrice ? `PKR ${product.discountedPrice}` : '-'}
                       </td>
                       <td>
                         <span 

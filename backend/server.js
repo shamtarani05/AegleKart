@@ -8,8 +8,9 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const stripeRouter = require('./src/routes/stripeRoutes');
-const orderRouter = require('./src/routes/orderRoutes');
-
+const orderRouter = require('./src/routes/OrderRoutes');
+const customerRouter = require('./src/routes/customerRoutes')
+const analyticsRouter = require('./src/routes/analyticsRoutes')
 
 
 dotenv.config();
@@ -31,6 +32,8 @@ connectDB();
 app.use('/auth',authRoutes); // Use the auth routes for authentication-related 
 app.use('/stripe', stripeRouter);
 app.use('/orders', orderRouter);
+app.use('/customers', customerRouter);
+app.use('/dashboard', analyticsRouter)
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

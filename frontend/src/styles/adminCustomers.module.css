@@ -197,6 +197,7 @@
 .amountCell {
   font-weight: 600;
   color: #1c2033;
+  min-width: 5vw;
 }
 
 .viewButton {

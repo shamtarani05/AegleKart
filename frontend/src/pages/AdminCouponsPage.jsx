@@ -373,11 +373,11 @@ const AdminCouponsPage = () => {
                       </td>
                       <td>
                         {coupon.discountType === 'percentage' ? 
-                          `${coupon.discountValue}% ${coupon.maxDiscount ? `(max ₹${coupon.maxDiscount})` : ''}` : 
-                          `₹${coupon.discountValue}`
+                          `${coupon.discountValue}% ${coupon.maxDiscount ? `(max PKR ${coupon.maxDiscount})` : ''}` : 
+                          `PKR ${coupon.discountValue}`
                         }
                       </td>
-                      <td>{coupon.minOrderValue ? `₹${coupon.minOrderValue}` : '-'}</td>
+                      <td>{coupon.minOrderValue ? `PKR ${coupon.minOrderValue}` : '-'}</td>
                       <td>{formatDate(coupon.validFrom)}</td>
                       <td>{formatDate(coupon.validUntil)}</td>
                       <td>
