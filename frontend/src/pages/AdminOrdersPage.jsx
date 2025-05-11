@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search,
@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import useAuthStore from '../stores/auth-store';
 import AdminSidebar from '../components/admin/AdminSidebar';
+import LoadingState from '../components/common/LoadingState';
+import ErrorState from '../components/common/ErrorState';
 import styles from '../styles/adminOrders.module.css';
 
 const AdminOrdersPage = () => {
@@ -23,120 +25,11 @@ const AdminOrdersPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 10;
   
-  // Mock orders data - in a real app, fetch from API
-  const [orders, setOrders] = useState([
-    {
-      id: '#AEG12345',
-      customer: 'Raj Sharma',
-      email: 'raj.sharma@example.com',
-      date: '2023-11-15 14:30',
-      total: 1250,
-      status: 'Pending',
-      paymentMethod: 'Credit Card',
-      items: 3
-    },
-    {
-      id: '#AEG12346',
-      customer: 'Priya Patel',
-      email: 'priya.patel@example.com',
-      date: '2023-11-15 10:15',
-      total: 890,
-      status: 'Processing',
-      paymentMethod: 'UPI',
-      items: 2
-    },
-    {
-      id: '#AEG12347',
-      customer: 'Amit Kumar',
-      email: 'amit.kumar@example.com',
-      date: '2023-11-14 16:45',
-      total: 2100,
-      status: 'Shipped',
-      paymentMethod: 'Debit Card',
-      items: 5
-    },
-    {
-      id: '#AEG12348',
-      customer: 'Sneha Gupta',
-      email: 'sneha.gupta@example.com',
-      date: '2023-11-14 09:20',
-      total: 550,
-      status: 'Delivered',
-      paymentMethod: 'Cash on Delivery',
-      items: 1
-    },
-    {
-      id: '#AEG12349',
-      customer: 'Rahul Verma',
-      email: 'rahul.verma@example.com',
-      date: '2023-11-13 11:30',
-      total: 1850,
-      status: 'Delivered',
-      paymentMethod: 'Credit Card',
-      items: 4
-    },
-    {
-      id: '#AEG12350',
-      customer: 'Ananya Singh',
-      email: 'ananya.singh@example.com',
-      date: '2023-11-13 08:15',
-      total: 760,
-      status: 'Cancelled',
-      paymentMethod: 'UPI',
-      items: 2
-    },
-    {
-      id: '#AEG12351',
-      customer: 'Vikram Mehta',
-      email: 'vikram.mehta@example.com',
-      date: '2023-11-12 17:40',
-      total: 3200,
-      status: 'Delivered',
-      paymentMethod: 'Debit Card',
-      items: 6
-    },
-    {
-      id: '#AEG12352',
-      customer: 'Meera Reddy',
-      email: 'meera.reddy@example.com',
-      date: '2023-11-12 13:10',
-      total: 980,
-      status: 'Shipped',
-      paymentMethod: 'Credit Card',
-      items: 3
-    },
-    {
-      id: '#AEG12353',
-      customer: 'Sanjay Joshi',
-      email: 'sanjay.joshi@example.com',
-      date: '2023-11-11 16:30',
-      total: 1450,
-      status: 'Delivered',
-      paymentMethod: 'Cash on Delivery',
-      items: 4
-    },
-    {
-      id: '#AEG12354',
-      customer: 'Divya Sharma',
-      email: 'divya.sharma@example.com',
-      date: '2023-11-11 10:45',
-      total: 660,
-      status: 'Refunded',
-      paymentMethod: 'UPI',
-      items: 2
-    },
-    {
-      id: '#AEG12355',
-      customer: 'Arjun Patel',
-      email: 'arjun.patel@example.com',
-      date: '2023-11-10 09:20',
-      total: 1120,
-      status: 'Delivered',
-      paymentMethod: 'Credit Card',
-      items: 3
-    }
-  ]);
-  
+  // State for API data
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   // Status options for filtering
   const statusOptions = [
     'All Orders',
@@ -147,6 +40,32 @@ const AdminOrdersPage = () => {
     'Cancelled',
     'Refunded'
   ];
+
+  // Fetch orders from API
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('http://localhost:3000/orders',{});
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setOrders(data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      setError('Failed to load orders. Please try again.');
+      setLoading(false);
+    }
+  };
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -175,9 +94,10 @@ const AdminOrdersPage = () => {
   
   // Filter orders based on search and status filter
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = 
+      (order.id?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+      (order.customer?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+      (order.customer?.email?.toLowerCase().includes(searchQuery.toLowerCase()) || false);
                           
     const matchesStatus = statusFilter === 'All Orders' || order.status === statusFilter;
     
@@ -206,15 +126,60 @@ const AdminOrdersPage = () => {
   };
   
   // Cancel order
-  const handleCancelOrder = (orderId) => {
+  const handleCancelOrder = async (orderId) => {
     if (window.confirm('Are you sure you want to cancel this order?')) {
-      // In a real app, make API call to cancel order
-      const updatedOrders = orders.map(order => 
-        order.id === orderId ? { ...order, status: 'Cancelled' } : order
-      );
-      setOrders(updatedOrders);
+      try {
+        // API call to cancel order
+        const response = await fetch(`/routes/${orderId}/cancel`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: 'Cancelled' })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to cancel order: ${response.status}`);
+        }
+        
+        // Update local state after successful cancellation
+        setOrders(orders.map(order => 
+          order.id === orderId ? { ...order, status: 'Cancelled' } : order
+        ));
+      } catch (err) {
+        console.error('Error cancelling order:', err);
+        alert('Failed to cancel the order. Please try again.');
+      }
     }
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className={styles.adminPageContainer}>
+        <div className={styles.adminContentWrapper}>
+          <AdminSidebar user={user} />
+          <main className={styles.adminMainContent}>
+            <LoadingState message="Loading orders..." />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={styles.adminPageContainer}>
+        <div className={styles.adminContentWrapper}>
+          <AdminSidebar user={user} />
+          <main className={styles.adminMainContent}>
+            <ErrorState error={error} onRetry={fetchOrders} />
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.adminPageContainer}>
@@ -298,17 +263,17 @@ const AdminOrdersPage = () => {
                   </tr>
                 ) : (
                   currentOrders.map((order) => (
-                    <tr key={order.id}>
-                      <td className={styles.orderId}>{order.id}</td>
-                      <td>{formatDate(order.date)}</td>
+                    <tr key={order.id || order._id}>
+                      <td className={styles.orderId}>{order.orderId}</td>
+                      <td>{formatDate(order.date || order.createdAt)}</td>
                       <td>
                         <div className={styles.customerInfo}>
-                          <span className={styles.customerName}>{order.customer}</span>
-                          <span className={styles.customerEmail}>{order.email}</span>
+                          <span className={styles.customerName}>{order.customer?.name}</span>
+                          <span className={styles.customerEmail}>{order.customer?.email}</span>
                         </div>
                       </td>
-                      <td>{order.items} items</td>
-                      <td className={styles.orderTotal}>₹{order.total.toLocaleString()}</td>
+                      <td>{order.items?.length || 0} items</td>
+                      <td className={styles.orderTotal}>PKR {(order.total)?.toLocaleString()}</td>
                       <td>{order.paymentMethod}</td>
                       <td>
                         <span className={`${styles.orderStatus} ${styles[order.status.toLowerCase()]}`}>
@@ -319,14 +284,14 @@ const AdminOrdersPage = () => {
                         <div className={styles.actionButtons}>
                           <button 
                             className={styles.actionButton}
-                            onClick={() => handleViewOrder(order.id)}
+                            onClick={() => handleViewOrder(order.id || order._id)}
                             title="View Order Details"
                           >
                             <Eye size={16} />
                           </button>
                           <button 
                             className={styles.actionButton}
-                            onClick={() => handlePrintInvoice(order.id)}
+                            onClick={() => handlePrintInvoice(order.id || order._id)}
                             title="Print Invoice"
                           >
                             <Printer size={16} />
@@ -334,7 +299,7 @@ const AdminOrdersPage = () => {
                           {!['Cancelled', 'Refunded'].includes(order.status) && (
                             <button 
                               className={`${styles.actionButton} ${styles.cancelButton}`}
-                              onClick={() => handleCancelOrder(order.id)}
+                              onClick={() => handleCancelOrder(order.id || order._id)}
                               title="Cancel Order"
                             >
                               <X size={16} />

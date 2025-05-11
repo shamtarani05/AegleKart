@@ -2,31 +2,39 @@ import { useState } from 'react';
 import styles from '../styles/medicinecard.module.css';
 import { Heart, ShoppingCart, Info, AlertCircle, Check, X } from 'lucide-react';
 import useCartStore from '../stores/cart-store';
+import {useNavigate} from 'react-router-dom';
 
 export default function MedicineCard({ product }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const navigate = useNavigate();
   
-  const handleFavorite = () => {
+  const handleFavorite = (e) => {
+    e.stopPropagation(); // Stop event propagation
     setIsFavorite(!isFavorite);
   };
 
   const addToCart = useCartStore((state) => state.addToCart);
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.stopPropagation(); // Stop event propagation
     if (!(product.stockStatus==='In Stock')) return; // Prevent adding to cart if out of stock
     addToCart(product);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
 
-
-  const toggleInfo = () => {
+  const toggleInfo = (e) => {
+    e.stopPropagation(); // Stop event propagation
     setShowInfo(!showInfo);
   };
+  
+  const handleclick = () => {
+    navigate('/product/'+product._id);
+  }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} onClick={handleclick}>
       <div className={styles.card}>
         <div className={styles.imageContainer}>
           <img 
@@ -104,7 +112,7 @@ export default function MedicineCard({ product }) {
         </div>
         
         {showInfo && (
-          <div className={styles.infoOverlay}>
+          <div className={styles.infoOverlay} onClick={(e) => e.stopPropagation()}>
             <div className={styles.infoPanel}>
               <div className={styles.infoHeader}>
                 <h4 className={styles.infoTitle}>Medication Info</h4>

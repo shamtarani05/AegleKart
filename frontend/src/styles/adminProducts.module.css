@@ -159,7 +159,7 @@
 .productsTable th:nth-child(2) { width: 18%; } /* Product Name */
 .productsTable th:nth-child(3) { width: 10%; } /* Category */
 .productsTable th:nth-child(4) { width: 10%; } /* Brand */
-.productsTable th:nth-child(5) { width: 8%; }  /* Price */
+.productsTable th:nth-child(5) { width: 10%; }  /* Price */
 .productsTable th:nth-child(6) { width: 10%; } /* Discounted */
 .productsTable th:nth-child(7) { width: 10%; } /* Stock Status */
 .productsTable th:nth-child(8) { width: 5%; }  /* Qty */

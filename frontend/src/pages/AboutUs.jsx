@@ -69,7 +69,7 @@ const AboutUs = () => {
               </p>
             </div>
             <div className={styles.historyImage}>
-              <img src="https://via.placeholder.com/500x400" alt="Our herbal laboratory" className={styles.historyImg} />
+              <img src="/lab.jpg" alt="Our herbal laboratory" className={styles.historyImg} />
             </div>
           </div>
         </section>
@@ -174,21 +174,18 @@ const AboutUs = () => {
           <h2 className={styles.sectionTitle}>Our Certifications</h2>
           <div className={styles.certificationsGrid}>
             <div className={styles.certificationItem}>
-              <img src="https://via.placeholder.com/120" alt="Organic Certified" className={styles.certLogo} />
-              <h3 className={styles.certName}>Certified Organic</h3>
+              <img src="/gskcertification.png" alt="Organic Certified" className={styles.certLogo} />
+              <h3 className={styles.certName}>Certified GSK</h3>
             </div>
             <div className={styles.certificationItem}>
-              <img src="https://via.placeholder.com/120" alt="GMP Certified" className={styles.certLogo} />
+              <img src="/organic.png" alt="GMP Certified" className={styles.certLogo} />
               <h3 className={styles.certName}>GMP Certified</h3>
             </div>
             <div className={styles.certificationItem}>
-              <img src="https://via.placeholder.com/120" alt="Non-GMO Project" className={styles.certLogo} />
-              <h3 className={styles.certName}>Non-GMO Project</h3>
+              <img src="/bestquality.png" alt="Non-GMO Project" className={styles.certLogo} />
+              <h3 className={styles.certName}>Best Quality Certified</h3>
             </div>
-            <div className={styles.certificationItem}>
-              <img src="https://via.placeholder.com/120" alt="B Corporation" className={styles.certLogo} />
-              <h3 className={styles.certName}>B Corporation</h3>
-            </div>
+           
           </div>
         </section>
       </main>

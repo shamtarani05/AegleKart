@@ -44,7 +44,7 @@ const Login = ({ navigateToForgotPassword }) => {
         navigate('/');
         return;
       }
-      navigate('/dashboard')
+      navigate('/admin')
 
 
     }

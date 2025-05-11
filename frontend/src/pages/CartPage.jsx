@@ -507,21 +507,6 @@ const CartPage = () => {
                       <p>We Accept:</p>
                       <div className={styles.paymentIcons}>
                         <CreditCard size={24} className={styles.paymentIcon} />
-                        <img
-                          src="/images/payment-icons/visa.svg"
-                          alt="Visa"
-                          className={styles.paymentIcon}
-                        />
-                        <img
-                          src="/images/payment-icons/mastercard.svg"
-                          alt="Mastercard"
-                          className={styles.paymentIcon}
-                        />
-                        <img
-                          src="/images/payment-icons/amex.svg"
-                          alt="American Express"
-                          className={styles.paymentIcon}
-                        />
                       </div>
                     </div>
                   </div>

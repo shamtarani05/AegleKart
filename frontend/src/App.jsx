@@ -21,6 +21,7 @@ import AdminCustomersPage from "./pages/AdminCustomersPage";
 import AdminCouponsPage from "./pages/AdminCouponsPage";
 import AddProductPage from "./pages/AddProductPage";
 import useAuthStore from "./stores/auth-store";
+import NotFound from "./pages/NotFound";
 
 // Admin Route protection component
 const ProtectedAdminRoute = ({ children }) => {
@@ -35,6 +36,7 @@ const ProtectedAdminRoute = ({ children }) => {
 import AddressDropdown from "./components/Address";
 import StoreLocator from "./pages/StoreLocator";
 import Blog from "./pages/Bolgs";
+import CareerPage from "./pages/CareerPage";
 
 function App() {
   return (
@@ -89,9 +91,11 @@ function App() {
           <AdminDashboard />
         </ProtectedAdminRoute>
       } />
-      <Route path='/address' element={<AddressDropdown/>}/>
       <Route path="/stores" element ={<StoreLocator/>} />
       <Route path = '/blog' element = {<Blog/>}/>
+       <Route path = '/careers' element = {<CareerPage/>}/>
+       <Route path = '/*' element = { <NotFound/>}/>
+       <Route path= 'product/:id' element = {<MedicineDescriptionPage/> }/>
     </Routes>
   );
 } 
