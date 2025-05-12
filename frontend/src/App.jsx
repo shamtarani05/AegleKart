@@ -20,6 +20,7 @@ import AdminOrdersPage from "./pages/AdminOrdersPage";
 import AdminCustomersPage from "./pages/AdminCustomersPage";
 import AdminCouponsPage from "./pages/AdminCouponsPage";
 import AddProductPage from "./pages/AddProductPage";
+import EditProductPage from "./pages/EditProductPage";
 import useAuthStore from "./stores/auth-store";
 
 // Admin Route protection component
@@ -84,6 +85,7 @@ function App() {
           <AddProductPage />
         // </ProtectedAdminRoute>
       } />
+      <Route path="/admin/edit-product/:id" element={<EditProductPage />} />
       <Route path="/admin/*" element={
         <ProtectedAdminRoute>
           <AdminDashboard />

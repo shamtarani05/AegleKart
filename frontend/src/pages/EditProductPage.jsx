@@ -1,19 +1,27 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Plus, 
   X,
   Upload,
-  AlertCircle
+  AlertCircle,
+  Loader
 } from 'lucide-react';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import useAuthStore from '../stores/auth-store';
+import LoadingState from '../components/common/LoadingState';
+import ErrorState from '../components/common/ErrorState';
 import styles from '../styles/addProduct.module.css';
 
-const AddProductPage = () => {
+const EditProductPage = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  
+  // State for API data
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -51,6 +59,70 @@ const AddProductPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // Fetch product data on component mount
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch(`http://localhost:3000/products/details/${id}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch product details');
+        }
+        
+        const data = await response.json();
+        
+        // Format dates for input fields
+        const formatDate = (dateString) => {
+          if (!dateString) return '';
+          const date = new Date(dateString);
+          return date.toISOString().split('T')[0];
+        };
+        
+        // Initialize form with product data
+        setFormData({
+          name: data.name || '',
+          price: data.price?.toString() || '',
+          formula: data.formula || '',
+          brandName: data.brandName || '',
+          category: data.category || 'Medicines',
+          discountedPrice: data.discountedPrice?.toString() || '',
+          discount: data.discount?.toString() || '0',
+          quantity: data.quantity?.toString() || '1',
+          stockStatus: data.stockStatus || 'In Stock',
+          deliveryTime: data.deliveryTime || '2-3 days',
+          rating: data.rating?.toString() || '0',
+          reviewCount: data.reviewCount?.toString() || '0',
+          description: data.description || '',
+          packSize: data.packSize || '',
+          composition: data.composition || '',
+          mfgDate: formatDate(data.mfgDate),
+          expDate: formatDate(data.expDate),
+          prescriptionRequired: data.prescriptionRequired || false,
+          images: data.images || [],
+          keyBenefits: data.keyBenefits || [''],
+          sideEffects: data.sideEffects || [''],
+          usageDirections: data.usageDirections || '',
+          similarProducts: data.similarProducts || []
+        });
+        
+        // Set arrays for multi-input fields
+        setKeyBenefits(data.keyBenefits?.length > 0 ? data.keyBenefits : ['']);
+        setSideEffects(data.sideEffects?.length > 0 ? data.sideEffects : ['']);
+        
+      } catch (err) {
+        console.error('Error fetching product data:', err);
+        setError(err.message || 'Failed to load product data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProduct();
+  }, [id]);
 
   // Handle text input changes
   const handleInputChange = (e) => {
@@ -173,7 +245,6 @@ const AddProductPage = () => {
       // Prepare the final form data
       const finalFormData = {
         ...formData,
-        id: generateProductId(),
         keyBenefits: keyBenefits.filter(item => item.trim() !== ''),
         sideEffects: sideEffects.filter(item => item.trim() !== ''),
         // Convert string number values to actual numbers
@@ -186,17 +257,17 @@ const AddProductPage = () => {
         rating: parseFloat(formData.rating),
         reviewCount: parseInt(formData.reviewCount),
         // Convert dates if provided
-        mfgDate: formData.mfgDate ? formData.mfgDate : null,
-        expDate: formData.expDate ? formData.expDate : null,
+        mfgDate: formData.mfgDate || null,
+        expDate: formData.expDate || null,
         // Use the safe images array
         images: safeImages
       };
       
-      console.log("Sending product data:", finalFormData); // Log the data being sent
+      console.log("Updating product data:", finalFormData);
       
-      // Make API call to create the product
-      const response = await fetch('http://localhost:3000/products/add', {
-        method: 'POST',
+      // Make API call to update the product
+      const response = await fetch(`http://localhost:3000/products/update/${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -205,31 +276,57 @@ const AddProductPage = () => {
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create product');
+        throw new Error(errorData.message || 'Failed to update product');
       }
       
       const result = await response.json();
-      console.log('Product created:', result);
+      console.log('Product updated:', result);
       
       setSubmitSuccess(true);
       
-      // Show success message
+      // Show success message and redirect
       setTimeout(() => {
         navigate('/admin/products');
       }, 1500);
       
     } catch (error) {
-      console.error('Error adding product:', error);
-      setSubmitError(error.message || 'Failed to add product. Please try again.');
+      console.error('Error updating product:', error);
+      setSubmitError(error.message || 'Failed to update product. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Generate a random product ID
-  const generateProductId = () => {
-    return 'PRD' + Math.random().toString(36).substring(2, 8).toUpperCase();
-  };
+  // Loading state
+  if (loading) {
+    return (
+      <div className={styles.adminPageContainer}>
+        <div className={styles.adminContentWrapper}>
+          <AdminSidebar user={user} />
+          <main className={styles.adminMainContent}>
+            <LoadingState message="Loading product data..." />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={styles.adminPageContainer}>
+        <div className={styles.adminContentWrapper}>
+          <AdminSidebar user={user} />
+          <main className={styles.adminMainContent}>
+            <ErrorState 
+              error={error} 
+              onRetry={() => navigate(`/admin/edit-product/${id}`)} 
+            />
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.adminPageContainer}>
@@ -241,11 +338,11 @@ const AddProductPage = () => {
             <div className={styles.pageTitle}>
               <button 
                 className={styles.backButton}
-                onClick={() => navigate('/admin')}
+                onClick={() => navigate('/admin/products')}
               >
                 <ArrowLeft size={20} />
               </button>
-              <h1>Add New Product</h1>
+              <h1>Edit Product</h1>
             </div>
           </div>
           
@@ -259,7 +356,7 @@ const AddProductPage = () => {
           
           {submitSuccess && (
             <div className={styles.successMessage}>
-              Product added successfully! Redirecting...
+              Product updated successfully! Redirecting...
             </div>
           )}
           
@@ -609,7 +706,7 @@ const AddProductPage = () => {
                 <button 
                   type="button" 
                   className={styles.cancelButton}
-                  onClick={() => navigate('/admin')}
+                  onClick={() => navigate('/admin/products')}
                   disabled={isSubmitting}
                 >
                   Cancel
@@ -619,7 +716,7 @@ const AddProductPage = () => {
                   className={styles.submitButton}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Adding Product...' : 'Add Product'}
+                  {isSubmitting ? 'Updating Product...' : 'Update Product'}
                 </button>
               </div>
             </form>
@@ -630,4 +727,4 @@ const AddProductPage = () => {
   );
 };
 
-export default AddProductPage;
+export default EditProductPage;

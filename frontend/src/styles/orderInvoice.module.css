@@ -1,0 +1,177 @@
+.invoice {
+  font-family: 'Arial', sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+  border: 1px solid #eee;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.invoiceHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 60px;
+  margin-right: 15px;
+}
+
+.logo h1 {
+  font-size: 24px;
+  color: #38479D;
+  margin: 0;
+}
+
+.invoiceDetails {
+  text-align: right;
+}
+
+.invoiceDetails h2 {
+  color: #38479D;
+  margin: 0 0 10px 0;
+  font-size: 28px;
+}
+
+.invoiceDetails p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.invoiceAddresses {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.billingAddress, .shippingAddress {
+  width: 48%;
+}
+
+.billingAddress h3, .shippingAddress h3 {
+  color: #555;
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.billingAddress p, .shippingAddress p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.invoiceItems {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.invoiceItems th {
+  background-color: #f8f9fa;
+  text-align: left;
+  padding: 12px;
+  border-bottom: 2px solid #eee;
+  font-size: 14px;
+  color: #555;
+}
+
+.invoiceItems td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #333;
+}
+
+.invoiceSummary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  text-align: right;
+  max-width: 300px;
+  margin-left: auto;
+  gap: 8px;
+}
+
+.summaryLabel {
+  font-weight: bold;
+  color: #555;
+}
+
+.summaryValue {
+  font-weight: normal;
+}
+
+.total {
+  font-size: 18px;
+  font-weight: bold;
+  color: #38479D;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 2px solid #eee;
+}
+
+.invoiceFooter {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  text-align: center;
+  color: #777;
+  font-size: 13px;
+}
+
+.invoiceFooter p {
+  margin: 5px 0;
+}
+
+/* Status colors */
+.pending {
+  color: #f59e0b;
+}
+
+.processing {
+  color: #3b82f6;
+}
+
+.shipped {
+  color: #8b5cf6;
+}
+
+.delivered {
+  color: #10b981;
+}
+
+.cancelled {
+  color: #ef4444;
+}
+
+.refunded {
+  color: #6b7280;
+}
+
+/* Print-specific styles */
+@media print {
+  .invoice {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    max-width: 100%;
+  }
+  
+  body {
+    background-color: #fff;
+  }
+  
+  @page {
+    size: auto;
+    margin: 10mm;
+  }
+}

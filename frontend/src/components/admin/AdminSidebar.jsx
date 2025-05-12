@@ -71,13 +71,13 @@ const AdminSidebar = ({ user }) => {
           <Tag size={18} />
           <span>Discount Coupons</span>
         </Link>
-        <Link 
+        {/* <Link 
           to="/admin/shipping" 
           className={`${styles.adminNavLink} ${isActive('/admin/shipping') ? styles.active : ''}`}
         >
           <Truck size={18} />
           <span>Shipping</span>
-        </Link>
+        </Link> */}
         <Link 
           to="/admin/settings" 
           className={`${styles.adminNavLink} ${isActive('/admin/settings') ? styles.active : ''}`}

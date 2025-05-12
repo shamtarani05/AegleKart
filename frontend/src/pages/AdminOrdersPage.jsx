@@ -125,33 +125,33 @@ const AdminOrdersPage = () => {
     window.alert(`Invoice for ${orderId} sent to printer.`);
   };
   
-  // Cancel order
-  const handleCancelOrder = async (orderId) => {
-    if (window.confirm('Are you sure you want to cancel this order?')) {
-      try {
-        // API call to cancel order
-        const response = await fetch(`/routes/${orderId}/cancel`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ status: 'Cancelled' })
-        });
+  // // Cancel order
+  // const handleCancelOrder = async (orderId) => {
+  //   if (window.confirm('Are you sure you want to cancel this order?')) {
+  //     try {
+  //       // API call to cancel order
+  //       const response = await fetch(`/routes/${orderId}/cancel`, {
+  //         method: 'PUT',
+  //         headers: {
+  //           'Content-Type': 'application/json'
+  //         },
+  //         body: JSON.stringify({ status: 'Cancelled' })
+  //       });
         
-        if (!response.ok) {
-          throw new Error(`Failed to cancel order: ${response.status}`);
-        }
+  //       if (!response.ok) {
+  //         throw new Error(`Failed to cancel order: ${response.status}`);
+  //       }
         
-        // Update local state after successful cancellation
-        setOrders(orders.map(order => 
-          order.id === orderId ? { ...order, status: 'Cancelled' } : order
-        ));
-      } catch (err) {
-        console.error('Error cancelling order:', err);
-        alert('Failed to cancel the order. Please try again.');
-      }
-    }
-  };
+  //       // Update local state after successful cancellation
+  //       setOrders(orders.map(order => 
+  //         order.id === orderId ? { ...order, status: 'Cancelled' } : order
+  //       ));
+  //     } catch (err) {
+  //       console.error('Error cancelling order:', err);
+  //       alert('Failed to cancel the order. Please try again.');
+  //     }
+  //   }
+  // };
 
   // Loading state
   if (loading) {
@@ -296,7 +296,7 @@ const AdminOrdersPage = () => {
                           >
                             <Printer size={16} />
                           </button>
-                          {!['Cancelled', 'Refunded'].includes(order.status) && (
+                          {/* {!['Cancelled', 'Refunded'].includes(order.status) && (
                             <button 
                               className={`${styles.actionButton} ${styles.cancelButton}`}
                               onClick={() => handleCancelOrder(order.id || order._id)}
@@ -304,7 +304,7 @@ const AdminOrdersPage = () => {
                             >
                               <X size={16} />
                             </button>
-                          )}
+                          )} */}
                         </div>
                       </td>
                     </tr>
