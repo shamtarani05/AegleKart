@@ -1,140 +1,566 @@
-import React, { forwardRef } from 'react';
+import React, { useRef } from 'react';
+import { Printer, X } from 'lucide-react';
 import styles from '../../styles/orderInvoice.module.css';
-import logo from '../../assets/logo.png'; // Adjust path as needed
 
-const OrderInvoice = forwardRef(({ order }, ref) => {
+const OrderInvoice = ({ order, onClose }) => {
+  const invoiceRef = useRef();
+  
   // Format date for display
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-IN', {
       day: '2-digit',
       month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+      year: 'numeric'
     }).format(date);
   };
-
-  // Calculate subtotal (before tax, shipping, etc)
+  
+  // Calculate subtotal
   const calculateSubtotal = () => {
-    if (!order.products || !Array.isArray(order.products)) return 0;
-    
-    return order.products.reduce((total, product) => {
-      const price = product.discountedPrice || product.price || 0;
-      const quantity = product.quantity || 1;
-      return total + (price * quantity);
+    if (!order.products || !Array.isArray(order.products)) {
+      return order.subtotal || 0;
+    }
+    return order.products.reduce((sum, product) => {
+      return sum + ((product.price || 0) * (product.quantity || 1));
     }, 0);
   };
 
-  // Calculate tax amount (assuming tax is included in total)
+  // Calculate tax amount (8% tax)
   const calculateTax = () => {
-    return order.tax || (order.total * 0.05); // Default to 5% if not specified
+    // If tax is provided in the order, use that
+    if (order.tax !== undefined) return order.tax;
+    // Otherwise calculate 8% tax
+    return calculateSubtotal() * 0.08;
+  };
+  
+  // Improved print function
+  const handlePrint = () => {
+    // Open a new window
+    const printWindow = window.open('', '_blank');
+    
+    // Generate styles and HTML content
+    const printContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Invoice ${order.orderId || order._id}</title>
+        <style>
+          /* Reset and base styles */
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+            padding: 20px;
+            margin: 0;
+          }
+          
+          /* Invoice styles */
+          .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          
+          .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+          }
+          
+          .invoice-title {
+            color: #16a34a;
+            font-size: 32px;
+            margin: 0;
+          }
+          
+          .invoice-tagline {
+            color: #666;
+            font-size: 16px;
+          }
+          
+          .invoice-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+          }
+          
+          .invoice-info {
+            max-width: 50%;
+          }
+          
+          .invoice-info h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+          }
+          
+          .invoice-number {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+          }
+          
+          .invoice-addresses {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+          }
+          
+          .address-block {
+            width: 45%;
+          }
+          
+          .address-block p {
+            margin: 3px 0;
+          }
+          
+          .address-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+          }
+          
+          /* Table styles */
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+          }
+          
+          th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+          }
+          
+          th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+          }
+          
+          /* Summary section */
+          .invoice-summary {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 30px;
+          }
+          
+          .invoice-totals {
+            width: 350px;
+          }
+          
+          .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+          }
+          
+          .grand-total {
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 2px solid #ddd;
+            padding-top: 10px;
+            margin-top: 10px;
+          }
+          
+          /* Payment and footer */
+          .payment-details {
+            margin-bottom: 30px;
+          }
+          
+          .payment-details h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+          }
+          
+          .invoice-footer {
+            text-align: center;
+            color: #666;
+            margin-top: 50px;
+            font-size: 14px;
+          }
+          
+          .terms-conditions {
+            font-size: 12px;
+            margin-top: 15px;
+          }
+          
+          /* Status colors */
+          .pending { color: #f59e0b; }
+          .processing { color: #3b82f6; }
+          .shipped { color: #8b5cf6; }
+          .delivered { color: #10b981; }
+          .cancelled { color: #ef4444; }
+          .refunded { color: #6b7280; }
+
+          /* Print-specific */
+          @page {
+            size: auto;
+            margin: 20mm;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="invoice-container">
+          <div class="invoice-header">
+            <h1 class="invoice-title">AegleKart</h1>
+            <p class="invoice-tagline">Your Health, Our Priority</p>
+          </div>
+          
+          <div class="invoice-details">
+            <div class="invoice-info">
+              <h2>INVOICE</h2>
+              <div class="invoice-number">#${order.orderId || order._id || ''}</div>
+              <div>
+                <strong>Date Issued:</strong> ${formatDate(order.createdAt)}
+              </div>
+              <div>
+                <strong>Status:</strong> 
+                <span class="${order.status?.toLowerCase() || 'pending'}">${order.status || 'Pending'}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="invoice-addresses">
+            <div class="address-block">
+              <div class="address-title">From:</div>
+              <p>AegleKart Pharmaceuticals</p>
+              <p>123 Health Avenue</p>
+              <p>Islamabad, Pakistan</p>
+              <p>Email: support@aeglekart.com</p>
+              <p>Phone: +92-123-4567890</p>
+            </div>
+            
+            <div class="address-block">
+              <div class="address-title">To:</div>
+              <p>${order.customer?.name || 'Customer'}</p>
+              <p>
+                ${order.shippingAddress?.line1 || order.shippingAddress?.address || ''} 
+                ${order.shippingAddress?.line2 ? `, ${order.shippingAddress.line2}` : ''}
+              </p>
+              <p>
+                ${order.shippingAddress?.city || ''} 
+                ${order.shippingAddress?.state ? `, ${order.shippingAddress.state}` : ''} 
+                ${order.shippingAddress?.postalCode || ''}
+              </p>
+              <p>Email: ${order.customer?.email || 'N/A'}</p>
+              <p>Phone: ${order.customer?.phone || 'N/A'}</p>
+            </div>
+          </div>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.products && Array.isArray(order.products) ? 
+                order.products.map((product, index) => `
+                  <tr>
+                    <td>${product.name || `Product ${index + 1}`}</td>
+                    <td>${product.quantity || 1}</td>
+                    <td>PKR ${(product.price || 0).toLocaleString()}</td>
+                    <td>PKR ${((product.price || 0) * (product.quantity || 1)).toLocaleString()}</td>
+                  </tr>
+                `).join('') : 
+                '<tr><td colspan="4">No items found</td></tr>'
+              }
+            </tbody>
+          </table>
+          
+          <div class="invoice-summary">
+            <div class="invoice-totals">
+              <div class="total-row">
+                <span>Subtotal:</span>
+                <span>PKR ${calculateSubtotal().toLocaleString()}</span>
+              </div>
+              
+              ${getDiscountInfo().value > 0 ? `
+              <div class="total-row">
+                <span>Discount (${formatDiscount()}):</span>
+                <span>- PKR ${calculateDiscountAmount().toLocaleString()}</span>
+              </div>
+              ` : ''}
+              
+              ${getPromoCode() ? `
+              <div class="total-row">
+                <span>Promo Code:</span>
+                <span>${getPromoCode()}</span>
+              </div>
+              ` : ''}
+              
+              <div class="total-row">
+                <span>Tax (8%):</span>
+                <span>PKR ${calculateTax().toLocaleString()}</span>
+              </div>
+              
+              <div class="total-row">
+                <span>Shipping:</span>
+                <span>PKR ${(order.shipping || 0).toLocaleString()}</span>
+              </div>
+              
+              <div class="total-row grand-total">
+                <span>Total:</span>
+                <span>PKR ${(order.total || 0).toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="payment-details">
+            <h3>Payment Details</h3>
+            <p><strong>Method:</strong> ${order.paymentMethod || 'Card'}</p>
+            <p><strong>Status:</strong> ${order.status || 'Pending'}</p>
+            <p><strong>Date:</strong> ${formatDate(order.createdAt)}</p>
+          </div>
+          
+          <div class="invoice-footer">
+            <p>Thank you for shopping with AegleKart!</p>
+            <p>For any questions or concerns, please contact our customer support.</p>
+            <p class="terms-conditions">This is a computer-generated invoice and does not require a signature.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    // Write the content to the new window
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    
+    // Wait for content to load, then print
+    printWindow.onload = function() {
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+    };
+  };
+  
+  // Get discount amount and type
+  const getDiscountInfo = () => {
+    // Check for various discount fields that might exist
+    if (order.discount) {
+      if (typeof order.discount === 'number') {
+        return { value: order.discount, type: 'fixed' };
+      } else if (order.discount.value) {
+        return { 
+          value: order.discount.value, 
+          type: order.discount.type || 'fixed'
+        };
+      }
+    } else if (order.promoDiscount) {
+      return { value: order.promoDiscount, type: 'fixed' };
+    }
+    return { value: 0, type: 'fixed' };
+  };
+  
+  // Format discount based on type
+  const formatDiscount = () => {
+    const { value, type } = getDiscountInfo();
+    
+    if (value <= 0) return null;
+    
+    if (type === 'percent') {
+      return `${value}%`;
+    } else {
+      return `PKR ${value.toLocaleString()}`;
+    }
+  };
+  
+  // Calculate discount amount in PKR
+  const calculateDiscountAmount = () => {
+    const { value, type } = getDiscountInfo();
+    
+    if (value <= 0) return 0;
+    
+    if (type === 'percent') {
+      return calculateSubtotal() * (value / 100);
+    } else {
+      return value;
+    }
   };
 
-  // Calculate shipping cost
-  const calculateShipping = () => {
-    return order.shippingCost || 0;
+  // Get promo code
+  const getPromoCode = () => {
+    if (order.discount && order.discount.code) {
+      return order.discount.code;
+    } else if (order.promoCode) {
+      return order.promoCode;
+    }
+    return null;
   };
-
-  // Format currency
-  const formatCurrency = (amount) => {
-    return `PKR ${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-  };
-
-  const subtotal = calculateSubtotal();
-  const tax = calculateTax();
-  const shipping = calculateShipping();
 
   return (
-    <div ref={ref} className={styles.invoice}>
-      <div className={styles.invoiceHeader}>
-        <div className={styles.logo}>
-          <img src={logo} alt="AegleKart" />
-          <h1>AegleKart</h1>
+    <div className={styles.invoiceModalOverlay}>
+      <div className={styles.invoiceModalContent}>
+        <div className={styles.invoiceHeader}>
+          <h2>Invoice</h2>
+          <div className={styles.invoiceActions}>
+            <button 
+              className={styles.printButton}
+              onClick={handlePrint}
+              title="Print Invoice"
+            >
+              <Printer size={18} />
+              <span>Print</span>
+            </button>
+            <button 
+              className={styles.closeButton}
+              onClick={onClose}
+              title="Close"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
-        <div className={styles.invoiceDetails}>
-          <h2>INVOICE</h2>
-          <p><strong>Invoice #:</strong> {order.orderId || order._id}</p>
-          <p><strong>Date:</strong> {formatDate(order.date || order.createdAt || new Date())}</p>
-          <p><strong>Payment Method:</strong> {order.paymentMethod || 'Card'}</p>
-          <p><strong>Status:</strong> <span className={styles[order.status?.toLowerCase() || 'pending']}>{order.status || 'Pending'}</span></p>
-        </div>
-      </div>
-
-      <div className={styles.invoiceAddresses}>
-        <div className={styles.billingAddress}>
-          <h3>Billing Address</h3>
-          <p>{order.customer?.name || 'Customer'}</p>
-          <p>{order.billingAddress?.street || order.customer?.address?.street || ''}</p>
-          <p>
-            {order.billingAddress?.city || order.customer?.address?.city || ''}, 
-            {order.billingAddress?.state || order.customer?.address?.state || ''} 
-            {order.billingAddress?.postalCode || order.customer?.address?.postalCode || ''}
-          </p>
-          <p>{order.billingAddress?.country || order.customer?.address?.country || ''}</p>
-          <p>{order.customer?.phone || ''}</p>
-          <p>{order.customer?.email || ''}</p>
-        </div>
-        <div className={styles.shippingAddress}>
-          <h3>Shipping Address</h3>
-          <p>{order.customer?.name || 'Customer'}</p>
-          <p>{order.shippingAddress?.street || order.customer?.address?.street || ''}</p>
-          <p>
-            {order.shippingAddress?.city || order.customer?.address?.city || ''}, 
-            {order.shippingAddress?.state || order.customer?.address?.state || ''} 
-            {order.shippingAddress?.postalCode || order.customer?.address?.postalCode || ''}
-          </p>
-          <p>{order.shippingAddress?.country || order.customer?.address?.country || ''}</p>
-        </div>
-      </div>
-
-      <table className={styles.invoiceItems}>
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Description</th>
-            <th>Quantity</th>
-            <th>Unit Price</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(order.products || []).map((product, index) => (
-            <tr key={index}>
-              <td>{product.name || `Product ${index + 1}`}</td>
-              <td>{product.description || `${product.brandName || ''} ${product.category || ''}`}</td>
-              <td>{product.quantity || 1}</td>
-              <td>{formatCurrency(product.discountedPrice || product.price || 0)}</td>
-              <td>{formatCurrency((product.discountedPrice || product.price || 0) * (product.quantity || 1))}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className={styles.invoiceSummary}>
-        <div className={styles.summaryLabel}>Subtotal:</div>
-        <div className={styles.summaryValue}>{formatCurrency(subtotal)}</div>
         
-        <div className={styles.summaryLabel}>Tax:</div>
-        <div className={styles.summaryValue}>{formatCurrency(tax)}</div>
-        
-        <div className={styles.summaryLabel}>Shipping:</div>
-        <div className={styles.summaryValue}>{formatCurrency(shipping)}</div>
-        
-        <div className={`${styles.summaryLabel} ${styles.total}`}>Total:</div>
-        <div className={`${styles.summaryValue} ${styles.total}`}>{formatCurrency(order.total || 0)}</div>
-      </div>
-
-      <div className={styles.invoiceFooter}>
-        <p>Thank you for your purchase!</p>
-        <p>For any questions or concerns regarding this invoice, please contact our customer service at support@aeglekart.com</p>
-        <p>&copy; {new Date().getFullYear()} AegleKart. All rights reserved.</p>
+        {/* Printable invoice content */}
+        <div id="printable-invoice" className={styles.invoicePrintableContent} ref={invoiceRef}>
+          <div className={styles.invoiceBranding}>
+            <h1>AegleKart</h1>
+            <p className={styles.tagline}>Your Health, Our Priority</p>
+          </div>
+          
+          <div className={styles.invoiceDetails}>
+            <div className={styles.invoiceInfo}>
+              <h2>INVOICE</h2>
+              <div className={styles.invoiceNumber}>#{order.orderId || order._id}</div>
+              <div className={styles.invoiceDate}>
+                <strong>Date Issued:</strong> {formatDate(order.createdAt)}
+              </div>
+              <div className={styles.invoiceStatus}>
+                <strong>Status:</strong> <span className={styles[order.status?.toLowerCase() || "pending"]}>{order.status || "Pending"}</span>
+              </div>
+            </div>
+            
+            <div className={styles.invoiceAddress}>
+              <div className={styles.companyAddress}>
+                <strong>From:</strong>
+                <p>AegleKart Pharmaceuticals</p>
+                <p>123 Health Avenue</p>
+                <p>Islamabad, Pakistan</p>
+                <p>Email: support@aeglekart.com</p>
+                <p>Phone: +92-123-4567890</p>
+              </div>
+              
+              <div className={styles.customerAddress}>
+                <strong>To:</strong>
+                <p>{order.customer?.name || "Customer"}</p>
+                <p>
+                  {order.shippingAddress?.line1 || order.shippingAddress?.address || ""}
+                  {order.shippingAddress?.line2 ? `, ${order.shippingAddress.line2}` : ""}
+                </p>
+                <p>
+                  {order.shippingAddress?.city || ""} 
+                  {order.shippingAddress?.state ? `, ${order.shippingAddress.state}` : ""} 
+                  {order.shippingAddress?.postalCode || ""}
+                </p>
+                <p>Email: {order.customer?.email || "N/A"}</p>
+                <p>Phone: {order.customer?.phone || "N/A"}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className={styles.invoiceItems}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Quantity</th>
+                  <th>Unit Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.products && Array.isArray(order.products) && order.products.map((product, index) => (
+                  <tr key={index}>
+                    <td>
+                      <div className={styles.productDetails}>
+                        <span className={styles.productName}>{product.name || `Product ${index + 1}`}</span>
+                      </div>
+                    </td>
+                    <td>{product.quantity || 1}</td>
+                    <td>PKR {(product.price || 0).toLocaleString()}</td>
+                    <td>PKR {((product.price || 0) * (product.quantity || 1)).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className={styles.invoiceSummary}>
+            <div className={styles.invoiceTotals}>
+              <div className={styles.totalRow}>
+                <span>Subtotal:</span>
+                <span>PKR {calculateSubtotal().toLocaleString()}</span>
+              </div>
+              
+              {/* Display discount if exists */}
+              {getDiscountInfo().value > 0 && (
+                <div className={styles.totalRow}>
+                  <span>Discount ({formatDiscount()}):</span>
+                  <span>- PKR {calculateDiscountAmount().toLocaleString()}</span>
+                </div>
+              )}
+              
+              {/* Display promo code if exists */}
+              {getPromoCode() && (
+                <div className={styles.totalRow}>
+                  <span>Promo Code:</span>
+                  <span>{getPromoCode()}</span>
+                </div>
+              )}
+              
+              <div className={styles.totalRow}>
+                <span>Tax (8%):</span>
+                <span>PKR {calculateTax().toLocaleString()}</span>
+              </div>
+              
+              <div className={styles.totalRow}>
+                <span>Shipping:</span>
+                <span>PKR {(order.shipping || 0).toLocaleString()}</span>
+              </div>
+              
+              <div className={`${styles.totalRow} ${styles.grandTotal}`}>
+                <span>Total:</span>
+                <span>PKR {(order.total || 0).toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className={styles.invoicePayment}>
+            <div className={styles.paymentDetails}>
+              <h3>Payment Details</h3>
+              <p><strong>Method:</strong> {order.paymentMethod || "Card"}</p>
+              <p><strong>Status:</strong> {order.status || "Pending"}</p>
+              <p><strong>Date:</strong> {formatDate(order.createdAt)}</p>
+            </div>
+          </div>
+          
+          <div className={styles.invoiceFooter}>
+            <p>Thank you for shopping with AegleKart!</p>
+            <p>For any questions or concerns, please contact our customer support.</p>
+            <p className={styles.termsConditions}>
+              This is a computer-generated invoice and does not require a signature.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
-});
-
-OrderInvoice.displayName = 'OrderInvoice';
+};
 
 export default OrderInvoice;

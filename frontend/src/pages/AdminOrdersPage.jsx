@@ -13,6 +13,7 @@ import useAuthStore from '../stores/auth-store';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import LoadingState from '../components/common/LoadingState';
 import ErrorState from '../components/common/ErrorState';
+import OrderInvoice from '../components/admin/OrderInvoice';
 import styles from '../styles/adminOrders.module.css';
 
 const AdminOrdersPage = () => {
@@ -29,6 +30,10 @@ const AdminOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // State for invoice modal
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   // Status options for filtering
   const statusOptions = [
@@ -120,38 +125,16 @@ const AdminOrdersPage = () => {
   
   // Print invoice
   const handlePrintInvoice = (orderId) => {
-    // In a real app, generate and print invoice
-    console.log(`Printing invoice for order ${orderId}`);
-    window.alert(`Invoice for ${orderId} sent to printer.`);
+    // Find the order by ID
+    const order = orders.find(order => (order.id === orderId || order._id === orderId || order.orderId === orderId));
+    if (order) {
+      setSelectedOrder(order);
+      setShowInvoice(true);
+    } else {
+      console.error(`Order with ID ${orderId} not found`);
+      alert("Couldn't find order details for printing.");
+    }
   };
-  
-  // // Cancel order
-  // const handleCancelOrder = async (orderId) => {
-  //   if (window.confirm('Are you sure you want to cancel this order?')) {
-  //     try {
-  //       // API call to cancel order
-  //       const response = await fetch(`/routes/${orderId}/cancel`, {
-  //         method: 'PUT',
-  //         headers: {
-  //           'Content-Type': 'application/json'
-  //         },
-  //         body: JSON.stringify({ status: 'Cancelled' })
-  //       });
-        
-  //       if (!response.ok) {
-  //         throw new Error(`Failed to cancel order: ${response.status}`);
-  //       }
-        
-  //       // Update local state after successful cancellation
-  //       setOrders(orders.map(order => 
-  //         order.id === orderId ? { ...order, status: 'Cancelled' } : order
-  //       ));
-  //     } catch (err) {
-  //       console.error('Error cancelling order:', err);
-  //       alert('Failed to cancel the order. Please try again.');
-  //     }
-  //   }
-  // };
 
   // Loading state
   if (loading) {
@@ -296,15 +279,6 @@ const AdminOrdersPage = () => {
                           >
                             <Printer size={16} />
                           </button>
-                          {/* {!['Cancelled', 'Refunded'].includes(order.status) && (
-                            <button 
-                              className={`${styles.actionButton} ${styles.cancelButton}`}
-                              onClick={() => handleCancelOrder(order.id || order._id)}
-                              title="Cancel Order"
-                            >
-                              <X size={16} />
-                            </button>
-                          )} */}
                         </div>
                       </td>
                     </tr>
@@ -342,6 +316,14 @@ const AdminOrdersPage = () => {
           )}
         </main>
       </div>
+      
+      {/* Invoice Modal */}
+      {showInvoice && selectedOrder && (
+        <OrderInvoice 
+          order={selectedOrder}
+          onClose={() => setShowInvoice(false)}
+        />
+      )}
     </div>
   );
 };
