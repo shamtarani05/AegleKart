@@ -13,6 +13,7 @@ import useAuthStore from '../stores/auth-store';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import LoadingState from '../components/common/LoadingState';
 import ErrorState from '../components/common/ErrorState';
+import Toast from '../components/common/Toast';
 import styles from '../styles/adminProducts.module.css';
 
 const AdminProductsPage = () => {
@@ -30,6 +31,13 @@ const AdminProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Toast state
+  const [toast, setToast] = useState({
+    show: false,
+    message: '',
+    type: 'success'
+  });
   
   // Filter categories
   const categories = [
@@ -109,20 +117,54 @@ const AdminProductsPage = () => {
   const handleDeleteProduct = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        // In a real app, make API call to delete product
-        // For now, just update the local state
-        setProducts(products.filter(product => product.id !== productId));
+        setLoading(true);
+        
+        // Make API call to delete product
+        const response = await fetch(`http://localhost:3000/products/${productId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to delete product');
+        }
+        
+        // Get the response data
+        const data = await response.json();
+        console.log('Product deleted:', data);
+        
+        // Update the local state by removing the deleted product
+        setProducts(products.filter(product => 
+          (product._id !== productId) && (product.id !== productId)
+        ));
+        
+        // Show toast message
+        setToast({
+          show: true,
+          message: 'Product deleted successfully',
+          type: 'success'
+        });
+        
       } catch (error) {
         console.error("Error deleting product:", error);
-        alert("Failed to delete product. Please try again.");
+        setToast({
+          show: true,
+          message: `Failed to delete product: ${error.message}`,
+          type: 'error'
+        });
+      } finally {
+        setLoading(false);
       }
     }
   };
   
-  // View product details
-  const handleViewProduct = (productId) => {
-    navigate(`/admin/product-details/${productId}`);
-  };
+  // // View product details
+  // const handleViewProduct = (productId) => {
+  //   navigate(`/admin/product-details/${productId}`);
+  // };
 
   // Loading state
   if (loading && products.length === 0) {
@@ -250,13 +292,13 @@ const AdminProductsPage = () => {
                       </td>
                       <td>
                         <div className={styles.actionButtons}>
-                          <button 
+                          {/* <button 
                             className={styles.actionButton}
                             onClick={() => handleViewProduct(product._id || product.id)}
                             title="View Details"
                           >
                             <Eye size={16} />
-                          </button>
+                          </button> */}
                           <button 
                             className={styles.actionButton}
                             onClick={() => handleEditProduct(product._id || product.id)}
@@ -305,6 +347,15 @@ const AdminProductsPage = () => {
                 <ChevronRight size={16} />
               </button>
             </div>
+          )}
+          
+          {/* Toast notification */}
+          {toast.show && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => setToast({ ...toast, show: false })}
+            />
           )}
         </main>
       </div>

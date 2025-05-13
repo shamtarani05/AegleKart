@@ -22,6 +22,9 @@ import AdminCouponsPage from "./pages/AdminCouponsPage";
 import AddProductPage from "./pages/AddProductPage";
 import { jwtDecode } from 'jwt-decode';
 import NotFound from "./pages/NotFound";
+import EditProductPage from "./pages/EditProductPage";
+import OrderDetailsPage from "./pages/OrderDetailsPage";
+import AdminSettingsPage from "./pages/AdminSettingsPage";
 import StoreLocator from "./pages/StoreLocator";
 import Blog from "./pages/Bolgs";
 import CareerPage from "./pages/CareerPage";
@@ -111,6 +114,9 @@ function App() {
           <AddProductPage />
         </ProtectedAdminRoute>
       } />
+      <Route path="/admin/edit-product/:id" element={<EditProductPage />} />
+      <Route path="/admin/order-details/:id" element={<OrderDetailsPage />} />
+      <Route path="/admin/settings" element={<AdminSettingsPage />} />
       <Route path="/admin/*" element={
         <ProtectedAdminRoute>
           <AdminDashboard />

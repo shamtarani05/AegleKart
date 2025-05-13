@@ -156,7 +156,7 @@
 .ordersTable th:nth-child(4) { width: 8%;  } /* Items */
 .ordersTable th:nth-child(5) { width: 10%; } /* Total */
 .ordersTable th:nth-child(6) { width: 15%; } /* Payment Method */
-.ordersTable th:nth-child(7) { width: 12%; } /* Status */
+.ordersTable th:nth-child(7) { width: 15%; } /* Status */
 .ordersTable th:nth-child(8) { width: 10%; } /* Actions */
 
 .ordersTable td {
@@ -232,6 +232,77 @@
 .refunded {
   background-color: #f3effc;
   color: #8b5cf6;
+}
+
+/* Add these styles for the status dropdown */
+.statusDropdownContainer {
+  position: relative;
+  width: 110px;
+}
+
+.statusDropdown {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  appearance: none;
+  text-align: center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+.statusDropdown:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Style each status option */
+.statusDropdown.pending {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.statusDropdown.processing {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.statusDropdown.shipped {
+  background-color: #e0e7ff;
+  color: #4338ca;
+}
+
+.statusDropdown.delivered {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusDropdown.cancelled {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.statusDropdown.refunded {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+/* Loading indicator while updating */
+.loadingStatus {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  text-align: center;
+  width: 110px;
 }
 
 /* Action buttons styles */

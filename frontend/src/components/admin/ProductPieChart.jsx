@@ -6,15 +6,6 @@ const ProductPieChart = ({ data }) => {
   
   // Ensure we have properly structured data with all required fields
   const processCategories = () => {
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      // Default fallback data if none provided
-      return [
-        { name: 'Painkillers', color: '#4e6af3', value: 40 },
-        { name: 'Antibiotics', color: '#10ca93', value: 25 },
-        { name: 'Vitamins', color: '#f39c12', value: 20 },
-        { name: 'Others', color: '#9b59b6', value: 15 }
-      ];
-    }
     
     // Normalize data to ensure values add up to 100%
     const totalValue = data.reduce((sum, category) => sum + (category.value || 0), 0);

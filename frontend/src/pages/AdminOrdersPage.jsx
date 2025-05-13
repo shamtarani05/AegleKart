@@ -13,6 +13,7 @@ import useAuthStore from '../stores/auth-store';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import LoadingState from '../components/common/LoadingState';
 import ErrorState from '../components/common/ErrorState';
+import OrderInvoice from '../components/admin/OrderInvoice';
 import styles from '../styles/adminOrders.module.css';
 
 const AdminOrdersPage = () => {
@@ -29,6 +30,11 @@ const AdminOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [updatingOrderId, setUpdatingOrderId] = useState(null); // Add this new state
+
+  // State for invoice modal
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   // Status options for filtering
   const statusOptions = [
@@ -40,6 +46,9 @@ const AdminOrdersPage = () => {
     'Cancelled',
     'Refunded'
   ];
+
+  // Add status options for dropdown
+  const availableStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded'];
 
   // Fetch orders from API
   useEffect(() => {
@@ -86,10 +95,42 @@ const AdminOrdersPage = () => {
     setCurrentPage(1); // Reset to first page when searching
   };
   
-  // Handle status filter change
-  const handleStatusChange = (e) => {
+  // Handle filter status change - rename the existing function
+  const handleStatusFilterChange = (e) => {
     setStatusFilter(e.target.value);
     setCurrentPage(1); // Reset to first page when filtering
+  };
+
+  // Add this function to handle order status updates
+  const handleStatusChange = async (order, newStatus) => {
+    try {
+      setUpdatingOrderId(order.orderId);
+      
+      const response = await fetch(`http://localhost:3000/orders/update-status/${order.orderId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update status: ${response.statusText}`);
+      }
+      
+      // Update local state to reflect the change
+      setOrders(currentOrders => 
+        currentOrders.map(o => 
+          (o.orderId === order.orderId || o._id === order._id) ? { ...o, status: newStatus } : o
+        )
+      );
+      
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      alert('Failed to update order status. Please try again.');
+    } finally {
+      setUpdatingOrderId(null);
+    }
   };
   
   // Filter orders based on search and status filter
@@ -113,43 +154,23 @@ const AdminOrdersPage = () => {
   // Handle page change
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   
-  // View order details
+  // View order details - make sure we're providing the correct ID
   const handleViewOrder = (orderId) => {
-    navigate(`/admin/order-details/${orderId}`);
+    const id = orderId;
+    console.log(`Navigating to order details: ${id}`);
+    navigate(`/admin/order-details/${id}`);
   };
   
   // Print invoice
   const handlePrintInvoice = (orderId) => {
-    // In a real app, generate and print invoice
-    console.log(`Printing invoice for order ${orderId}`);
-    window.alert(`Invoice for ${orderId} sent to printer.`);
-  };
-  
-  // Cancel order
-  const handleCancelOrder = async (orderId) => {
-    if (window.confirm('Are you sure you want to cancel this order?')) {
-      try {
-        // API call to cancel order
-        const response = await fetch(`/routes/${orderId}/cancel`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ status: 'Cancelled' })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to cancel order: ${response.status}`);
-        }
-        
-        // Update local state after successful cancellation
-        setOrders(orders.map(order => 
-          order.id === orderId ? { ...order, status: 'Cancelled' } : order
-        ));
-      } catch (err) {
-        console.error('Error cancelling order:', err);
-        alert('Failed to cancel the order. Please try again.');
-      }
+    // Find the order by ID
+    const order = orders.find(order => (order.id === orderId || order._id === orderId || order.orderId === orderId));
+    if (order) {
+      setSelectedOrder(order);
+      setShowInvoice(true);
+    } else {
+      console.error(`Order with ID ${orderId} not found`);
+      alert("Couldn't find order details for printing.");
     }
   };
 
@@ -228,7 +249,7 @@ const AdminOrdersPage = () => {
               <select 
                 className={styles.filterSelect}
                 value={statusFilter}
-                onChange={handleStatusChange}
+                onChange={handleStatusFilterChange}
               >
                 {statusOptions.map((status, index) => (
                   <option key={index} value={status}>
@@ -276,9 +297,23 @@ const AdminOrdersPage = () => {
                       <td className={styles.orderTotal}>PKR {(order.total)?.toLocaleString()}</td>
                       <td>{order.paymentMethod}</td>
                       <td>
-                        <span className={`${styles.orderStatus} ${styles[order.status.toLowerCase()]}`}>
-                          {order.status}
-                        </span>
+                        {updatingOrderId === order.orderId ? (
+                          <div className={styles.loadingStatus}>Updating...</div>
+                        ) : (
+                          <div className={styles.statusDropdownContainer}>
+                            <select
+                              className={`${styles.statusDropdown} ${styles[order.status.toLowerCase()]}`}
+                              value={order.status}
+                              onChange={(e) => handleStatusChange(order, e.target.value)}
+                            >
+                              {availableStatuses.map((status) => (
+                                <option key={status} value={status}>
+                                  {status}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
                       </td>
                       <td>
                         <div className={styles.actionButtons}>
@@ -296,15 +331,6 @@ const AdminOrdersPage = () => {
                           >
                             <Printer size={16} />
                           </button>
-                          {!['Cancelled', 'Refunded'].includes(order.status) && (
-                            <button 
-                              className={`${styles.actionButton} ${styles.cancelButton}`}
-                              onClick={() => handleCancelOrder(order.id || order._id)}
-                              title="Cancel Order"
-                            >
-                              <X size={16} />
-                            </button>
-                          )}
                         </div>
                       </td>
                     </tr>
@@ -342,6 +368,14 @@ const AdminOrdersPage = () => {
           )}
         </main>
       </div>
+      
+      {/* Invoice Modal */}
+      {showInvoice && selectedOrder && (
+        <OrderInvoice 
+          order={selectedOrder}
+          onClose={() => setShowInvoice(false)}
+        />
+      )}
     </div>
   );
 };

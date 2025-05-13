@@ -1,0 +1,147 @@
+.adminPageContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.adminMainContent {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  margin-left: 280px;
+  min-height: 100vh;
+  width: calc(100% - 280px);
+}
+
+.settingsHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.settingsHeader h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background-color: #f3f4f6;
+  border: none;
+  border-radius: 6px;
+  color: #4b5563;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--color-sage-muted);
+}
+
+.backButton:hover {
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+.settingsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.settingsCard {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+}
+
+.settingsCard h2 {
+  margin: 0 0 20px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.userAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.userInfo h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.userInfo p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.settingsActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settingButton,
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settingButton {
+  background-color: #f9fafb;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+.settingButton:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.logoutButton {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  margin-top: 12px;
+}
+
+.logoutButton:hover {
+  background-color: #fecaca;
+}
