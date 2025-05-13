@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Printer, X } from 'lucide-react';
 import styles from '../../styles/orderInvoice.module.css';
 
-const OrderInvoice = ({ order, onClose }) => {
+const OrderInvoice = ({ order, payment, onClose }) => {
   const invoiceRef = useRef();
   
   // Format date for display
@@ -33,7 +33,73 @@ const OrderInvoice = ({ order, onClose }) => {
     // Otherwise calculate 8% tax
     return calculateSubtotal() * 0.08;
   };
-  
+
+  // Calculate shipping
+  const getShippingCost = () => {
+    return order.shipping || 0;
+  };
+
+  // Get discount information
+  const getDiscountInfo = () => {
+    // Check for various discount fields that might exist
+    if (order.discount) {
+      if (typeof order.discount === 'number') {
+        return { value: order.discount, type: 'fixed' };
+      } else if (order.discount.value) {
+        return { 
+          value: order.discount.value, 
+          type: order.discount.type || 'fixed',
+          code: order.discount.code
+        };
+      }
+    } else if (order.promoDiscount) {
+      return { value: order.promoDiscount, type: 'fixed' };
+    }
+    return { value: 0, type: 'fixed' };
+  };
+
+  // Format discount based on type
+  const formatDiscount = () => {
+    const { value, type } = getDiscountInfo();
+    
+    if (value <= 0) return null;
+    
+    if (type === 'percent') {
+      return `${value}%`;
+    } else {
+      return `PKR ${value.toLocaleString()}`;
+    }
+  };
+
+  // Calculate discount amount in PKR - applied at the end of calculation
+  const calculateDiscountAmount = () => {
+    const { value, type } = getDiscountInfo();
+    const subtotal = calculateSubtotal();
+    const tax = calculateTax();
+    const shipping = getShippingCost();
+    
+    if (value <= 0) return 0;
+    
+    // Apply discount after adding tax and shipping
+    const preDiscountTotal = subtotal + tax + shipping;
+    
+    if (type === 'percent') {
+      return preDiscountTotal * (value / 100);
+    } else {
+      return value;
+    }
+  };
+
+  // Calculate final total
+  const calculateTotal = () => {
+    const subtotal = calculateSubtotal();
+    const tax = calculateTax();
+    const shipping = getShippingCost();
+    const discount = calculateDiscountAmount();
+    
+    return subtotal + tax + shipping - discount;
+  };
+
   // Improved print function
   const handlePrint = () => {
     // Open a new window
@@ -242,18 +308,19 @@ const OrderInvoice = ({ order, onClose }) => {
             
             <div class="address-block">
               <div class="address-title">To:</div>
-              <p>${order.customer?.name || 'Customer'}</p>
+              <p>${customer.name}</p>
               <p>
-                ${order.shippingAddress?.line1 || order.shippingAddress?.address || ''} 
-                ${order.shippingAddress?.line2 ? `, ${order.shippingAddress.line2}` : ''}
+                ${address.line1 || ''} 
+                ${address.line2 ? `, ${address.line2}` : ''}
               </p>
               <p>
-                ${order.shippingAddress?.city || ''} 
-                ${order.shippingAddress?.state ? `, ${order.shippingAddress.state}` : ''} 
-                ${order.shippingAddress?.postalCode || ''}
+                ${address.city || ''} 
+                ${address.state ? `, ${address.state}` : ''} 
+                ${address.postalCode || ''}
               </p>
-              <p>Email: ${order.customer?.email || 'N/A'}</p>
-              <p>Phone: ${order.customer?.phone || 'N/A'}</p>
+              <p>${address.country || 'Pakistan'}</p>
+              <p>Email: ${customer.email}</p>
+              <p>Phone: ${customer.phone}</p>
             </div>
           </div>
           
@@ -288,6 +355,16 @@ const OrderInvoice = ({ order, onClose }) => {
                 <span>PKR ${calculateSubtotal().toLocaleString()}</span>
               </div>
               
+              <div class="total-row">
+                <span>Tax (8%):</span>
+                <span>PKR ${calculateTax().toLocaleString()}</span>
+              </div>
+              
+              <div class="total-row">
+                <span>Shipping:</span>
+                <span>PKR ${getShippingCost().toLocaleString()}</span>
+              </div>
+              
               ${getDiscountInfo().value > 0 ? `
               <div class="total-row">
                 <span>Discount (${formatDiscount()}):</span>
@@ -302,19 +379,9 @@ const OrderInvoice = ({ order, onClose }) => {
               </div>
               ` : ''}
               
-              <div class="total-row">
-                <span>Tax (8%):</span>
-                <span>PKR ${calculateTax().toLocaleString()}</span>
-              </div>
-              
-              <div class="total-row">
-                <span>Shipping:</span>
-                <span>PKR ${(order.shipping || 0).toLocaleString()}</span>
-              </div>
-              
               <div class="total-row grand-total">
                 <span>Total:</span>
-                <span>PKR ${(order.total || 0).toLocaleString()}</span>
+                <span>PKR ${calculateTotal().toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -349,50 +416,6 @@ const OrderInvoice = ({ order, onClose }) => {
     };
   };
   
-  // Get discount amount and type
-  const getDiscountInfo = () => {
-    // Check for various discount fields that might exist
-    if (order.discount) {
-      if (typeof order.discount === 'number') {
-        return { value: order.discount, type: 'fixed' };
-      } else if (order.discount.value) {
-        return { 
-          value: order.discount.value, 
-          type: order.discount.type || 'fixed'
-        };
-      }
-    } else if (order.promoDiscount) {
-      return { value: order.promoDiscount, type: 'fixed' };
-    }
-    return { value: 0, type: 'fixed' };
-  };
-  
-  // Format discount based on type
-  const formatDiscount = () => {
-    const { value, type } = getDiscountInfo();
-    
-    if (value <= 0) return null;
-    
-    if (type === 'percent') {
-      return `${value}%`;
-    } else {
-      return `PKR ${value.toLocaleString()}`;
-    }
-  };
-  
-  // Calculate discount amount in PKR
-  const calculateDiscountAmount = () => {
-    const { value, type } = getDiscountInfo();
-    
-    if (value <= 0) return 0;
-    
-    if (type === 'percent') {
-      return calculateSubtotal() * (value / 100);
-    } else {
-      return value;
-    }
-  };
-
   // Get promo code
   const getPromoCode = () => {
     if (order.discount && order.discount.code) {
@@ -402,6 +425,27 @@ const OrderInvoice = ({ order, onClose }) => {
     }
     return null;
   };
+
+  // Get the best available address from payment or order
+  const getBillingAddress = () => {
+    if (payment && payment.billing && payment.billing.address) {
+      return payment.billing.address;
+    }
+    return order.shippingAddress || {};
+  };
+  
+  // Get customer contact info with fallbacks
+  const getCustomerInfo = () => {
+    const result = {
+      name: order.customer?.name || payment?.billing?.name || 'Customer',
+      email: order.customer?.email || payment?.customer?.email || 'N/A',
+      phone: payment?.billing?.phone || order.customer?.phone || 'N/A'
+    };
+    return result;
+  };
+  
+  const address = getBillingAddress();
+  const customer = getCustomerInfo();
 
   return (
     <div className={styles.invoiceModalOverlay}>
@@ -458,18 +502,19 @@ const OrderInvoice = ({ order, onClose }) => {
               
               <div className={styles.customerAddress}>
                 <strong>To:</strong>
-                <p>{order.customer?.name || "Customer"}</p>
+                <p>{customer.name}</p>
                 <p>
-                  {order.shippingAddress?.line1 || order.shippingAddress?.address || ""}
-                  {order.shippingAddress?.line2 ? `, ${order.shippingAddress.line2}` : ""}
+                  {address.line1 || ""}
+                  {address.line2 ? `, ${address.line2}` : ""}
                 </p>
                 <p>
-                  {order.shippingAddress?.city || ""} 
-                  {order.shippingAddress?.state ? `, ${order.shippingAddress.state}` : ""} 
-                  {order.shippingAddress?.postalCode || ""}
+                  {address.city || ""} 
+                  {address.state ? `, ${address.state}` : ""} 
+                  {address.postalCode || ""}
                 </p>
-                <p>Email: {order.customer?.email || "N/A"}</p>
-                <p>Phone: {order.customer?.phone || "N/A"}</p>
+                <p>{address.country || "Pakistan"}</p>
+                <p>Email: {customer.email}</p>
+                <p>Phone: {customer.phone}</p>
               </div>
             </div>
           </div>
@@ -508,11 +553,21 @@ const OrderInvoice = ({ order, onClose }) => {
                 <span>PKR {calculateSubtotal().toLocaleString()}</span>
               </div>
               
+              <div className={styles.totalRow}>
+                <span>Tax (8%):</span>
+                <span>PKR {calculateTax().toLocaleString()}</span>
+              </div>
+              
+              <div className={styles.totalRow}>
+                <span>Shipping:</span>
+                <span>PKR {getShippingCost().toLocaleString()}</span>
+              </div>
+              
               {/* Display discount if exists */}
               {getDiscountInfo().value > 0 && (
                 <div className={styles.totalRow}>
                   <span>Discount ({formatDiscount()}):</span>
-                  <span>- PKR {calculateDiscountAmount().toLocaleString()}</span>
+                  <span className={styles.discountValue}>- PKR {calculateDiscountAmount().toLocaleString()}</span>
                 </div>
               )}
               
@@ -524,19 +579,9 @@ const OrderInvoice = ({ order, onClose }) => {
                 </div>
               )}
               
-              <div className={styles.totalRow}>
-                <span>Tax (8%):</span>
-                <span>PKR {calculateTax().toLocaleString()}</span>
-              </div>
-              
-              <div className={styles.totalRow}>
-                <span>Shipping:</span>
-                <span>PKR {(order.shipping || 0).toLocaleString()}</span>
-              </div>
-              
               <div className={`${styles.totalRow} ${styles.grandTotal}`}>
                 <span>Total:</span>
-                <span>PKR {(order.total || 0).toLocaleString()}</span>
+                <span>PKR {calculateTotal().toLocaleString()}</span>
               </div>
             </div>
           </div>

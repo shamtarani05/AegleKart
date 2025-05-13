@@ -1,17 +1,32 @@
 const express = require('express');
-const orderRouter = express.Router();
+const router = express.Router();
 const orderController = require('../controller/orderController');
 
+// Debug middleware to track requests
+router.use((req, res, next) => {
+  console.log(`Orders API Request: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Verify payment status for an order
-orderRouter.get('/verify-payment/:orderId', orderController.verifyPayment);
+router.get('/verify-payment/:orderId', orderController.verifyPayment);
+
+// Get payment details for an order
+router.get('/payment/:orderId', orderController.getPaymentByOrderId);
+
+// Get order details by ID
+router.get('/details/:orderId', orderController.getOrderDetails);
 
 // Get order details
-orderRouter.get('/:orderId', orderController.getOrderDetails);
+router.get('/:orderId', orderController.getOrderDetails);
 
 // Get customer orders
-orderRouter.get('/customer/:email', orderController.getCustomerOrders);
+router.get('/customer/:email', orderController.getCustomerOrders);
 
-//Get All Orders
-orderRouter.get('/', orderController.getAllOrders)
+// Get all orders
+router.get('/', orderController.getAllOrders);
 
-module.exports = orderRouter;
+// Update order status
+router.put('/update-status/:orderId', orderController.updateOrderStatus);
+
+module.exports = router;

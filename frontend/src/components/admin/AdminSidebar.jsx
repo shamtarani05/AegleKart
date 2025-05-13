@@ -27,10 +27,10 @@ const AdminSidebar = ({ user }) => {
     <div className={styles.adminSidebar}>
       <div className={styles.adminProfile}>
         <div className={styles.adminAvatar}>
-          {user?.name?.charAt(0) || "A"}
+          {user?.fullName?.charAt(0) || "A"}
         </div>
         <div className={styles.adminInfo}>
-          <h3>{user?.name || "Admin User"}</h3>
+          <h3>{user?.fullName || "Admin User"}</h3>
           <p>Administrator</p>
         </div>
       </div>

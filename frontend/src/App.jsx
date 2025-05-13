@@ -22,6 +22,8 @@ import AdminCouponsPage from "./pages/AdminCouponsPage";
 import AddProductPage from "./pages/AddProductPage";
 import EditProductPage from "./pages/EditProductPage";
 import useAuthStore from "./stores/auth-store";
+import OrderDetailsPage from "./pages/OrderDetailsPage";
+import AdminSettingsPage from "./pages/AdminSettingsPage";
 
 // Admin Route protection component
 const ProtectedAdminRoute = ({ children }) => {
@@ -86,6 +88,8 @@ function App() {
         // </ProtectedAdminRoute>
       } />
       <Route path="/admin/edit-product/:id" element={<EditProductPage />} />
+      <Route path="/admin/order-details/:id" element={<OrderDetailsPage />} />
+      <Route path="/admin/settings" element={<AdminSettingsPage />} />
       <Route path="/admin/*" element={
         <ProtectedAdminRoute>
           <AdminDashboard />

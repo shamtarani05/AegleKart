@@ -52,13 +52,26 @@ const verifyPayment = async (req, res) => {
 const getOrderDetails = async (req, res) => {
   try {
     const { orderId } = req.params;
-    
-    const order = await Order.findOne({ orderId });
+    console.log(`Fetching order with ID: ${orderId}`);
+
+    // Try to find by orderId first
+    let order = await Order.findOne({ orderId: orderId });
+
+    // If not found, try MongoDB _id or custom id field
+    if (!order) {
+      if (orderId.match(/^[0-9a-fA-F]{24}$/)) {
+        order = await Order.findById(orderId);
+      } else {
+        order = await Order.findOne({ id: orderId });
+      }
+    }
     
     if (!order) {
+      console.log(`Order not found: ${orderId}`);
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
     
+    console.log(`Order found: ${order.orderId}`);
     res.status(200).json({
       success: true,
       order
@@ -122,9 +135,86 @@ const getCustomerOrders = async (req, res) => {
   }
 };
 
+/**
+ * Get payment details for an order
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
+const getPaymentByOrderId = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    console.log(`Fetching payment for orderId: ${orderId}`);
+    
+    // Find payment by orderId
+    const payment = await Payment.findOne({ orderId });
+    
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Payment information not found' });
+    }
+    
+    res.status(200).json({
+      success: true,
+      payment
+    });
+    
+  } catch (error) {
+    console.error('Error getting payment details:', error);
+    res.status(500).json({ success: false, message: 'Error retrieving payment details', error: error.message });
+  }
+};
+
+/**
+ * Update order status
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+    
+    // Validate the status
+    const validStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status value' });
+    }
+    
+    // Find the order by orderId
+    const order = await Order.findOne({ orderId });
+    
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    
+    // Update the order status
+    order.status = status;
+    order.updatedAt = new Date();
+    
+    await order.save();
+    
+    res.status(200).json({
+      success: true,
+      message: 'Order status updated successfully',
+      order: {
+        orderId: order.orderId,
+        status: order.status,
+        updatedAt: order.updatedAt
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ success: false, message: 'Error updating order status', error: error.message });
+  }
+};
+
 module.exports = {
   verifyPayment,
   getOrderDetails,
   getCustomerOrders,
-  getAllOrders
+  getAllOrders,
+  getPaymentByOrderId,
+  updateOrderStatus
 };
