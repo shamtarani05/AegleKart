@@ -302,7 +302,7 @@ const AddProductPage = () => {
                   
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
-                      <label htmlFor="price">Price (₹)*</label>
+                      <label htmlFor="price">Price (PKR)*</label>
                       <input 
                         type="number" 
                         id="price" 

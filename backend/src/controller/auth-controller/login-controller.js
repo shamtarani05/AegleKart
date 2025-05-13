@@ -14,7 +14,8 @@ const loginController = async (req, res) => {
         id: user._id,
         email: user.email,
         fullName: user.fullName,
-        role: user.role
+        role: user.role,
+        phone : user.phoneNumber
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

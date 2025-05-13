@@ -37,44 +37,97 @@ const AdminDashboard = () => {
 
   // Fetch dashboard data from APIs
   useEffect(() => {
+    const abortController = new AbortController();
+    
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch all required data in parallel with abort signal
+        const [statsRes, revenueRes, categoryRes, ordersRes] = await Promise.all([
+          fetch('http://localhost:3000/dashboard/stats', { signal: abortController.signal }),
+          fetch('http://localhost:3000/dashboard/monthly-revenue', { signal: abortController.signal }),
+          fetch('http://localhost:3000/dashboard/category-distribution', { signal: abortController.signal }),
+          fetch('http://localhost:3000/dashboard/recent-orders', { signal: abortController.signal })
+        ]);
+        
+        // Check if any request failed
+        if (!statsRes.ok || !revenueRes.ok || !categoryRes.ok || !ordersRes.ok) {
+          throw new Error('Failed to fetch dashboard data');
+        }
+        
+        // Parse all responses
+        const stats = await statsRes.json();
+        const revenue = await revenueRes.json();
+        const category = await categoryRes.json();
+        const orders = await ordersRes.json();
+        
+        // Update state with fetched data
+        setDashboardStats(stats);
+        setMonthlyRevenue(revenue);
+        setCategoryDistribution(category);
+        setRecentOrders(formatOrdersForTable(orders));
+      } catch (err) {
+        if (!abortController.signal.aborted) {
+          console.error('Error fetching dashboard data:', err);
+          setError('Failed to load dashboard data. Please try again.');
+        }
+      } finally {
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
     fetchDashboardData();
+    
+    // Cleanup function to abort fetch requests when component unmounts
+    return () => {
+      abortController.abort();
+    };
   }, []);
 
-  const fetchDashboardData = async () => {
-    setLoading(true);
-    setError(null);
+  // Move fetchDashboardData outside useEffect for reuse in the retry button
+  const fetchDashboardData = () => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      // Fetch all required data in parallel
-      const [statsRes, revenueRes, categoryRes, ordersRes] = await Promise.all([
-        fetch('http://localhost:3000/dashboard/stats'),
-        fetch('http://localhost:3000/dashboard/monthly-revenue'),
-        fetch('http://localhost:3000/dashboard/category-distribution'),
-        fetch('http://localhost:3000/dashboard/recent-orders')
-      ]);
-      
-      // Check if any request failed
-      if (!statsRes.ok || !revenueRes.ok || !categoryRes.ok || !ordersRes.ok) {
-        throw new Error('Failed to fetch dashboard data');
+      try {
+        // Fetch all required data in parallel
+        const [statsRes, revenueRes, categoryRes, ordersRes] = await Promise.all([
+          fetch('http://localhost:3000/dashboard/stats'),
+          fetch('http://localhost:3000/dashboard/monthly-revenue'),
+          fetch('http://localhost:3000/dashboard/category-distribution'),
+          fetch('http://localhost:3000/dashboard/recent-orders')
+        ]);
+        
+        // Check if any request failed
+        if (!statsRes.ok || !revenueRes.ok || !categoryRes.ok || !ordersRes.ok) {
+          throw new Error('Failed to fetch dashboard data');
+        }
+        
+        // Parse all responses
+        const stats = await statsRes.json();
+        const revenue = await revenueRes.json();
+        const category = await categoryRes.json();
+        const orders = await ordersRes.json();
+        
+        // Update state with fetched data
+        setDashboardStats(stats);
+        setMonthlyRevenue(revenue);
+        setCategoryDistribution(category);
+        setRecentOrders(formatOrdersForTable(orders));
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError('Failed to load dashboard data. Please try again.');
+      } finally {
+        setLoading(false);
       }
-      
-      // Parse all responses
-      const stats = await statsRes.json();
-      const revenue = await revenueRes.json();
-      const category = await categoryRes.json();
-      const orders = await ordersRes.json();
-      
-      // Update state with fetched data
-      setDashboardStats(stats);
-      setMonthlyRevenue(revenue);
-      setCategoryDistribution(category);
-      setRecentOrders(formatOrdersForTable(orders));
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err);
-      setError('Failed to load dashboard data. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    };
+    
+    fetchData();
   };
 
   // Format orders data for the recent orders table
@@ -86,7 +139,7 @@ const AdminDashboard = () => {
     return ordersData.map(order => ({
       id: order.orderId || order._id,
       customer: order.customer?.name || 'Unknown Customer',
-      products: `${order.items?.length || 0} items`,
+      products: `${order.products?.length || 0} items`, // Changed from items to products
       total: `PKR ${(order.total || 0).toLocaleString()}`,
       status: order.status || 'Unknown'
     }));

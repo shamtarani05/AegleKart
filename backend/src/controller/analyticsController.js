@@ -1,5 +1,5 @@
-  const Order = require('../models/order-schema');
-  const Product = require('../models/product-schema');
+const Order = require('../models/order-schema');
+const Product = require('../models/product-schema');
 
   // Get dashboard summary statistics
   exports.getDashboardStats = async (req, res) => {

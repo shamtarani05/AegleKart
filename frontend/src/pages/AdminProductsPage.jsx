@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Search, 
@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import useAuthStore from '../stores/auth-store';
 import AdminSidebar from '../components/admin/AdminSidebar';
+import LoadingState from '../components/common/LoadingState';
+import ErrorState from '../components/common/ErrorState';
 import styles from '../styles/adminProducts.module.css';
 
 const AdminProductsPage = () => {
@@ -21,132 +23,13 @@ const AdminProductsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentFilter, setCurrentFilter] = useState('All Products');
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 10;
+  const [totalPages, setTotalPages] = useState(1);
+  const [productsPerPage] = useState(10);
   
-  // Mock product data - in a real app, fetch from API
-  const [products, setProducts] = useState([
-    {
-      id: 'PRD3F7A12',
-      name: 'Paracetamol 500mg Tablets',
-      category: 'Medicines',
-      brandName: 'AeglePharm',
-      price: 120,
-      discountedPrice: 99,
-      stockStatus: 'In Stock',
-      quantity: 500,
-      prescriptionRequired: true
-    },
-    {
-      id: 'PRDBC892E',
-      name: 'Vitamin C 1000mg',
-      category: 'Nutrition',
-      brandName: 'HealthVit',
-      price: 350,
-      discountedPrice: 299,
-      stockStatus: 'In Stock',
-      quantity: 200,
-      prescriptionRequired: false
-    },
-    {
-      id: 'PRD4D12A6',
-      name: 'Digital Thermometer',
-      category: 'Devices',
-      brandName: 'MedTech',
-      price: 499,
-      discountedPrice: 399,
-      stockStatus: 'In Stock',
-      quantity: 75,
-      prescriptionRequired: false
-    },
-    {
-      id: 'PRD56FE8C',
-      name: 'Antiseptic Cream',
-      category: 'Healthcare',
-      brandName: 'SkinCare',
-      price: 180,
-      discountedPrice: 149,
-      stockStatus: 'Low Stock',
-      quantity: 25,
-      prescriptionRequired: false
-    },
-    {
-      id: 'PRD78E2D1',
-      name: 'Baby Shampoo',
-      category: 'Baby & Mother',
-      brandName: 'BabyCare',
-      price: 250,
-      discountedPrice: 220,
-      stockStatus: 'In Stock',
-      quantity: 120,
-      prescriptionRequired: false
-    },
-    {
-      id: 'PRD9A3F7B',
-      name: 'Hand Sanitizer',
-      category: 'Personal Care',
-      brandName: 'PureHands',
-      price: 150,
-      discountedPrice: 130,
-      stockStatus: 'In Stock',
-      quantity: 300,
-      prescriptionRequired: false
-    },
-    {
-      id: 'PRDB21E4F',
-      name: 'Amoxicillin 500mg',
-      category: 'Medicines',
-      brandName: 'AeglePharm',
-      price: 280,
-      discountedPrice: 240,
-      stockStatus: 'In Stock',
-      quantity: 150,
-      prescriptionRequired: true
-    },
-    {
-      id: 'PRDC5F83A',
-      name: 'Protein Powder',
-      category: 'Nutrition',
-      brandName: 'FitLife',
-      price: 1200,
-      discountedPrice: 999,
-      stockStatus: 'In Stock',
-      quantity: 50,
-      prescriptionRequired: false
-    },
-    {
-      id: 'PRDE74B29',
-      name: 'Blood Pressure Monitor',
-      category: 'Devices',
-      brandName: 'MedTech',
-      price: 2500,
-      discountedPrice: 1999,
-      stockStatus: 'Out of Stock',
-      quantity: 0,
-      prescriptionRequired: false
-    },
-    {
-      id: 'PRDF18E7C',
-      name: 'Diaper Rash Cream',
-      category: 'Baby & Mother',
-      brandName: 'BabyCare',
-      price: 320,
-      discountedPrice: 280,
-      stockStatus: 'In Stock',
-      quantity: 85,
-      prescriptionRequired: false
-    },
-    {
-      id: 'PRD12G9H7',
-      name: 'Cough Syrup',
-      category: 'Medicines',
-      brandName: 'AeglePharm',
-      price: 160,
-      discountedPrice: 140,
-      stockStatus: 'In Stock',
-      quantity: 120,
-      prescriptionRequired: true
-    },
-  ]);
+  // State for API data
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   // Filter categories
   const categories = [
@@ -159,7 +42,50 @@ const AdminProductsPage = () => {
     'Devices'
   ];
   
-  // Handle search change
+  // Fetch products from API using useCallback to memoize the function
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      let queryParams = new URLSearchParams({
+        page: currentPage,
+        limit: productsPerPage
+      });
+
+      // Add category filter if not "All Products"
+      if (currentFilter !== 'All Products') {
+        queryParams.append('category', currentFilter);
+      }
+
+      // Add search query if exists
+      if (searchQuery.trim()) {
+        queryParams.append('search', searchQuery);
+      }
+
+      const response = await fetch(`http://localhost:3000/products?${queryParams.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setProducts(data.products);
+      setTotalPages(data.totalPages);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('Failed to load products. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, currentFilter, searchQuery, productsPerPage]);
+  
+  // Now useEffect has all the dependencies it needs
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  // Handle search change with debounce
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
     setCurrentPage(1); // Reset to first page when searching
@@ -171,22 +97,6 @@ const AdminProductsPage = () => {
     setCurrentPage(1); // Reset to first page when filtering
   };
   
-  // Filter products based on search and category filter
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          product.id.toLowerCase().includes(searchQuery.toLowerCase());
-                          
-    const matchesCategory = currentFilter === 'All Products' || product.category === currentFilter;
-    
-    return matchesSearch && matchesCategory;
-  });
-  
-  // Pagination logic
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-  
   // Handle page change
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   
@@ -196,10 +106,16 @@ const AdminProductsPage = () => {
   };
   
   // Handle delete product
-  const handleDeleteProduct = (productId) => {
+  const handleDeleteProduct = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      // In a real app, make API call to delete product
-      setProducts(products.filter(product => product.id !== productId));
+      try {
+        // In a real app, make API call to delete product
+        // For now, just update the local state
+        setProducts(products.filter(product => product.id !== productId));
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        alert("Failed to delete product. Please try again.");
+      }
     }
   };
   
@@ -207,6 +123,34 @@ const AdminProductsPage = () => {
   const handleViewProduct = (productId) => {
     navigate(`/admin/product-details/${productId}`);
   };
+
+  // Loading state
+  if (loading && products.length === 0) {
+    return (
+      <div className={styles.adminPageContainer}>
+        <div className={styles.adminContentWrapper}>
+          <AdminSidebar user={user} />
+          <main className={styles.adminMainContent}>
+            <LoadingState message="Loading products..." />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && products.length === 0) {
+    return (
+      <div className={styles.adminPageContainer}>
+        <div className={styles.adminContentWrapper}>
+          <AdminSidebar user={user} />
+          <main className={styles.adminMainContent}>
+            <ErrorState error={error} onRetry={fetchProducts} />
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.adminPageContainer}>
@@ -225,7 +169,7 @@ const AdminProductsPage = () => {
             </div>
           </div>
           
-          {/* Search and filter bar - updated to match screenshot */}
+          {/* Search and filter bar */}
           <div className={styles.searchFilterBar}>
             <div className={styles.searchContainer}>
               <Search className={styles.searchIcon} size={18} />
@@ -254,7 +198,7 @@ const AdminProductsPage = () => {
             </div>
           </div>
           
-          {/* Products table - layout updated to match screenshot */}
+          {/* Products table */}
           <div className={styles.productsTableContainer}>
             <table className={styles.productsTable}>
               <thead>
@@ -272,15 +216,15 @@ const AdminProductsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {currentProducts.length === 0 ? (
+                {products.length === 0 ? (
                   <tr>
                     <td colSpan="10" className={styles.noProducts}>
                       No products found matching your criteria.
                     </td>
                   </tr>
                 ) : (
-                  currentProducts.map((product) => (
-                    <tr key={product.id}>
+                  products.map((product) => (
+                    <tr key={product._id || product.id}>
                       <td>{product.id}</td>
                       <td className={styles.productNameCell}>{product.name}</td>
                       <td>{product.category}</td>
@@ -291,12 +235,12 @@ const AdminProductsPage = () => {
                       </td>
                       <td>
                         <span 
-                          className={`${styles.stockStatus} ${styles[product.stockStatus.toLowerCase().replace(/\s+/g, '')]}`}
+                          className={`${styles.stockStatus} ${styles[(product.stockStatus || 'Out of Stock').toLowerCase().replace(/\s+/g, '')]}`}
                         >
-                          {product.stockStatus}
+                          {product.stockStatus || 'Out of Stock'}
                         </span>
                       </td>
-                      <td>{product.quantity}</td>
+                      <td>{product.quantity || 0}</td>
                       <td>
                         {product.prescriptionRequired ? (
                           <span className={styles.rxRequired}>Yes</span>
@@ -308,21 +252,21 @@ const AdminProductsPage = () => {
                         <div className={styles.actionButtons}>
                           <button 
                             className={styles.actionButton}
-                            onClick={() => handleViewProduct(product.id)}
+                            onClick={() => handleViewProduct(product._id || product.id)}
                             title="View Details"
                           >
                             <Eye size={16} />
                           </button>
                           <button 
                             className={styles.actionButton}
-                            onClick={() => handleEditProduct(product.id)}
+                            onClick={() => handleEditProduct(product._id || product.id)}
                             title="Edit Product"
                           >
                             <Edit size={16} />
                           </button>
                           <button 
                             className={`${styles.actionButton} ${styles.deleteButton}`}
-                            onClick={() => handleDeleteProduct(product.id)}
+                            onClick={() => handleDeleteProduct(product._id || product.id)}
                             title="Delete Product"
                           >
                             <Trash2 size={16} />
@@ -337,7 +281,7 @@ const AdminProductsPage = () => {
           </div>
           
           {/* Pagination */}
-          {filteredProducts.length > productsPerPage && (
+          {totalPages > 1 && (
             <div className={styles.paginationContainer}>
               <button 
                 className={styles.paginationButton}

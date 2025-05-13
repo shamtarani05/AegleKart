@@ -16,7 +16,7 @@ const productSchema = new Schema({
     rating : { type : Number },
     reviewCount : { type : Number },
     description : { type : String },
-    packSize: { type : String },
+    packSize: { type : String },    
     composition: { type : String },
     mfgDate: { type: Date },  
     expDate: { type: Date },  

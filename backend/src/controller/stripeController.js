@@ -3,6 +3,7 @@ const Payment = require('../models/payment-schema');
 const { generateOrderId, generatePaymentId } = require('../utils/generateIds');
 const { createStripeCoupon, parseSessionToOrderData } = require('../utils/stripe-helpers');
 const stripe = require('../config/stripeConfig');
+const { sendOrderConfirmationEmail } = require('../utils/orderEmailNotification');
 
 /**
  * Create a Stripe checkout session
@@ -19,13 +20,18 @@ const createCheckoutSession = async (req, res) => {
       success_url, 
       cancel_url, 
       customer_email, 
-      metadata 
+      customer_phone,
+      shipping_address, // Add shipping address from request if available
+      metadata,
+      tax, 
+      shipping
     } = req.body;
 
     const orderId = generateOrderId();
 
     const sessionMetadata = {
       order_id: orderId,
+      customer_phone: customer_phone, // Add phone to metadata so it's accessible later
       ...metadata,
     };
 
@@ -64,12 +70,16 @@ const createCheckoutSession = async (req, res) => {
       }
     }));
 
-    const session = await stripe.checkout.sessions.create({
+    // Create session options
+    const sessionOptions = {
       payment_method_types: ['card'],
       mode: 'payment',
       line_items: pkrLineItems,
       customer_email: customer_email,
       metadata: sessionMetadata,
+      phone_number_collection: {
+        enabled: true, // Enable phone number collection
+      },
       shipping_address_collection: {
         allowed_countries: ['PK'],
       },
@@ -100,7 +110,25 @@ const createCheckoutSession = async (req, res) => {
       }),
       success_url: `${success_url}?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
       cancel_url: cancel_url,
-    });
+    };
+
+    // Add pre-filled shipping address if available
+    if (shipping_address) {
+      sessionOptions.shipping_details = {
+        name: shipping_address.name,
+        phone: customer_phone,
+        address: {
+          line1: shipping_address.line1,
+          line2: shipping_address.line2 || '',
+          city: shipping_address.city,
+          state: shipping_address.state,
+          postal_code: shipping_address.postal_code,
+          country: shipping_address.country || 'PK',
+        }
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionOptions);
 
     // Create a new order with product categories
     const newOrder = new Order({
@@ -127,8 +155,9 @@ const createCheckoutSession = async (req, res) => {
             })),
       customer: {
         email: customer_email,
+        phone: customer_phone,
       },
-      shippingAddress: null,
+      shippingAddress: shipping_address || null,
       discount: discount ? {
         code: discount.name.replace('Promo: ', ''),
         type: discount.type,
@@ -137,7 +166,8 @@ const createCheckoutSession = async (req, res) => {
       subtotal: subtotalAmount / 100, // Convert from paisa to PKR
       total: null, // Will be updated after payment is completed
       status: 'Pending',
-      shipping: shippingAmount / 100, // Convert from paisa to PKR
+      shipping: shipping,
+      tax: tax,
       currency: 'PKR',
       createdAt: new Date(),
     });
@@ -178,6 +208,7 @@ const handleWebhook = async (req, res) => {
  */
 const handleCheckoutSessionCompleted = async (session) => {
   const orderId = session.metadata.order_id;
+  const customerPhone = session.metadata.customer_phone;
 
   try {
     const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
@@ -191,11 +222,18 @@ const handleCheckoutSessionCompleted = async (session) => {
     }
 
     const orderData = parseSessionToOrderData(expandedSession);
+    console.log('Order data:', orderData);
 
-    order.customer = orderData.customer; 
-    order.paymentMethod = 'Card'
+    // Update customer with phone from metadata if not available in session
+    order.customer = {
+      ...orderData.customer,
+      phone: session.customer_details?.phone || customerPhone || order.customer.phone
+    };
+    
+    order.paymentMethod = 'Card';
     order.shippingAddress = orderData.shippingAddress;
     order.total = orderData.total;
+    order.status = 'Processing'; // Update status to paid
     order.updatedAt = new Date();
 
     await order.save();
@@ -217,11 +255,12 @@ const handleCheckoutSessionCompleted = async (session) => {
       customer: {
         email: expandedSession.customer_details.email,
         name: expandedSession.customer_details.name,
+        phone: expandedSession.customer_details.phone || customerPhone || null,
       },
       billing: {
         name: expandedSession.customer_details.name,
         email: expandedSession.customer_details.email,
-        phone: expandedSession.customer_details.phone || null,
+        phone: expandedSession.customer_details.phone || customerPhone || null,
         address: {
           line1: expandedSession.customer_details.address?.line1 || null,
           line2: expandedSession.customer_details.address?.line2 || null,
@@ -236,6 +275,20 @@ const handleCheckoutSessionCompleted = async (session) => {
     });
 
     await payment.save();
+
+    // Prepare complete order data for email notification
+    const completeOrderData = {
+      ...order.toObject(),
+      paymentDetails: payment.toObject()
+    };
+
+    // Send confirmation email to customer
+    const emailResult = await sendOrderConfirmationEmail(completeOrderData);
+    
+    if (!emailResult.success) {
+      console.error(`Failed to send order confirmation email: ${emailResult.error}`);
+    }
+
   } catch (error) {
     console.error(`Error processing checkout session: ${error.message}`);
   }

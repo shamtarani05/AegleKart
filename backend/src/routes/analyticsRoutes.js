@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const analyticsController = require('../controller/analyticsController');
 
-
 // Dashboard analytics routes
 router.get('/stats', analyticsController.getDashboardStats);
 router.get('/monthly-revenue', analyticsController.getMonthlyRevenue);

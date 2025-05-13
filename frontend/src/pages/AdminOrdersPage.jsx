@@ -272,7 +272,7 @@ const AdminOrdersPage = () => {
                           <span className={styles.customerEmail}>{order.customer?.email}</span>
                         </div>
                       </td>
-                      <td>{order.items?.length || 0} items</td>
+                      <td>{order.products?.length || 0} items</td> {/* Changed from items to products */}
                       <td className={styles.orderTotal}>PKR {(order.total)?.toLocaleString()}</td>
                       <td>{order.paymentMethod}</td>
                       <td>
