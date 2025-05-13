@@ -132,16 +132,6 @@ const CartPage = () => {
 
   // Calculate order details
   const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-
-  let discount = 0;
-  if (appliedPromo) {
-    if (appliedPromo.discountType === 'percentage') {
-      discount = subtotal * (appliedPromo.value / 100);
-    } else if (appliedPromo.discountType === 'fixed') {
-      discount = Math.min(appliedPromo.value, subtotal);
-    }
-  }
-
   // Free shipping threshold in PKR
   const shippingThreshold = 3000;
   let shipping = subtotal > shippingThreshold ? 0 : 250;
@@ -150,8 +140,23 @@ const CartPage = () => {
     shipping = 0;
   }
 
-  const tax = (subtotal - discount) * 0.08;
-  const total = subtotal - discount + shipping + tax;
+  const tax = subtotal * 0.08;
+  
+  // Calculate pre-discount total
+  const preDiscountTotal = subtotal + tax + shipping;
+
+  // Calculate discount on the total amount (subtotal + tax + shipping)
+  let discount = 0;
+  if (appliedPromo) {
+    if (appliedPromo.discountType === 'percentage') {
+      discount = preDiscountTotal * (appliedPromo.value / 100);
+    } else if (appliedPromo.discountType === 'fixed') {
+      discount = Math.min(appliedPromo.value, preDiscountTotal);
+    }
+  }
+
+  // Calculate final total after discount
+  const total = preDiscountTotal - discount;
 
   // Format price in PKR
   const formatPKR = (amount) => {
@@ -242,6 +247,8 @@ const CartPage = () => {
           success_url: `${window.location.origin}/cart?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${window.location.origin}/cart?canceled=true`,
           customer_email: user?.email,
+          customer_phone : user?.phone,
+          customer_name : user?.name,
           metadata: {
             user_id: user?.id || 'guest',
           },
@@ -302,14 +309,23 @@ const CartPage = () => {
 
             {checkoutSuccess && (
               <div className={styles.checkoutSuccessMessage}>
-                <CheckCircle size={24} />
-                <p>{checkoutSuccess}</p>
-                <button
-                  className={styles.continueShoppingButton}
-                  onClick={() => navigate('/products/medicines')}
-                >
-                  Continue Shopping
-                </button>
+                <div className={styles.successIcon}>
+                  <CheckCircle size={48} />
+                </div>
+                <h2 className={styles.successTitle}>Thank You for Your Order!</h2>
+                <p className={styles.successMessage}>
+                  Your order has been successfully placed and is being processed. You'll receive a confirmation 
+                  email shortly with your order details. We appreciate your trust in AegleKart for your healthcare needs.
+                </p>
+                <div className={styles.successActions}>
+                  <button
+                    className={styles.continueShopping}
+                    onClick={() => navigate('/products/medicines')}
+                  >
+                    <RefreshCw size={18} />
+                    Continue Shopping
+                  </button>
+                </div>
               </div>
             )}
 
@@ -448,12 +464,6 @@ const CartPage = () => {
                         <span>Subtotal</span>
                         <span>{formatPKR(subtotal)}</span>
                       </div>
-                      {appliedPromo && (
-                        <div className={`${styles.summaryRow} ${styles.discountRow}`}>
-                          <span>Discount ({appliedPromo.code})</span>
-                          <span>-{formatPKR(discount)}</span>
-                        </div>
-                      )}
                       <div className={styles.summaryRow}>
                         <span>Shipping</span>
                         <span>{shipping === 0 ? 'FREE' : formatPKR(shipping)}</span>
@@ -462,6 +472,16 @@ const CartPage = () => {
                         <span>Estimated Tax</span>
                         <span>{formatPKR(tax)}</span>
                       </div>
+                      <div className={styles.summaryRow}>
+                        <span>Pre-discount Total</span>
+                        <span>{formatPKR(preDiscountTotal)}</span>
+                      </div>
+                      {appliedPromo && (
+                        <div className={`${styles.summaryRow} ${styles.discountRow}`}>
+                          <span>Discount ({appliedPromo.code})</span>
+                          <span>-{formatPKR(discount)}</span>
+                        </div>
+                      )}
                       <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
                         <strong>Total</strong>
                         <strong>{formatPKR(total)}</strong>

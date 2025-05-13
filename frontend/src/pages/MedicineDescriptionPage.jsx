@@ -1,71 +1,51 @@
 // ProductDescriptionPage.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Star, Heart, Clock, Check, Truck, ArrowLeft, Share2, Info, Shield, ChevronDown, Plus, Minus } from 'lucide-react';
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import styles from '../styles/medicinedescriptionpage.module.css';
-
-// Sample product data
-const dummyProductData = {
-  id: "med001",
-  name: "Amlopress 5mg Tablet",
-  brandName: "Cipla Pharmaceuticals",
-  formula: "C20H25ClN2O5",
-  price: 189.50,
-  discountedPrice: 152.75,
-  discount: 20,
-  rating: 4.7,
-  reviewCount: 124,
-  stockStatus: "In Stock",
-  deliveryTime: "24 hours",
-  description: "Amlodipine tablet used to treat high blood pressure and angina. It relaxes blood vessels for better blood flow.",
-  packSize: "15 tablets per strip",
-  composition: "Amlodipine 5mg",
-  mfgDate: "June 2024",
-  expDate: "May 2026",
-  prescriptionRequired: true,
-  images: [
-    "https://www.netmeds.com/images/product-v1/600x600/530530/amlopres_5mg_tablet_15_s_0.jpg" // Using placeholder image
-  ],
-  keyBenefits: [
-    "Controls hypertension",
-    "Prevents angina",
-    "Improves blood circulation"
-  ],
-  sideEffects: ["Headache", "Swelling", "Dizziness"],
-  usageDirections: "Take once daily with or without food.",
-  similarProducts: [
-    {
-      id: "med002",
-      name: "Telma 40mg Tablet",
-      brandName: "Glenmark",
-      price: 172.25,
-      image: "/api/placeholder/100/100"
-    },
-    {
-      id: "med003",
-      name: "Atenolol 50mg Tablet",
-      brandName: "Sun Pharma",
-      price: 45.50,
-      image: "/api/placeholder/100/100"
-    },
-    {
-      id: "med004",
-      name: "Metoprolol XL 50mg",
-      brandName: "AstraZeneca",
-      price: 220.75,
-      image: "/api/placeholder/100/100"
-    }
-  ]
-};
+import useCartStore from '../stores/cart-store'; // Import the cart store
 
 export default function ProductDescriptionPage() {
-  // Use the dummy data directly
-  const productData = dummyProductData;
-  const similarProducts = productData.similarProducts || [];
+  const { id } = useParams();
+  const [productData, setProductData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
   const [activeImage, setActiveImage] = useState(0);
+  
+  // Cart store functions
+  const addToCart = useCartStore(state => state.addToCart);
+
+  useEffect(() => {
+    // Fetch product data from API
+    const fetchProductData = async () => {
+      try {
+        setLoading(true);
+        console.log(id);
+        const response = await fetch(`http://localhost:3000/products/product/${id}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch product: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        setProductData(data);
+        console.log(data)
+      } catch (err) {
+        console.error('Error fetching product:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProductData();
+    }
+  }, [id]);
 
   const incrementQuantity = () => {
     setQuantity(prev => prev + 1);
@@ -74,6 +54,26 @@ export default function ProductDescriptionPage() {
   const decrementQuantity = () => {
     if (quantity > 1) {
       setQuantity(prev => prev - 1);
+    }
+  };
+
+  // Handle add to cart functionality
+  const handleAddToCart = () => {
+    if (productData) {
+      const itemToAdd = {
+        id: productData.id,
+        name: productData.name,
+        price: productData.discountedPrice || productData.price,
+        image: productData.images?.[0] || "/api/placeholder/100/100",
+        quantity: quantity,
+        brandName: productData.brandName,
+        category : productData.category
+      };
+      
+      addToCart(itemToAdd);
+      
+      // Optional: Show confirmation message or toast notification
+      alert(`Added ${quantity} ${productData.name} to cart`);
     }
   };
 
@@ -92,12 +92,63 @@ export default function ProductDescriptionPage() {
     return result === null || result === undefined ? defaultValue : result;
   };
 
+  // Check if product is in stock
+  const isInStock = productData?.stockStatus?.toLowerCase() === 'in stock';
+
+  // Handle loading state
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Loading product information...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  // Handle error state
+  if (error || !productData) {
+    return (
+      <>
+        <Header />
+        <div className={styles.errorContainer}>
+          <h2>Something went wrong</h2>
+          <p>{error || "Product not found"}</p>
+          <button className={styles.backButton} onClick={() => window.history.back()}>
+            <ArrowLeft size={18} className={styles.backIcon} />
+            Back to Products
+          </button>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
   // Handle empty images array
   const images = productData?.images?.length ? productData.images : ["/api/placeholder/350/350"];
 
-  // Determine product category for breadcrumb (can be enhanced with real categorization logic)
+  // Determine product category for breadcrumb
   const productCategory = productData?.category || "Products";
   const productSubCategory = productData?.subCategory || "";
+  const similarProducts = productData?.similarProducts || [];
+
+  // Format dates if they exist
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+    } catch (err) {
+      console.log(err)
+      return dateString; // Return as-is if can't be parsed
+    }
+  };
+
+  const formattedMfgDate = formatDate(productData?.mfgDate);
+  const formattedExpDate = formatDate(productData?.expDate);
 
   return (
     <>
@@ -122,7 +173,7 @@ export default function ProductDescriptionPage() {
 
         {/* Back button */}
         <div className={styles.container}>
-          <button className={styles.backButton}>
+          <button className={styles.backButton} onClick={() => window.history.back()}>
             <ArrowLeft size={18} className={styles.backIcon} />
             Back to {productCategory}
           </button>
@@ -188,7 +239,7 @@ export default function ProductDescriptionPage() {
                     )}
                   </div>
 
-                  <button className={styles.wishlistButton}>
+                  <button className={styles.wishlistButton} aria-label="Add to wishlist">
                     <Heart size={24} />
                   </button>
                 </div>
@@ -231,9 +282,15 @@ export default function ProductDescriptionPage() {
 
                   {productData?.stockStatus && (
                     <div className={styles.infoItem}>
-                      <Check size={20} className={styles.checkIcon} />
+                      {isInStock ? (
+                        <Check size={20} className={styles.checkIcon} />
+                      ) : (
+                        <Info size={20} className={styles.infoIcon} />
+                      )}
                       <span className={styles.infoText}>
-                        <span className={styles.stockStatus}>{productData.stockStatus}</span>
+                        <span className={`${styles.stockStatus} ${isInStock ? styles.inStock : styles.outOfStock}`}>
+                          {productData.stockStatus}
+                        </span>
                       </span>
                     </div>
                   )}
@@ -253,6 +310,8 @@ export default function ProductDescriptionPage() {
                       <button
                         className={styles.quantityButton}
                         onClick={decrementQuantity}
+                        aria-label="Decrease quantity"
+                        disabled={!isInStock}
                       >
                         <Minus size={16} />
                       </button>
@@ -260,6 +319,8 @@ export default function ProductDescriptionPage() {
                       <button
                         className={styles.quantityButton}
                         onClick={incrementQuantity}
+                        aria-label="Increase quantity"
+                        disabled={!isInStock}
                       >
                         <Plus size={16} />
                       </button>
@@ -275,8 +336,12 @@ export default function ProductDescriptionPage() {
                 </div>
 
                 <div className={styles.actionButtonsContainer}>
-                  <button className={styles.addToCartButton}>
-                    Add to Cart
+                  <button 
+                    className={`${styles.addToCartButton} ${!isInStock ? styles.disabledButton : ''}`}
+                    onClick={handleAddToCart}
+                    disabled={!isInStock}
+                  >
+                    {isInStock ? 'Add to Cart' : 'Out of Stock'}
                   </button>
                   <button className={styles.shareButton}>
                     <Share2 size={18} className={styles.shareIcon} />
@@ -410,17 +475,17 @@ export default function ProductDescriptionPage() {
                           </div>
                         )}
 
-                        {productData?.mfgDate && (
+                        {formattedMfgDate && (
                           <div className={styles.infoRow}>
                             <span className={styles.infoLabel}>Mfg. Date</span>
-                            <span className={styles.infoValue}>{productData.mfgDate}</span>
+                            <span className={styles.infoValue}>{formattedMfgDate}</span>
                           </div>
                         )}
 
-                        {productData?.expDate && (
+                        {formattedExpDate && (
                           <div className={styles.infoRow}>
                             <span className={styles.infoLabel}>Exp. Date</span>
-                            <span className={styles.infoValue}>{productData.expDate}</span>
+                            <span className={styles.infoValue}>{formattedExpDate}</span>
                           </div>
                         )}
 
@@ -431,7 +496,8 @@ export default function ProductDescriptionPage() {
                             'name', 'brandName', 'composition', 'formula', 'packSize', 'mfgDate', 'expDate',
                             'price', 'discountedPrice', 'discount', 'rating', 'reviewCount', 'stockStatus',
                             'deliveryTime', 'description', 'keyBenefits', 'sideEffects', 'usageDirections',
-                            'prescriptionRequired', 'images', 'similarProducts', 'id', 'category', 'subCategory'
+                            'prescriptionRequired', 'images', 'similarProducts', 'id', 'category', 'subCategory',
+                            '_id', '__v', 'createdAt', 'updatedAt', 'quantity'
                           ];
 
                           if (skipFields.includes(key) || typeof value === 'object') return null;
@@ -472,35 +538,45 @@ export default function ProductDescriptionPage() {
               <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Similar Products</h2>
                 <div className={styles.navigationButtons}>
-                  <button className={styles.navButton}>
+                  <button className={styles.navButton} aria-label="Previous product">
                     <ArrowLeft size={18} />
                   </button>
-                  <button className={styles.navButton}>
+                  <button className={styles.navButton} aria-label="Next product">
                     <ArrowLeft size={18} className={styles.rotateIcon} />
                   </button>
                 </div>
               </div>
 
               <div className={styles.productsGrid}>
-                {similarProducts.map(product => (
-                  <div key={product.id} className={styles.productCard}>
-                    <div className={styles.productCardContent}>
-                      <div className={styles.productImageContainer}>
-                        <img
-                          src={product.image || "/api/placeholder/100/100"}
-                          alt={product.name || "Product"}
-                          className={styles.productThumbnail}
-                        />
-                      </div>
-                      <h3 className={styles.productName}>{product.name || "Product Name"}</h3>
-                      {product.brandName && <p className={styles.productBrand}>{product.brandName}</p>}
-                      <div className={styles.productFooter}>
-                        {product.price && <span className={styles.productPrice}>₹{product.price}</span>}
-                        <button className={styles.addButton}>Add</button>
+                {similarProducts.map(product => {
+                  // Check if similar product is in stock
+                  const isSimilarProductInStock = product.stockStatus?.toLowerCase() === 'in stock';
+                  
+                  return (
+                    <div key={product.id} className={styles.productCard}>
+                      <div className={styles.productCardContent}>
+                        <div className={styles.productImageContainer}>
+                          <img
+                            src={product.image || "/api/placeholder/100/100"}
+                            alt={product.name || "Product"}
+                            className={styles.productThumbnail}
+                          />
+                        </div>
+                        <h3 className={styles.productName}>{product.name || "Product Name"}</h3>
+                        {product.brandName && <p className={styles.productBrand}>{product.brandName}</p>}
+                        <div className={styles.productFooter}>
+                          {product.price && <span className={styles.productPrice}>₹{product.price}</span>}
+                          <button 
+                            className={`${styles.addButton} ${!isSimilarProductInStock ? styles.disabledButton : ''}`}
+                            disabled={!isSimilarProductInStock}
+                          >
+                            {isSimilarProductInStock ? 'Add' : 'Out of Stock'}
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -511,10 +587,16 @@ export default function ProductDescriptionPage() {
 
             <div className={styles.faqList}>
               {(productData?.faqs || [
-                { question: "Can I use this product without a prescription?" },
-                { question: "What should I do if I miss a dose?" },
-                { question: "Can I use this during pregnancy?" },
-                { question: "How should I store this product?" }
+                { question: "Can I use this product without a prescription?", 
+                  answer: productData?.prescriptionRequired ? 
+                    "No, this product requires a valid prescription from a licensed healthcare professional." : 
+                    "Yes, this product can be purchased without a prescription." },
+                { question: "What should I do if I miss a dose?", 
+                  answer: "If you miss a dose, take it as soon as you remember. If it's almost time for your next dose, skip the missed dose and continue with your regular dosing schedule. Do not take a double dose to make up for a missed one." },
+                { question: "Can I use this during pregnancy?", 
+                  answer: "It's best to consult with your doctor before using this product during pregnancy or breastfeeding." },
+                { question: "How should I store this product?", 
+                  answer: "Store in a cool, dry place away from direct sunlight and keep out of reach of children. Do not use after the expiry date." }
               ]).map((faq, index) => (
                 <div key={index} className={styles.faqItem}>
                   <button className={styles.faqQuestion}>
@@ -530,33 +612,6 @@ export default function ProductDescriptionPage() {
               ))}
             </div>
           </div>
-
-          {/* Recently Viewed - Optional section that can be shown conditionally */}
-          {productData?.recentlyViewed?.length > 0 && (
-            <div className={styles.recentlyViewedSection}>
-              <h2 className={styles.sectionTitle}>Recently Viewed</h2>
-
-              <div className={styles.recentProductsGrid}>
-                {productData.recentlyViewed.map(product => (
-                  <div key={`rv-${product.id}`} className={styles.recentProductCard}>
-                    <div className={styles.recentProductContent}>
-                      <div className={styles.recentProductImageContainer}>
-                        <img
-                          src={product.image || "/api/placeholder/100/100"}
-                          alt={product.name || "Product"}
-                          className={styles.recentProductImage}
-                        />
-                      </div>
-                      <h3 className={styles.recentProductName}>{product.name || "Product Name"}</h3>
-                      <div className={styles.recentProductFooter}>
-                        {product.price && <span className={styles.recentProductPrice}>₹{product.price}</span>}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
       <Footer />

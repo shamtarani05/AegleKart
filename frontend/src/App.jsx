@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
@@ -20,25 +20,50 @@ import AdminOrdersPage from "./pages/AdminOrdersPage";
 import AdminCustomersPage from "./pages/AdminCustomersPage";
 import AdminCouponsPage from "./pages/AdminCouponsPage";
 import AddProductPage from "./pages/AddProductPage";
-import useAuthStore from "./stores/auth-store";
+import { jwtDecode } from 'jwt-decode';
 import NotFound from "./pages/NotFound";
-
-// Admin Route protection component
-const ProtectedAdminRoute = ({ children }) => {
-  const isAdmin = useAuthStore((state) => state.isAdmin());
-  
-  if (!isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-  
-  return children;
-};
-import AddressDropdown from "./components/Address";
 import StoreLocator from "./pages/StoreLocator";
 import Blog from "./pages/Bolgs";
 import CareerPage from "./pages/CareerPage";
+import LoadingState from "./components/common/LoadingState";
+
+
+
 
 function App() {
+  const ProtectedAdminRoute = ({ children }) => {
+    const navigate = useNavigate();
+    const [isAuthorized, setIsAuthorized] = useState(null);
+
+    useEffect(() => {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        navigate('/auth/login'); // or redirect to homepage
+        return;
+      }
+
+      try {
+        const decodedToken = jwtDecode(token);
+        if (decodedToken.role === 'admin') {
+          setIsAuthorized(true);
+        } else {
+          navigate('/');
+        }
+      } catch (err) {
+        console.error("Token decoding failed:", err);
+        navigate('/auth/login');
+      }
+    }, [navigate]);
+
+    // You can show a loader or return null while checking authorization
+    if (isAuthorized === null) return setTimeout(() => {
+      <LoadingState message="Checking Acces Please Wait..." />
+    }, 1000);
+
+    return children;
+  };
+
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
@@ -54,50 +79,50 @@ function App() {
       <Route path="/feedback" element={<Feedback />} />
       <Route path="/products/:category" element={<ProductsPage />} />
       <Route path="/description" element={<MedicineDescriptionPage />} />
-      
+
       {/* Admin Routes */}
       <Route path="/admin" element={
-        // <ProtectedAdminRoute>
+        <ProtectedAdminRoute>
           <AdminDashboard />
-        //  </ProtectedAdminRoute> 
+        </ProtectedAdminRoute>
       } />
       <Route path="/admin/products" element={
-        // <ProtectedAdminRoute>
+        <ProtectedAdminRoute>
           <AdminProductsPage />
-        // </ProtectedAdminRoute>
+        </ProtectedAdminRoute>
       } />
       <Route path="/admin/orders" element={
-        // <ProtectedAdminRoute>
+        <ProtectedAdminRoute>
           <AdminOrdersPage />
-        // </ProtectedAdminRoute>
+        </ProtectedAdminRoute>
       } />
       <Route path="/admin/customers" element={
-        // <ProtectedAdminRoute>
+        <ProtectedAdminRoute>
           <AdminCustomersPage />
-        // </ProtectedAdminRoute>
+        </ProtectedAdminRoute>
       } />
       <Route path="/admin/coupons" element={
-        // <ProtectedAdminRoute>
+        <ProtectedAdminRoute>
           <AdminCouponsPage />
-        // </ProtectedAdminRoute>
+        </ProtectedAdminRoute>
       } />
       <Route path="/admin/add-product" element={
-        // <ProtectedAdminRoute>
+        <ProtectedAdminRoute>
           <AddProductPage />
-        // </ProtectedAdminRoute>
+        </ProtectedAdminRoute>
       } />
       <Route path="/admin/*" element={
         <ProtectedAdminRoute>
           <AdminDashboard />
         </ProtectedAdminRoute>
       } />
-      <Route path="/stores" element ={<StoreLocator/>} />
-      <Route path = '/blog' element = {<Blog/>}/>
-       <Route path = '/careers' element = {<CareerPage/>}/>
-       <Route path = '/*' element = { <NotFound/>}/>
-       <Route path= 'product/:id' element = {<MedicineDescriptionPage/> }/>
+      <Route path="/stores" element={<StoreLocator />} />
+      <Route path='/blog' element={<Blog />} />
+      <Route path='/careers' element={<CareerPage />} />
+      <Route path='/*' element={<NotFound />} />
+      <Route path='product/:id' element={<MedicineDescriptionPage />} />
     </Routes>
   );
-} 
+}
 
 export default App;

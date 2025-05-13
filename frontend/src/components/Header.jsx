@@ -7,8 +7,10 @@ import useAuthStore from '../stores/auth-store';
 import LoggedIn from './LoggedIn';
 import CompactAddressDropdown from './Address';
 
+
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
+ 
   const cartItems = useCartStore((state) => state.cart);
   const user = useAuthStore((state) => state.user);
   const isLoggedIn = !!user; // Convert user object to boolean
@@ -38,6 +40,7 @@ export default function Header() {
     localStorage.removeItem('token');
     clearUser();
   };
+  
 
 
   return (

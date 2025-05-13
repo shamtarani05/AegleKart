@@ -246,6 +246,28 @@
   height: 24px;
   color: var(--color-sage);
 }
+.adminButton {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #eee;
+}
+
+.adminButton:hover {
+  background-color: #f2f2f2;
+}
+
+.adminIcon {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+}
 
 .buttonText {
   display: none;

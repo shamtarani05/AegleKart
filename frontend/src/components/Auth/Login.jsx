@@ -45,6 +45,7 @@ const Login = ({ navigateToForgotPassword }) => {
         return;
       }
       navigate('/admin')
+      setUser (data.user);
 
 
     }
