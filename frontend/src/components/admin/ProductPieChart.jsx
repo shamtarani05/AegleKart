@@ -3,19 +3,35 @@ import styles from '../../styles/adminDashboard.module.css';
 
 const ProductPieChart = ({ data }) => {
   const [isAnimated, setIsAnimated] = useState(false);
+  const [processedData, setProcessedData] = useState([]);
   
-  // Ensure we have properly structured data with all required fields
-  const processCategories = () => {
+  useEffect(() => {
+    // Process data when the component mounts or data changes
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      // Default data if nothing is provided
+      setProcessedData([
+        { name: 'Uncategorized', value: 100, color: '#4e6af3' }
+      ]);
+    } else {
+      // Normalize data to ensure values add up to 100%
+      const totalValue = data.reduce((sum, category) => sum + (category.value || 0), 0);
+      
+      const processed = data.map((category, index) => ({
+        name: category.name || `Category ${index + 1}`,
+        color: category.color || getDefaultColor(index),
+        value: totalValue > 0 ? Math.round((category.value / totalValue) * 100) : 0
+      }));
+      
+      setProcessedData(processed);
+    }
     
-    // Normalize data to ensure values add up to 100%
-    const totalValue = data.reduce((sum, category) => sum + (category.value || 0), 0);
+    // Add slight delay before animation starts
+    const timer = setTimeout(() => {
+      setIsAnimated(true);
+    }, 300);
     
-    return data.map((category, index) => ({
-      name: category.name || `Category ${index + 1}`,
-      color: category.color || getDefaultColor(index),
-      value: totalValue > 0 ? Math.round((category.value / totalValue) * 100) : 0
-    }));
-  };
+    return () => clearTimeout(timer);
+  }, [data]);
   
   // Default colors if not provided in the data
   const getDefaultColor = (index) => {
@@ -23,20 +39,9 @@ const ProductPieChart = ({ data }) => {
     return colors[index % colors.length];
   };
   
-  const categories = processCategories();
-  
   // Define circumference at component level so it's available everywhere
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
-
-  useEffect(() => {
-    // Add slight delay before animation starts
-    const timer = setTimeout(() => {
-      setIsAnimated(true);
-    }, 300);
-    
-    return () => clearTimeout(timer);
-  }, []);
 
   // Calculate the stroke-dasharray and stroke-dashoffset for each segment
   const calculateSegmentStyles = (startPercent, endPercent) => {
@@ -53,7 +58,7 @@ const ProductPieChart = ({ data }) => {
   return (
     <div className={`${styles.chartCard} ${styles.productChart}`}>
       <h3>Top Selling Categories</h3>
-      {categories.length === 0 ? (
+      {processedData.length === 0 ? (
         <div className={styles.noDataMessage}>No category data available</div>
       ) : (
         <div className={styles.pieChartContainer}>
@@ -71,8 +76,8 @@ const ProductPieChart = ({ data }) => {
                 />
                 
                 {/* Calculate running total for segments */}
-                {categories.map((category, index) => {
-                  const startPercent = categories
+                {processedData.map((category, index) => {
+                  const startPercent = processedData
                     .slice(0, index)
                     .reduce((acc, cat) => acc + cat.value, 0);
                   const endPercent = startPercent + category.value;
@@ -110,7 +115,7 @@ const ProductPieChart = ({ data }) => {
           </div>
           
           <div className={styles.pieLegend}>
-            {categories.map((category, index) => (
+            {processedData.map((category, index) => (
               <div key={index} className={`${styles.legendItem} ${isAnimated ? styles.fadeIn : ''}`}
                   style={{ animationDelay: `${0.5 + index * 0.15}s` }}>
                 <span 

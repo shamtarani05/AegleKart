@@ -1,384 +1,356 @@
 /* CompactMedicineCard.module.css */
 .container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0.5rem;
-  font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
   width: 100%;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.container:hover {
+  transform: translateY(-4px);
 }
 
 .card {
   position: relative;
-  width: 100%; /* Full width on smallest screens */
-  max-width: 240px; /* Maximum width on larger screens */
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: white; 
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border:0.5px solid var(--color-sage-muted);
 }
 
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 0px 5px rgba(0, 0, 0, 0.08);
+  border:0.2px solid var(--color-lavender);
 }
 
 .imageContainer {
   position: relative;
   width: 100%;
-  height: 120px; /* Smaller on mobile */
-  background-color: #f8f9fa;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding-top: 65%; /* Decreased from 75% to 65% to reduce image height */
+  background-color: white;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03); /* Subtle separator */
 }
 
 .medicineImage {
-  height: 90px; /* Smaller on mobile */
-  width: auto;
-  max-width: 80%;
-  object-fit: contain;
-  padding: 0.5rem;
-}
-
-.favoriteButton {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background-color: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-  z-index: 2;
-}
-
-.favoriteButton:hover {
-  transform: scale(1.1);
-}
-
-.favoriteActive {
-  background-color: #FFF3F0;
-}
-
-.badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 2px 6px;
-  background-color: #3b82f6; /* Blue color */
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 600;
-  border-radius: 4px;
-  z-index: 2;
-}
-
-.contentContainer {
-  padding: 0.75rem;
-}
-
-.medicineName {
-  margin: 0 0 0.15rem 0;
-  font-size: 0.85rem;
-  color: #1f2937;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.manufacturer {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.7rem;
-  color: #6b7280;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.priceContainer {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-bottom: 0.5rem;
-}
-
-.price {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #047857; /* Green color */
-}
-
-.mrp {
-  font-size: 0.7rem;
-  color: #6b7280;
-}
-
-.strikethrough {
-  text-decoration: line-through;
-}
-
-.discount {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #ef4444; /* Red color */
-  background-color: #FEF2F2;
-  padding: 1px 4px;
-  border-radius: 3px;
-}
-
-.stockInfo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  font-size: 0.7rem;
-}
-
-.inStock {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  color: #10b981; /* Green color */
-  font-weight: 500;
-}
-
-.checkIcon {
-  stroke-width: 3;
-}
-
-.outOfStock {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  color: #ef4444; /* Red color */
-  font-weight: 500;
-}
-
-.delivery {
-  color: #6b7280;
-  font-size: 0.65rem;
-}
-
-.buttonContainer {
-  display: flex;
-  gap: 0.4rem;
-}
-
-.addToCartButton {
-  flex: 1;
-  height: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  background: linear-gradient(to right, #4f46e5, #3b82f6);
-  color: #ffffff;
-  font-weight: 500;
-  font-size: 0.7rem;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.addToCartButton:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.addToCartButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.added {
-  background: #10b981; /* Green color */
-}
-
-.infoButton {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f3f4f6;
-  color: #4b5563;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.infoButton:hover {
-  background-color: #e5e7eb;
-}
-
-.infoOverlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(33, 33, 33, 0.7);
+  object-fit: contain;
+  padding: 0.5rem; /* Reduced padding to allow image to take more space */
+  transition: transform 0.3s ease;
+}
+
+.card:hover .medicineImage {
+  transform: scale(1.05);
+}
+
+.favoriteButton {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 10;
-  border-radius: 8px;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.favoriteButton:hover {
+  background-color: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.favoriteActive {
+  box-shadow: 0 2px 5px rgba(255, 87, 34, 0.3);
+}
+
+.badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background-color: #67b346;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.contentContainer {
+  padding: 0.5rem; /* Reduced from 0.65rem to 0.5rem */
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 0.2rem; /* Decreased from 0.35rem to 0.2rem */
+}
+
+.medicineName {
+  font-size: 0.8rem; /* Decreased from 0.85rem */
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
+
+.manufacturer {
+  font-size: 0.75rem;
+  color: #666;
+  margin: 0;
+  font-weight: 400;
+}
+
+.priceContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem; /* Decreased from 0.15rem */
+  margin-top: 0.1rem; /* Decreased from 0.15rem */
+}
+
+.price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #67b346;
+}
+
+.discountWrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.mrp {
+  font-size: 0.7rem;
+  color: #777;
+}
+
+.strikethrough {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.discount {
+  font-size: 0.7rem;
+  background-color: #ffebee;
+  color: #e53935;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.stockInfo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  margin-top: 0.2rem; /* Decreased from 0.35rem */
+  align-items: center;
+}
+
+.inStock, .outOfStock {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.inStock {
+  color: #67b346;
+}
+
+.outOfStock {
+  color: #f44336;
+}
+
+.delivery {
+  color: #666;
+  font-size: 0.7rem;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.3rem; /* Reduced from 0.5rem to 0.3rem */
+}
+
+.addToCartButton {
+  flex: 1;
+  background-color: #67b346;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.35rem; /* Decreased from 0.45rem to 0.35rem */
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(103, 179, 70, 0.2);
+}
+
+.addToCartButton:hover {
+  background-color: var(--color-lavender);
+  box-shadow: 0 2px 5px rgba(103, 179, 70, 0.3);
+}
+
+.addToCartButton.disabled {
+  background-color: #e0e0e0;
+  color: #a0a0a0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.added {
+  background-color: #43a047 !important;
+}
+
+.infoButton {
+  width: 28px; /* Reduced from 32px to 28px */
+  height: 28px; /* Reduced from 32px to 28px */
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #757575;
+  transition: all 0.2s ease;
+}
+
+.infoButton:hover {
+  border-color: #67b346;
+  color: #67b346;
+  background-color: #f5fbf2;
+}
+
+.infoOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
 }
 
 .infoPanel {
-  width: 85%;
-  max-height: 85%;
-  padding: 0.75rem;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  overflow-y: auto;
+  background-color: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 450px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
 }
 
 .infoHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  background-color: #f9f9f9;
 }
 
 .infoTitle {
   margin: 0;
-  font-size: 0.85rem;
-  color: #1f2937;
+  color: #333;
   font-weight: 600;
 }
 
 .closeButton {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f3f4f6;
-  border-radius: 50%;
+  background: none;
   border: none;
-  color: #4b5563;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
+  color: #757575;
 }
 
 .closeButton:hover {
-  background-color: #e5e7eb;
-  transform: rotate(90deg);
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.infoContent {
+  padding: 1rem;
+  overflow-y: auto;
 }
 
 .infoDescription {
-  margin: 0 0 0.75rem 0;
-  font-size: 0.75rem;
-  color: #4b5563;
-  line-height: 1.4;
+  margin-top: 0;
+  line-height: 1.5;
+  color: #444;
+  font-size: 0.9rem;
 }
 
 .infoAlert {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0.5rem;
-  background-color: #FEF3C7;
+  gap: 8px;
+  background-color: #fff8e1;
+  padding: 0.75rem;
   border-radius: 6px;
-  font-size: 0.7rem;
-  color: #92400E;
+  margin-top: 1rem;
+  border-left: 3px solid #ffc107;
+  color: #795548;
+  font-size: 0.85rem;
 }
 
-/* Responsive media queries */
-@media screen and (max-width: 320px) {
-  .card {
-    max-width: 100%;
-  }
-  
-  .imageContainer {
-    height: 110px;
-  }
-  
-  .medicineImage {
-    height: 80px;
-  }
-  
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
   .medicineName {
-    font-size: 0.8rem;
-  }
-  
-  .manufacturer {
-    font-size: 0.65rem;
-  }
-  
-  .price {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
   
   .addToCartButton {
-    height: 30px;
-    font-size: 0.65rem;
-  }
-  
-  .infoButton {
-    width: 30px;
-    height: 30px;
-  }
-}
-
-@media screen and (min-width: 321px) and (max-width: 480px) {
-  .card {
-    max-width: 200px;
-  }
-}
-
-@media screen and (min-width: 481px) and (max-width: 768px) {
-  .card {
-    max-width: 220px;
-  }
-  
-  .imageContainer {
-    height: 130px;
-  }
-  
-  .medicineImage {
-    height: 95px;
-  }
-}
-
-@media screen and (min-width: 769px) {
-  .card {
-    max-width: 240px;
-  }
-  
-  .imageContainer {
-    height: 140px;
-  }
-  
-  .medicineImage {
-    height: 100px;
-  }
-  
-  .medicineName {
-    font-size: 0.9rem;
-  }
-  
-  .manufacturer {
-    font-size: 0.7rem;
-  }
-  
-  .addToCartButton {
-    height: 32px;
+    padding: 0.4rem;
   }
 }

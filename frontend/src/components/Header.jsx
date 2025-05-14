@@ -129,7 +129,6 @@ export default function Header() {
                 <Link to={`/products/${category.name.toLowerCase().replace(/\s+/g, '-')}`} className={styles.categoryLink}>
                   {category.icon && <span className={styles.categoryIcon}>{category.icon}</span>}
                   {category.name}
-                  <ChevronDown className={styles.categoryChevron} />
                 </Link>
               </li>
             ))}

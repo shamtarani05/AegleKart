@@ -105,6 +105,10 @@ const OrderInvoice = ({ order, payment, onClose }) => {
     // Open a new window
     const printWindow = window.open('', '_blank');
     
+    // Get the address and customer info before using them in the template
+    const address = getBillingAddress();
+    const customer = getCustomerInfo();
+    
     // Generate styles and HTML content
     const printContent = `
       <!DOCTYPE html>

@@ -1,7 +1,7 @@
 // ProductDescriptionPage.jsx
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Star, Heart, Clock, Check, Truck, ArrowLeft, Share2, Info, Shield, ChevronDown, Plus, Minus } from 'lucide-react';
+import { Star, Heart, Clock, Check, Truck, ArrowLeft, Share2, Info, Shield, ChevronDown, Plus, Minus, MessageSquare } from 'lucide-react';
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import styles from '../styles/medicinedescriptionpage.module.css';
@@ -15,7 +15,20 @@ export default function ProductDescriptionPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
   const [activeImage, setActiveImage] = useState(0);
-  
+  const [openFaqIndex, setOpenFaqIndex] = useState(null); // Add state to track open FAQ
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [userReview, setUserReview] = useState({
+    userName: '',
+    rating: 5,
+    title: '',
+    comment: ''
+  });
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState(null);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+
   // Cart store functions
   const addToCart = useCartStore(state => state.addToCart);
 
@@ -25,7 +38,7 @@ export default function ProductDescriptionPage() {
       try {
         setLoading(true);
         console.log(id);
-        const response = await fetch(`http://localhost:3000/products/product/${id}`);
+        const response = await fetch(`http://localhost:3000/products/details/${id}`);
         
         if (!response.ok) {
           throw new Error(`Failed to fetch product: ${response.statusText}`);
@@ -46,6 +59,31 @@ export default function ProductDescriptionPage() {
       fetchProductData();
     }
   }, [id]);
+
+  useEffect(() => {
+    // Fetch reviews when product data is loaded
+    const fetchReviews = async () => {
+      if (!productData || !productData._id) return;
+      
+      try {
+        setReviewsLoading(true);
+        const response = await fetch(`http://localhost:3000/reviews/product/${productData._id}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch reviews: ${response.statusText}`);
+        }
+        
+        const reviewsData = await response.json();
+        setReviews(reviewsData);
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [productData]);
 
   const incrementQuantity = () => {
     setQuantity(prev => prev + 1);
@@ -94,6 +132,101 @@ export default function ProductDescriptionPage() {
 
   // Check if product is in stock
   const isInStock = productData?.stockStatus?.toLowerCase() === 'in stock';
+
+  // Toggle FAQ answer visibility
+  const toggleFaq = (index) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
+
+  // Handle review form changes
+  const handleReviewChange = (e) => {
+    const { name, value } = e.target;
+    setUserReview(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle star rating click
+  const handleStarClick = (rating) => {
+    setUserReview(prev => ({
+      ...prev,
+      rating
+    }));
+  };
+
+  // Submit review
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    setReviewError(null);
+    setReviewSuccess(false);
+    
+    // Validate form
+    if (!userReview.userName.trim()) {
+      setReviewError("Please enter your name");
+      return;
+    }
+    if (!userReview.title.trim()) {
+      setReviewError("Please enter a review title");
+      return;
+    }
+    if (!userReview.comment.trim()) {
+      setReviewError("Please enter your review comments");
+      return;
+    }
+    
+    try {
+      setReviewSubmitting(true);
+      
+      const response = await fetch('http://localhost:3000/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          productId: productData._id,
+          ...userReview
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to submit review');
+      }
+      
+      // Reset form and show success message
+      setUserReview({
+        userName: '',
+        rating: 5,
+        title: '',
+        comment: ''
+      });
+      
+      setReviewSuccess(true);
+      
+      // Reload reviews and update product data to show new rating
+      const reviewsResponse = await fetch(`http://localhost:3000/reviews/product/${productData._id}`);
+      const newReviews = await reviewsResponse.json();
+      setReviews(newReviews);
+      
+      // Refresh product data to get updated rating and review count
+      const productResponse = await fetch(`http://localhost:3000/products/details/${id}`);
+      const updatedProduct = await productResponse.json();
+      setProductData(updatedProduct);
+      
+      // Hide form after successful submission
+      setTimeout(() => {
+        setShowReviewForm(false);
+        setReviewSuccess(false);
+      }, 3000);
+      
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      setReviewError(err.message);
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   // Handle loading state
   if (loading) {
@@ -401,6 +534,13 @@ export default function ProductDescriptionPage() {
                 >
                   Product Info
                 </button>
+
+                <button
+                  className={`${styles.tabButton} ${activeTab === 'reviews' ? styles.activeTab : ''}`}
+                  onClick={() => setActiveTab('reviews')}
+                >
+                  Reviews {productData?.reviewCount > 0 && `(${productData.reviewCount})`}
+                </button>
               </div>
 
               <div className={styles.tabContent}>
@@ -528,6 +668,173 @@ export default function ProductDescriptionPage() {
                     </div>
                   </div>
                 )}
+
+                {activeTab === 'reviews' && (
+                  <div className={styles.reviewsSection}>
+                    <div className={styles.reviewsHeader}>
+                      <div className={styles.reviewsOverview}>
+                        <h3 className={styles.tabContentTitle}>Customer Reviews</h3>
+                        {productData?.rating && productData?.reviewCount ? (
+                          <div className={styles.ratingOverview}>
+                            <div className={styles.ratingStars}>
+                              <div className={styles.ratingValue}>{productData.rating}</div>
+                              <div className={styles.starsDisplay}>
+                                {[1, 2, 3, 4, 5].map(star => (
+                                  <Star 
+                                    key={star}
+                                    size={18} 
+                                    fill={star <= Math.round(productData.rating) ? "#FFB400" : "none"}
+                                    color={star <= Math.round(productData.rating) ? "#FFB400" : "#D1D1D1"}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <div className={styles.reviewsCount}>
+                              Based on {productData.reviewCount} {productData.reviewCount === 1 ? 'review' : 'reviews'}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className={styles.noReviews}>
+                            No reviews yet. Be the first to review this product.
+                          </div>
+                        )}
+                      </div>
+                      
+                      <button 
+                        className={styles.writeReviewButton}
+                        onClick={() => setShowReviewForm(!showReviewForm)}
+                      >
+                        <MessageSquare size={16} />
+                        {showReviewForm ? 'Cancel Review' : 'Write a Review'}
+                      </button>
+                    </div>
+
+                    {showReviewForm && (
+                      <div className={styles.reviewFormContainer}>
+                        <h4 className={styles.reviewFormTitle}>Write Your Review</h4>
+                        
+                        {reviewSuccess && (
+                          <div className={styles.reviewSuccessMessage}>
+                            Your review has been submitted successfully! Thank you for your feedback.
+                          </div>
+                        )}
+                        
+                        {reviewError && (
+                          <div className={styles.reviewErrorMessage}>
+                            {reviewError}
+                          </div>
+                        )}
+                        
+                        <form className={styles.reviewForm} onSubmit={handleReviewSubmit}>
+                          <div className={styles.formGroup}>
+                            <label htmlFor="userName" className={styles.formLabel}>Name</label>
+                            <input
+                              type="text"
+                              id="userName"
+                              name="userName"
+                              className={styles.formInput}
+                              value={userReview.userName}
+                              onChange={handleReviewChange}
+                              placeholder="Enter your name"
+                              required
+                            />
+                          </div>
+                          
+                          <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>Rating</label>
+                            <div className={styles.ratingInput}>
+                              {[1, 2, 3, 4, 5].map(star => (
+                                <Star 
+                                  key={star}
+                                  size={24} 
+                                  fill={star <= userReview.rating ? "#FFB400" : "none"}
+                                  color={star <= userReview.rating ? "#FFB400" : "#D1D1D1"}
+                                  className={styles.starInput}
+                                  onClick={() => handleStarClick(star)}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className={styles.formGroup}>
+                            <label htmlFor="title" className={styles.formLabel}>Review Title</label>
+                            <input
+                              type="text"
+                              id="title"
+                              name="title"
+                              className={styles.formInput}
+                              value={userReview.title}
+                              onChange={handleReviewChange}
+                              placeholder="Summarize your review"
+                              required
+                            />
+                          </div>
+                          
+                          <div className={styles.formGroup}>
+                            <label htmlFor="comment" className={styles.formLabel}>Review Comment</label>
+                            <textarea
+                              id="comment"
+                              name="comment"
+                              className={styles.formTextarea}
+                              value={userReview.comment}
+                              onChange={handleReviewChange}
+                              placeholder="Tell others about your experience with this product"
+                              rows={4}
+                              required
+                            ></textarea>
+                          </div>
+                          
+                          <button 
+                            type="submit" 
+                            className={styles.submitReviewButton}
+                            disabled={reviewSubmitting}
+                          >
+                            {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
+                          </button>
+                        </form>
+                      </div>
+                    )}
+                    
+                    <div className={styles.reviewsList}>
+                      {reviewsLoading ? (
+                        <div className={styles.reviewsLoading}>
+                          <div className={styles.loadingSpinner}></div>
+                          <p>Loading reviews...</p>
+                        </div>
+                      ) : reviews.length > 0 ? (
+                        reviews.map((review, index) => (
+                          <div key={review._id || index} className={styles.reviewItem}>
+                            <div className={styles.reviewHeader}>
+                              <div className={styles.reviewAuthor}>{review.userName}</div>
+                              <div className={styles.reviewDate}>
+                                {new Date(review.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <div className={styles.reviewRating}>
+                              {[1, 2, 3, 4, 5].map(star => (
+                                <Star 
+                                  key={star}
+                                  size={16} 
+                                  fill={star <= review.rating ? "#FFB400" : "none"}
+                                  color={star <= review.rating ? "#FFB400" : "#D1D1D1"}
+                                />
+                              ))}
+                              {review.verified && (
+                                <span className={styles.verifiedBadge}>Verified Purchase</span>
+                              )}
+                            </div>
+                            <h4 className={styles.reviewTitle}>{review.title}</h4>
+                            <p className={styles.reviewComment}>{review.comment}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className={styles.noReviewsYet}>
+                          No reviews yet for this product.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -599,12 +906,27 @@ export default function ProductDescriptionPage() {
                   answer: "Store in a cool, dry place away from direct sunlight and keep out of reach of children. Do not use after the expiry date." }
               ]).map((faq, index) => (
                 <div key={index} className={styles.faqItem}>
-                  <button className={styles.faqQuestion}>
+                  <button 
+                    className={`${styles.faqQuestion} ${openFaqIndex === index ? styles.activeFaq : ''}`}
+                    onClick={() => toggleFaq(index)}
+                    aria-expanded={openFaqIndex === index}
+                  >
                     <span>{faq.question}</span>
-                    <ChevronDown size={20} />
+                    <ChevronDown 
+                      size={20} 
+                      className={openFaqIndex === index ? styles.rotateIcon : ''}
+                    />
                   </button>
                   {faq.answer && (
-                    <div className={styles.faqAnswer}>
+                    <div 
+                      className={`${styles.faqAnswer} ${openFaqIndex === index ? styles.faqAnswerVisible : ''}`}
+                      style={{ 
+                        maxHeight: openFaqIndex === index ? '1000px' : '0',
+                        opacity: openFaqIndex === index ? 1 : 0,
+                        overflow: 'hidden',
+                        transition: 'all 0.3s ease-in-out'
+                      }}
+                    >
                       <p>{faq.answer}</p>
                     </div>
                   )}

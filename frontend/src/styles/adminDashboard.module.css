@@ -4,12 +4,14 @@
   min-height: 100vh;
   background-color: #f8f9fb;
   margin-left: 260px; /* Move margin to page container instead of content wrapper */
+  overflow-x: hidden;
 }
 
 .adminContentWrapper {
   display: flex;
   flex: 1;
   position: relative;
+  flex-wrap: wrap;
   /* Remove margin from here as it's now on the page container */
 }
 
@@ -148,6 +150,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
   margin-bottom: 30px;
+  overflow-x: auto;
 }
 
 .statCard {

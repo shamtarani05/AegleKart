@@ -603,15 +603,22 @@
   margin-bottom: 2rem;
 }
 
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
 .faqList {
-  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .faqItem {
-  border: 1px solid rgb(229, 231, 235);
+  border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
   overflow: hidden;
-  margin-bottom: 1rem;
 }
 
 .faqQuestion {
@@ -621,15 +628,38 @@
   width: 100%;
   padding: 1rem;
   text-align: left;
-  font-weight: 500;
-  color: rgb(31, 41, 55);
-  background: none;
+  background-color: #f8fafc;
   border: none;
   cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
 
 .faqQuestion:hover {
-  background-color: rgb(249, 250, 251);
+  background-color: #f1f5f9;
+}
+
+.activeFaq {
+  background-color: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.faqAnswer {
+  padding: 0 1rem;
+  transition: all 0.3s ease-in-out;
+  max-height: 0;
+  opacity: 0;
+}
+
+.faqAnswerVisible {
+  padding: 1rem;
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.rotateIcon {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
 }
 
 .recentlyViewedSection {
@@ -696,7 +726,6 @@
   font-size: 0.875rem;
   color: rgb(17, 24, 39);
 }
-/* Add these styles to your medicinedescriptionpage.module.css file */
 
 /* Stock status styles */
 .inStock {
@@ -709,7 +738,6 @@
   font-weight: 600;
 }
 
-
 .disabledButton {
   background-color: #e2e8f0;
   color: #718096;
@@ -718,7 +746,6 @@
   pointer-events: none;
 }
 
-
 .addToCartButton:hover:not(.disabledButton) {
   background-color: #2c5282;
 }
@@ -726,20 +753,21 @@
 .addToCartButton:active:not(.disabledButton) {
   transform: translateY(1px);
 }
+
 /* Media queries for responsive design */
 @media (min-width: 768px) {
   .productGrid {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .infoGrid {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .productsGrid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .recentProductsGrid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -749,12 +777,282 @@
   .productGrid {
     grid-template-columns: 1fr 2fr;
   }
-  
+
   .productsGrid {
     grid-template-columns: repeat(4, 1fr);
   }
-  
+
   .recentProductsGrid {
     grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* Reviews tab styles */
+.reviewsSection {
+  padding: 1rem 0;
+}
+
+.reviewsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.reviewsOverview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ratingOverview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ratingStars {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ratingValue {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.starsDisplay {
+  display: flex;
+  align-items: center;
+}
+
+.reviewsCount {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.noReviews {
+  font-style: italic;
+  color: #666;
+}
+
+.writeReviewButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.6rem 1rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.writeReviewButton:hover {
+  background-color: #1b5e20;
+}
+
+/* Review form styles */
+.reviewFormContainer {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #e0e0e0;
+}
+
+.reviewFormTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  color: #333;
+}
+
+.reviewSuccessMessage {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 0.8rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #2e7d32;
+}
+
+.reviewErrorMessage {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 0.8rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #c62828;
+}
+
+.reviewForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.formInput,
+.formTextarea {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  border-color: #2e7d32;
+  outline: none;
+}
+
+.ratingInput {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.starInput {
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.starInput:hover {
+  transform: scale(1.15);
+}
+
+.submitReviewButton {
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.submitReviewButton:hover {
+  background-color: #1b5e20;
+}
+
+.submitReviewButton:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
+}
+
+/* Reviews list styles */
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.reviewsLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.reviewItem {
+  padding: 1.25rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: white;
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.reviewAuthor {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.reviewDate {
+  font-size: 0.8rem;
+  color: #757575;
+}
+
+.reviewRating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.verifiedBadge {
+  font-size: 0.7rem;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+}
+
+.reviewTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  color: #333;
+}
+
+.reviewComment {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.noReviewsYet {
+  text-align: center;
+  padding: 2rem;
+  color: #757575;
+  font-style: italic;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .reviewsHeader {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .writeReviewButton {
+    align-self: flex-start;
+  }
+  
+  .ratingOverview {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 }

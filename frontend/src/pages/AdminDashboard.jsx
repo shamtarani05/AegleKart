@@ -52,21 +52,18 @@ const AdminDashboard = () => {
           fetch('http://localhost:3000/dashboard/recent-orders', { signal: abortController.signal })
         ]);
         
-        // Check if any request failed
-        if (!statsRes.ok || !revenueRes.ok || !categoryRes.ok || !ordersRes.ok) {
-          throw new Error('Failed to fetch dashboard data');
-        }
+        // Process responses individually to prevent one failure from affecting others
+        const stats = statsRes.ok ? await statsRes.json() : { totalRevenue: 0, monthlySales: 0, ordersCompleted: 0, pendingOrders: 0 };
+        const revenue = revenueRes.ok ? await revenueRes.json() : [];
+        const category = categoryRes.ok ? await categoryRes.json() : [];
+        const orders = ordersRes.ok ? await ordersRes.json() : [];
         
-        // Parse all responses
-        const stats = await statsRes.json();
-        const revenue = await revenueRes.json();
-        const category = await categoryRes.json();
-        const orders = await ordersRes.json();
+        console.log('Category distribution data:', category);
         
         // Update state with fetched data
         setDashboardStats(stats);
         setMonthlyRevenue(revenue);
-        setCategoryDistribution(category);
+        setCategoryDistribution(category); 
         setRecentOrders(formatOrdersForTable(orders));
       } catch (err) {
         if (!abortController.signal.aborted) {

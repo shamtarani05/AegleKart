@@ -26,114 +26,115 @@ export default function MedicineCard({ product }) {
         price: product.discountedPrice || product.price,
         image: product.images?.[0] || "/api/placeholder/100/100",
         brandName: product.brandName,
-        category : product.category
+        category: product.category
       };
       addToCart(itemToAdd);
       setIsAdded(true);
       setTimeout(() => setIsAdded(false), 2000);
     };
-  }
+  };
 
-    const toggleInfo = (e) => {
-      e.stopPropagation(); // Stop event propagation
-      setShowInfo(!showInfo);
-    };
+  const toggleInfo = (e) => {
+    e.stopPropagation(); // Stop event propagation
+    setShowInfo(!showInfo);
+  };
 
-    const handleclick = () => {
-      navigate('/product/' + product._id);
-    }
+  const handleclick = () => {
+    navigate('/product/' + product._id);
+  };
 
-    return (
-      <div className={styles.container} onClick={handleclick}>
-        <div className={styles.card}>
-          <div className={styles.imageContainer}>
-            <img
-              src={product.images[0] || "/api/placeholder/180/140"}
-              alt={product.name}
-              className={styles.medicineImage}
+  return (
+    <div className={styles.container} onClick={handleclick}>
+      <div className={styles.card}>
+        <div className={styles.imageContainer}>
+          <img
+            src={product.images[0] || "/api/placeholder/180/140"}
+            alt={product.name}
+            className={styles.medicineImage}
+          />
+          <button
+            className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteActive : ''}`}
+            onClick={handleFavorite}
+            aria-label="Add to favorites"
+          >
+            <Heart
+              size={16}
+              fill={isFavorite ? "#FF5722" : "none"}
+              color={isFavorite ? "#FF5722" : "#757575"}
             />
-            <button
-              className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteActive : ''}`}
-              onClick={handleFavorite}
-              aria-label="Add to favorites"
-            >
-              <Heart
-                size={16}
-                fill={isFavorite ? "#FF5722" : "none"}
-                color={isFavorite ? "#FF5722" : "#757575"}
-              />
-            </button>
-            {product.isPrescriptionRequired && <div className={styles.badge}>Rx</div>}
+          </button>
+          {product.isPrescriptionRequired && <div className={styles.badge}>Rx</div>}
+        </div>
+
+        <div className={styles.contentContainer}>
+          <h3 className={styles.medicineName}>{product.name}</h3>
+          <p className={styles.manufacturer}>By {product.brandName}</p>
+
+          <div className={styles.priceContainer}>
+            <span className={styles.price}>PKR {product.discountedPrice}</span>
+            {product.price && (
+              <div className={styles.discountWrapper}>
+                <span className={styles.mrp}>MRP: <span className={styles.strikethrough}>PKR {product.price}</span></span>
+                {product.discount && <span className={styles.discount}>{product.discount}% OFF</span>}
+              </div>
+            )}
           </div>
 
-          <div className={styles.contentContainer}>
-            <h3 className={styles.medicineName}>{product.name}</h3>
-            <p className={styles.manufacturer}>By {product.brandName}</p>
+          <div className={styles.stockInfo}>
+            {product.stockStatus === 'In Stock' ? (
+              <div className={styles.inStock}>
+                <Check size={12} className={styles.checkIcon} />
+                <span>In Stock</span>
+              </div>
+            ) : (
+              <div className={styles.outOfStock}>
+                <AlertCircle size={12} />
+                <span>Out of Stock</span>
+              </div>
+            )}
+            {product.delivery && <div className={styles.delivery}>Delivery: {product.delivery}</div>}
+          </div>
 
-            <div className={styles.priceContainer}>
-              <span className={styles.price}>PKR {product.discountedPrice}</span>
-              {product.price && (
+          <div className={styles.buttonContainer}>
+            <button
+              className={`${styles.addToCartButton} ${isAdded ? styles.added : ''} ${!(product.stockStatus === 'In Stock') ? styles.disabled : ''}`}
+              onClick={handleAddToCart}
+              disabled={!(product.stockStatus === 'In Stock')}
+            >
+              {isAdded ? (
                 <>
-                  <span className={styles.mrp}>MRP: <span className={styles.strikethrough}>PKR {product.price}</span></span>
-                  {product.discount && <span className={styles.discount}>{product.discount}% OFF</span>}
+                  <Check size={14} /> Added
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={14} /> Add
                 </>
               )}
-            </div>
-
-            <div className={styles.stockInfo}>
-              {product.stockStatus === 'In Stock' ? (
-                <div className={styles.inStock}>
-                  <Check size={12} className={styles.checkIcon} />
-                  <span>In Stock</span>
-                </div>
-              ) : (
-                <div className={styles.outOfStock}>
-                  <AlertCircle size={12} />
-                  <span>Out of Stock</span>
-                </div>
-              )}
-              {product.delivery && <div className={styles.delivery}>Delivery: {product.delivery}</div>}
-            </div>
-
-            <div className={styles.buttonContainer}>
-              <button
-                className={`${styles.addToCartButton} ${isAdded ? styles.added : ''}`}
-                onClick={handleAddToCart}
-                disabled={!(product.stockStatus === 'In Stock')}
-              >
-                {isAdded ? (
-                  <>
-                    <Check size={14} /> Added
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart size={14} /> Add
-                  </>
-                )}
-              </button>
-              <button
-                className={styles.infoButton}
-                onClick={toggleInfo}
-                aria-label="Show medication information"
-              >
-                <Info size={14} />
-              </button>
-            </div>
+            </button>
+            <button
+              className={styles.infoButton}
+              onClick={toggleInfo}
+              aria-label="Show medication information"
+            >
+              <Info size={14} />
+            </button>
           </div>
+        </div>
 
-          {showInfo && (
-            <div className={styles.infoOverlay} onClick={(e) => e.stopPropagation()}>
-              <div className={styles.infoPanel}>
-                <div className={styles.infoHeader}>
-                  <h4 className={styles.infoTitle}>Medication Info</h4>
-                  <button
-                    className={styles.closeButton}
-                    onClick={toggleInfo}
-                    aria-label="Close information"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
+        {showInfo && (
+          <div className={styles.infoOverlay} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.infoPanel}>
+              <div className={styles.infoHeader}>
+                <h4 className={styles.infoTitle}>Medication Info</h4>
+                <button
+                  className={styles.closeButton}
+                  onClick={toggleInfo}
+                  aria-label="Close information"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className={styles.infoContent}>
                 <p className={styles.infoDescription}>
                   {product.description || "No description available for this product."}
                 </p>
@@ -145,8 +146,9 @@ export default function MedicineCard({ product }) {
                 )}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
+}
