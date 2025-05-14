@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from '../styles/medicinecard.module.css';
 import { Heart, ShoppingCart, Info, AlertCircle, Check, X } from 'lucide-react';
 import useCartStore from '../stores/cart-store';
@@ -8,30 +8,55 @@ export default function MedicineCard({ product }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [quantityInCart, setQuantityInCart] = useState(0);
   const navigate = useNavigate();
+
+  const addToCart = useCartStore((state) => state.addToCart);
+  const cart = useCartStore((state) => state.cart);
+  const getItemQuantity = useCartStore((state) => state.getItemQuantity);
+  const canAddQuantity = useCartStore((state) => state.canAddQuantity);
+
+  // Update quantity in cart when cart changes
+  useEffect(() => {
+    setQuantityInCart(getItemQuantity(product._id || product.id));
+  }, [cart, product._id, product.id, getItemQuantity]);
 
   const handleFavorite = (e) => {
     e.stopPropagation(); // Stop event propagation
     setIsFavorite(!isFavorite);
   };
 
-  const addToCart = useCartStore((state) => state.addToCart);
   const handleAddToCart = (e) => {
     e.stopPropagation(); // Stop event propagation
     if (!(product.stockStatus === 'In Stock')) return; // Prevent adding to cart if out of stock
-    if (product) {
-      const itemToAdd = {
-        id: product.id,
-        name: product.name,
-        price: product.discountedPrice || product.price,
-        image: product.images?.[0] || "/api/placeholder/100/100",
-        brandName: product.brandName,
-        category: product.category
-      };
-      addToCart(itemToAdd);
+
+    // Check if product has quantity limitation
+    if (product.quantity !== undefined && product.quantity <= 0) {
+      alert(`Sorry, this product is out of stock.`);
+      return;
+    }
+
+    // Use the cart store's validation function
+    if (!canAddQuantity(product._id || product.id, 1)) {
+      alert(`Sorry, only ${product.quantity} items available in stock. You already have ${quantityInCart} in your cart.`);
+      return;
+    }
+
+    const itemToAdd = {
+      id: product._id || product.id, // Ensure consistent ID usage
+      name: product.name,
+      price: product.discountedPrice || product.price,
+      image: product.images?.[0] || "/api/placeholder/180/140",
+      brandName: product.brandName,
+      category: product.category,
+      maxQuantity: product.quantity || 0 // Store max quantity with item
+    };
+    
+    const success = addToCart(itemToAdd);
+    if (success) {
       setIsAdded(true);
       setTimeout(() => setIsAdded(false), 2000);
-    };
+    }
   };
 
   const toggleInfo = (e) => {
@@ -42,6 +67,14 @@ export default function MedicineCard({ product }) {
   const handleclick = () => {
     navigate('/product/' + product._id);
   };
+
+  // Determine if the add button should be disabled
+  const isAddButtonDisabled = !(product.stockStatus === 'In Stock') || 
+    (product.quantity !== undefined && product.quantity <= 0);
+  
+  // Determine if we need to show quantity limit warning
+  const isQuantityLimited = product.quantity !== undefined && 
+    quantityInCart >= product.quantity;
 
   return (
     <div className={styles.container} onClick={handleclick}>
@@ -97,13 +130,18 @@ export default function MedicineCard({ product }) {
 
           <div className={styles.buttonContainer}>
             <button
-              className={`${styles.addToCartButton} ${isAdded ? styles.added : ''} ${!(product.stockStatus === 'In Stock') ? styles.disabled : ''}`}
+              className={`${styles.addToCartButton} ${isAdded ? styles.added : ''} ${isAddButtonDisabled || isQuantityLimited ? styles.disabled : ''}`}
               onClick={handleAddToCart}
-              disabled={!(product.stockStatus === 'In Stock')}
+              disabled={isAddButtonDisabled || isQuantityLimited}
+              title={isQuantityLimited ? `Max quantity (${product.quantity}) reached in cart` : ''}
             >
               {isAdded ? (
                 <>
                   <Check size={14} /> Added
+                </>
+              ) : isQuantityLimited ? (
+                <>
+                  <AlertCircle size={14} /> Max Limit
                 </>
               ) : (
                 <>

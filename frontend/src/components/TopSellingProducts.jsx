@@ -118,6 +118,56 @@ const TopSellingProducts = () => {
           discount: 4,
           images: ["product.webp"],
           stockStatus: 'In Stock'
+        },
+        {
+          _id: 'mock-6',
+          name: 'Senior Adult Diapers Size XL',
+          brandName: 'Senior',
+          price: 1600,
+          discountedPrice: 1534,
+          discount: 4,
+          images: ["product.webp"],
+          stockStatus: 'In Stock'
+        },
+        {
+          _id: 'mock-6',
+          name: 'Senior Adult Diapers Size XL',
+          brandName: 'Senior',
+          price: 1600,
+          discountedPrice: 1534,
+          discount: 4,
+          images: ["product.webp"],
+          stockStatus: 'In Stock'
+        },
+        {
+          _id: 'mock-6',
+          name: 'Senior Adult Diapers Size XL',
+          brandName: 'Senior',
+          price: 1600,
+          discountedPrice: 1534,
+          discount: 4,
+          images: ["product.webp"],
+          stockStatus: 'In Stock'
+        },
+        {
+          _id: 'mock-6',
+          name: 'Senior Adult Diapers Size XL',
+          brandName: 'Senior',
+          price: 1600,
+          discountedPrice: 1534,
+          discount: 4,
+          images: ["product.webp"],
+          stockStatus: 'In Stock'
+        },
+        {
+          _id: 'mock-6',
+          name: 'Senior Adult Diapers Size XL',
+          brandName: 'Senior',
+          price: 1600,
+          discountedPrice: 1534,
+          discount: 4,
+          images: ["product.webp"],
+          stockStatus: 'In Stock'
         }
       ];
       

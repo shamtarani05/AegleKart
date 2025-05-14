@@ -12,8 +12,7 @@ const orderRouter = require('./src/routes/ordersRoutes');
 const customerRouter = require('./src/routes/customerRoutes');
 const analyticsRouter = require('./src/routes/analyticsRoutes');
 const productRouter = require('./src/routes/productRoutes');
-
-
+const reviewRouter = require('./src/routes/reviewRoutes');
 
 dotenv.config();
 
@@ -31,12 +30,13 @@ app.use(cookieParser());
 const port = process.env.PORT || 3000;
 connectDB();
 
-app.use('/auth',authRoutes); // Use the auth routes for authentication-related 
+app.use('/auth',authRoutes); 
 app.use('/stripe', stripeRouter);
 app.use('/orders', orderRouter);
 app.use('/customers', customerRouter);
-app.use('/dashboard', analyticsRouter)
-app.use('/products', productRouter)
+app.use('/dashboard', analyticsRouter);
+app.use('/products', productRouter);
+app.use('/reviews', reviewRouter); 
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

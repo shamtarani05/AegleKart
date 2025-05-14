@@ -266,6 +266,21 @@
   font-weight: 500;
 }
 
+.availableStock {
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  color: rgb(107, 114, 128);
+}
+
+.stockLabel {
+  color: rgb(107, 114, 128);
+}
+
+.stockValue {
+  font-weight: 500;
+  color: rgb(55, 65, 81);
+}
+
 .quantitySection {
   margin-top: 1.5rem;
 }
@@ -336,6 +351,7 @@
   align-items: center;
   border: none;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .addToCartButton:hover {
@@ -405,7 +421,7 @@
 
 .activeTab {
   color: rgb(22, 163, 74);
-  border-bottom: 2px solid var( --color-lavender);
+  border-bottom: 2px solid var(--color-lavender);
 }
 
 .tabContent {
@@ -747,7 +763,7 @@
 }
 
 .addToCartButton:hover:not(.disabledButton) {
-  background-color: #2c5282;
+  background-color: var(--color-lavender);
 }
 
 .addToCartButton:active:not(.disabledButton) {
@@ -1037,6 +1053,41 @@
   padding: 2rem;
   color: #757575;
   font-style: italic;
+}
+
+/* Reviews pagination styles */
+.reviewsPagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 1rem;
+}
+
+.paginationButton {
+  padding: 0.5rem 1rem;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  color: #334155;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationInfo {
+  font-size: 0.875rem;
+  color: #64748b;
 }
 
 /* Responsive styles */

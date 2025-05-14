@@ -15,6 +15,7 @@ export default function Header() {
   const user = useAuthStore((state) => state.user);
   const isLoggedIn = !!user; // Convert user object to boolean
   const clearUser = useAuthStore((state) => state.clearUser);
+  const navigate = useNavigate();
 
   const categories = [
     { name: 'Medicines', icon: null },
@@ -24,8 +25,6 @@ export default function Header() {
     { name: 'Personal Care', icon: null },
     { name: 'Devices', icon: null }
   ];
-
-  const navigate = useNavigate();
 
   const handleAccountClick = () => {
     navigate('/auth'); // This will navigate to your Auth.jsx component
@@ -41,7 +40,13 @@ export default function Header() {
     clearUser();
   };
   
-
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Navigate to search results page with the query
+      navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <header className={styles.header}>
@@ -61,7 +66,7 @@ export default function Header() {
           </Link>
 
           {/* Search Bar */}
-          <div className={styles.searchBarDesktop}>
+          <form onSubmit={handleSearch} className={styles.searchBarDesktop}>
             <input
               type="text"
               placeholder="Search for medicines, health products..."
@@ -69,10 +74,10 @@ export default function Header() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button className={styles.searchButton}>
+            <button type="submit" className={styles.searchButton}>
               <Search className={styles.searchIcon} />
             </button>
-          </div>
+          </form>
 
           {/* Action Buttons */}
           <div className={styles.actionButtons}>
@@ -106,7 +111,7 @@ export default function Header() {
         </div>
 
         {/* Mobile Search Bar */}
-        <div className={styles.searchBarMobile}>
+        <form onSubmit={handleSearch} className={styles.searchBarMobile}>
           <input
             type="text"
             placeholder="Search AegleKart..."
@@ -114,10 +119,10 @@ export default function Header() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button className={styles.searchButtonMobile}>
+          <button type="submit" className={styles.searchButtonMobile}>
             <Search className={styles.searchIconMobile} />
           </button>
-        </div>
+        </form>
       </div>
 
       {/* Navigation Categories */}
@@ -126,7 +131,7 @@ export default function Header() {
           <ul className={styles.categoryList}>
             {categories.map((category, index) => (
               <li key={index} className={styles.categoryItem}>
-                <Link to={`/products/${category.name.toLowerCase().replace(/\s+/g, '-')}`} className={styles.categoryLink}>
+                <Link to={`/products/${category.name.toLowerCase()}`} className={styles.categoryLink}>
                   {category.icon && <span className={styles.categoryIcon}>{category.icon}</span>}
                   {category.name}
                 </Link>

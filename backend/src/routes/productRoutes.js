@@ -1,8 +1,5 @@
 const express = require('express');
 const productRouter = express.Router();
-<<<<<<< HEAD
-const {getProductsbyCategory, getAllProducts,getProductById} = require('../controller/productController');
-=======
 const {
   getProductsbyCategory, 
   getAllProducts, 
@@ -11,7 +8,6 @@ const {
   updateProduct,
   getProductById
 } = require('../controller/productController');
->>>>>>> a0efa8fedb5f15b104b001969652cca1b6633168
 
 // Debug middleware to log requests
 productRouter.use((req, res, next) => {
@@ -23,17 +19,11 @@ productRouter.use((req, res, next) => {
   next();
 });
 
-<<<<<<< HEAD
-productRouter.get ('/:category' , getProductsbyCategory);
-productRouter.get ('/', getAllProducts)
-productRouter.get('/product/:id', getProductById)
-=======
 productRouter.get('/details/:id', getProductById);
 productRouter.get('/:category', getProductsbyCategory);
 productRouter.get('/', getAllProducts);
 productRouter.post('/add', createProduct);
 productRouter.put('/update/:id', updateProduct);
 productRouter.delete('/:id', deleteProduct);
->>>>>>> a0efa8fedb5f15b104b001969652cca1b6633168
 
 module.exports = productRouter;

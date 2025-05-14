@@ -89,7 +89,16 @@ const CartPage = () => {
   const updateQuantity = (id, change) => {
     const item = cartItems.find(i => i.id === id);
     if (!item) return;
+    
     const newQuantity = Math.max(1, item.quantity + change);
+    
+    // Check if the new quantity exceeds the maximum available
+    if (item.maxQuantity !== undefined && newQuantity > item.maxQuantity) {
+      alert(`Sorry, only ${item.maxQuantity} items are available in stock.`);
+      return;
+    }
+    
+    // Use the addToCart function with the delta quantity
     addToCart({ ...item, quantity: newQuantity - item.quantity });
   };
 
@@ -368,6 +377,7 @@ const CartPage = () => {
                               onClick={() => updateQuantity(item.id, -1)}
                               className={styles.quantityButton}
                               aria-label="Decrease quantity"
+                              disabled={item.quantity <= 1}
                             >
                               <Minus size={16} />
                             </button>
@@ -376,6 +386,7 @@ const CartPage = () => {
                               onClick={() => updateQuantity(item.id, 1)}
                               className={styles.quantityButton}
                               aria-label="Increase quantity"
+                              disabled={item.maxQuantity && item.quantity >= item.maxQuantity}
                             >
                               <Plus size={16} />
                             </button>
@@ -389,6 +400,12 @@ const CartPage = () => {
                             Remove
                           </button>
                         </div>
+
+                        {item.maxQuantity && (
+                          <div className={styles.stockLimit}>
+                            <span>{item.quantity} of {item.maxQuantity} available</span>
+                          </div>
+                        )}
 
                         <div className={styles.itemTotal}>
                           <p>{formatPKR(item.price * item.quantity)}</p>

@@ -696,3 +696,10 @@
       padding: 2rem 1rem;
     }
   }
+
+  .stockLimit {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.25rem;
+    font-style: italic;
+  }

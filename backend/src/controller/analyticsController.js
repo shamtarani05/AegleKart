@@ -118,37 +118,49 @@ const Product = require('../models/product-schema');
   // Get product category distribution for pie chart
   exports.getProductCategoryDistribution = async (req, res) => {
     try {
-      // Step 1: Aggregate sold quantity by productId
-      const orderItemsData = await Order.aggregate([
+      
+      // Directly aggregate by products.category from order data
+      const categoryData = await Order.aggregate([
         { $match: { status: { $ne: "Cancelled" } } },
         { $unwind: "$products" },
         {
           $group: {
-            _id: "$products.productId",
+            _id: "$products.category",
             totalSold: { $sum: "$products.quantity" }
           }
-        }
+        },
+        { $match: { _id: { $ne: null } } }, // Exclude null categories
+        { $sort: { totalSold: -1 } },
+        { $limit: 5 } // Get only top 5 categories
       ]);
+    
+      // Use fixed colors for consistent visualization
+      const colors = ['#4e6af3', '#10ca93', '#f39c12', '#9b59b6', '#e74c3c', '#3498db'];
+      
+      // Replace null or empty category with "Uncategorized"
+      // And format for the pie chart component
+      const formattedData = categoryData.map((item, index) => ({
+        name: item._id || 'Uncategorized',
+        value: item.totalSold,
+        color: colors[index % colors.length]
+      }));
 
-      // Step 2: Fetch product details (including category)
-      const productIds = orderItemsData.map(item => item._id);
-      const products = await Product.find({ _id: { $in: productIds } }, 'category');
-
-      // Step 3: Map productId to category
-      const productIdToCategory = {};
-      products.forEach(product => {
-        productIdToCategory[product._id] = product.category || 'Uncategorized';
-      });
-
-      // Step 4: Aggregate sales by category
-      const categorySales = {};
-      orderItemsData.forEach(item => {
-        const category = productIdToCategory[item._id] || 'Uncategorized';
-        categorySales[category] = (categorySales[category] || 0) + item.totalSold;
-      });
-
-      // Step 5: Format result for pie chart
-      const result = Object.entries(categorySales).map(([name, value]) => ({ name, value }));
+      // Calculate total for percentage calculation
+      const total = formattedData.reduce((sum, item) => sum + item.value, 0);
+      
+      // Add percentage to each category
+      const result = formattedData.map(item => ({
+        ...item,
+        // Convert raw value to percentage of total
+        value: total > 0 ? Math.round((item.value / total) * 100) : 0
+      }));
+      
+      // If no categories were found, return a default "Uncategorized" with 100%
+      if (result.length === 0) {
+        return res.status(200).json([
+          { name: 'Uncategorized', value: 100, color: '#4e6af3' }
+        ]);
+      }
 
       return res.status(200).json(result);
     } catch (err) {
@@ -156,7 +168,6 @@ const Product = require('../models/product-schema');
       return res.status(500).json({ error: 'Failed to fetch product category distribution' });
     }
   };
-
 
   // Get recent orders
   exports.getRecentOrders = async (req, res) => {

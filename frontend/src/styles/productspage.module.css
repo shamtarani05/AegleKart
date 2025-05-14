@@ -28,13 +28,11 @@
   margin: 0 auto;
   overflow: hidden;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid var(--color-sage-light);
   transition: all 0.3s ease;
 }
 
 .searchContainer:focus-within {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
   border-color: var(--color-sage);
 }
 
@@ -70,8 +68,6 @@
   padding: 1.8rem;
   border-radius: 12px;
   margin-bottom: 2.5rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-  border-left: 4px solid var(--color-sage);
   position: relative;
   overflow: hidden;
 }
@@ -167,7 +163,6 @@
   background-color: var(--color-white);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
   margin-bottom: 2rem;
 }
 

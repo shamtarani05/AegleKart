@@ -126,14 +126,61 @@ const getProductById = async (req, res) => {
     } else {
       query.id = id;
     }
-    console.log(query)
+    console.log(`Fetching product with query:`, query);
+    
     const product = await productSchema.findOne(query);
     
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
     
-    res.status(200).json(product);
+    // Convert to plain object for modification
+    const productObj = product.toObject();
+    
+    // Initialize similarProducts to undefined (will not be included in response)
+    // Don't set to empty array as this would still display the section
+    delete productObj.similarProducts;
+    
+    // Only process similar products if they exist in the product data
+    if (product.similarProducts && Array.isArray(product.similarProducts) && product.similarProducts.length > 0) {
+      console.log(`Found ${product.similarProducts.length} similar product IDs for ${product.name}`);
+      
+      try {
+        // Create queries for each similar product ID (using 'id' field)
+        const similarProducts = await productSchema.find(
+          { id: { $in: product.similarProducts } },
+          {
+            _id: 1,
+            id: 1,
+            name: 1,
+            price: 1,
+            discountedPrice: 1,
+            discount: 1,
+            images: 1,
+            quantity: 1,
+            stockStatus: 1,
+            brandName: 1
+          }
+        ).limit(4);
+        
+        // Only add similarProducts to response if products were actually found
+        if (similarProducts && similarProducts.length > 0) {
+          console.log(`Retrieved ${similarProducts.length} similar products`);
+          productObj.similarProducts = similarProducts;
+        } else {
+          console.log('No matching similar products found in database');
+        }
+      } catch (error) {
+        console.error("Error fetching similar products:", error);
+        // Don't include similarProducts if there was an error
+      }
+    } else {
+      console.log('No similar products defined for this product');
+    }
+    
+    // Return the product (with or without similar products)
+    return res.status(200).json(productObj);
+    
   } catch (error) {
     console.error("Error fetching product by ID:", error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -268,13 +315,8 @@ const updateProduct = async (req, res) => {
 module.exports = {
   getProductsbyCategory,
   getAllProducts,
-<<<<<<< HEAD
-  getProductById
-};
-=======
   getProductById,
   createProduct,
   deleteProduct,
   updateProduct
 };
->>>>>>> a0efa8fedb5f15b104b001969652cca1b6633168

@@ -25,12 +25,12 @@ const Footer = () => {
         <div className={styles.footerSection}>
           <h3>Categories</h3>
           <ul className={styles.footerLinks}>
-            <li><Link to="/medicines">Medicines</Link></li>
-            <li><Link to="/healthcare">Healthcare</Link></li>
-            <li><Link to="/baby-mother">Baby & Mother</Link></li>
-            <li><Link to="/nutrition">Nutrition</Link></li>
-            <li><Link to="/personal-care">Personal Care</Link></li>
-            <li><Link to="/devices">Devices</Link></li>
+            <li><Link to="/products/medicines">Medicines</Link></li>
+            <li><Link to="/products/healthcare">Healthcare</Link></li>
+            <li><Link to="/products/baby & mother">Baby & Mother</Link></li>
+            <li><Link to="/products/nutrition">Nutrition</Link></li>
+            <li><Link to="/products/personal care">Personal Care</Link></li>
+            <li><Link to="/products/devices">Devices</Link></li>
           </ul>
         </div>
 
