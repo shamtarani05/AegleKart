@@ -167,10 +167,10 @@ const generateEmailHTML = (orderData) => {
       
       <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #777; font-size: 14px;">
         <p>If you have any questions about your order, please contact our customer support.</p>
-        <p>&copy; ${new Date().getFullYear()} Your Store Name. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()}  AegleKart. All rights reserved.</p>
       </div>
     </body>
-    </html>
+    </html> 
   `;
 };
 

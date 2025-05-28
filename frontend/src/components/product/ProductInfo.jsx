@@ -8,7 +8,7 @@ export default function ProductInfo({ product, addToCart, getItemQuantity, cart 
   const [cartQuantity, setCartQuantity] = useState(0);
   
   // Check if product is in stock
-  const isInStock = product?.stockStatus?.toLowerCase() === 'in stock';
+  const isOutStock = product?.stockStatus?.toLowerCase() === 'out stock';
   
   // Update the cart quantity whenever the cart changes
   useEffect(() => {
@@ -141,13 +141,13 @@ export default function ProductInfo({ product, addToCart, getItemQuantity, cart 
 
         {product?.stockStatus && (
           <div className={styles.infoItem}>
-            {isInStock ? (
+            {!isOutStock ? (
               <Check size={20} className={styles.checkIcon} />
             ) : (
               <Info size={20} className={styles.infoIcon} />
             )}
             <span className={styles.infoText}>
-              <span className={`${styles.stockStatus} ${isInStock ? styles.inStock : styles.outOfStock}`}>
+              <span className={`${styles.stockStatus} ${!isOutStock ? styles.inStock : styles.outOfStock}`}>
                 {product.stockStatus}
               </span>
             </span>
@@ -166,7 +166,7 @@ export default function ProductInfo({ product, addToCart, getItemQuantity, cart 
         quantity={quantity} 
         increment={incrementQuantity} 
         decrement={decrementQuantity} 
-        isInStock={isInStock} 
+        isOutStock={isOutStock} 
         maxQuantity={product.quantity}
         cartQuantity={cartQuantity}
         packSize={product.packSize}
@@ -174,11 +174,11 @@ export default function ProductInfo({ product, addToCart, getItemQuantity, cart 
 
       <div className={styles.actionButtonsContainer}>
         <button 
-          className={`${styles.addToCartButton} ${!isInStock ? styles.disabledButton : ''}`}
+          className={`${styles.addToCartButton} ${isOutStock ? styles.disabledButton : ''}`}
           onClick={handleAddToCart}
-          disabled={!isInStock}
+          disabled={isOutStock}
         >
-          {isInStock ? 'Add to Cart' : 'Out of Stock'}
+          {!isOutStock ? 'Add to Cart' : 'Out of Stock'}
         </button>
         <button className={styles.shareButton}>
           <Share2 size={18} className={styles.shareIcon} />

@@ -4,6 +4,7 @@ const { generateOrderId, generatePaymentId } = require('../utils/generateIds');
 const { createStripeCoupon, parseSessionToOrderData } = require('../utils/stripe-helpers');
 const stripe = require('../config/stripeConfig');
 const { sendOrderConfirmationEmail } = require('../utils/orderEmailNotification');
+const productSchema = require('../models/product-schema');
 
 /**
  * Create a Stripe checkout session
@@ -129,7 +130,7 @@ const createCheckoutSession = async (req, res) => {
     }
 
     const session = await stripe.checkout.sessions.create(sessionOptions);
-
+     console.log(products);
     // Create a new order with product categories
     const newOrder = new Order({
       orderId: orderId,
@@ -140,7 +141,8 @@ const createCheckoutSession = async (req, res) => {
             name: item.name,
             price: item.price, // Already in PKR
             quantity: item.quantity,
-            category: item.category || 'uncategorized' // Store category
+            category: item.category || 'uncategorized' ,// Store category
+            id : item.id,
           }))
         : pkrLineItems
             .filter(item => 
@@ -159,9 +161,11 @@ const createCheckoutSession = async (req, res) => {
       },
       shippingAddress: shipping_address || null,
       discount: discount ? {
+
         code: discount.name.replace('Promo: ', ''),
         type: discount.type,
         value: discount.type === 'percent' ? discount.amount / 100 : discount.amount / 100, // Convert from paisa to PKR or basis points to percentage
+        id : discount.id
       } : null,
       subtotal: subtotalAmount / 100, // Convert from paisa to PKR
       total: null, // Will be updated after payment is completed
@@ -237,7 +241,7 @@ const handleCheckoutSessionCompleted = async (session) => {
     order.updatedAt = new Date();
 
     await order.save();
-
+    console.log(order)
     // Extract payment intent ID string instead of using the whole object
     const paymentIntentId = typeof expandedSession.payment_intent === 'string' 
       ? expandedSession.payment_intent 
@@ -276,6 +280,8 @@ const handleCheckoutSessionCompleted = async (session) => {
 
     await payment.save();
 
+
+        
     // Prepare complete order data for email notification
     const completeOrderData = {
       ...order.toObject(),

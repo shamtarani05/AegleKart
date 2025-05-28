@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -7,9 +7,17 @@ import {
   Upload,
   AlertCircle
 } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import useAuthStore from '../stores/auth-store';
 import styles from '../styles/addProduct.module.css';
+
+// Initialize Supabase client
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY;
+// Use service key for admin operations like storage uploads
+const supabase = createClient(supabaseUrl, supabaseServiceKey || supabaseAnonKey);
 
 const AddProductPage = () => {
   const navigate = useNavigate();
@@ -46,9 +54,12 @@ const AddProductPage = () => {
   const [keyBenefits, setKeyBenefits] = useState(['']);
   const [sideEffects, setSideEffects] = useState(['']);
   const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviewUrls, setImagePreviewUrls] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // State for submission status
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -127,29 +138,91 @@ const AddProductPage = () => {
   // Handle image upload
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
+    if (files.length + imageFiles.length > 5) {
+      alert('You can upload a maximum of 5 images');
+      return;
+    }
+    
+    // Check file size - limit to 5MB per file
+    const oversizedFiles = files.filter(file => file.size > 5 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      alert('One or more files exceed the 5MB size limit. Please compress your images before uploading.');
+      return;
+    }
+    
+    // Check file type - only accept images
+    const invalidFiles = files.filter(file => !file.type.startsWith('image/'));
+    if (invalidFiles.length > 0) {
+      alert('Please upload only image files (JPG, PNG, GIF, etc.)');
+      return;
+    }
+    
     setImageFiles([...imageFiles, ...files]);
     
-    // Preview logic - in a real app this would upload to a server
-    const newImageUrls = files.map(file => URL.createObjectURL(file));
-    setFormData({
-      ...formData,
-      images: [...formData.images, ...newImageUrls]
-    });
+    // Create preview URLs for the images
+    const newPreviewUrls = files.map(file => URL.createObjectURL(file));
+    setImagePreviewUrls([...imagePreviewUrls, ...newPreviewUrls]);
   };
 
   // Remove an uploaded image
   const handleRemoveImage = (index) => {
-    const newImages = [...formData.images];
-    newImages.splice(index, 1);
-    
     const newImageFiles = [...imageFiles];
     newImageFiles.splice(index, 1);
-    
-    setFormData({
-      ...formData,
-      images: newImages
-    });
     setImageFiles(newImageFiles);
+    
+    const newPreviewUrls = [...imagePreviewUrls];
+    newPreviewUrls.splice(index, 1);
+    setImagePreviewUrls(newPreviewUrls);
+  };
+
+  // Upload images to Supabase Storage
+  const uploadImagesToSupabase = async () => {
+    if (imageFiles.length === 0) return [];
+    
+    setIsUploading(true);
+    const uploadedUrls = [];
+    
+    try {
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+        const filePath = `products/${fileName}`;
+        
+        // Set content type explicitly
+        const options = {
+          contentType: file.type,
+          cacheControl: '3600'
+        };
+        
+        const { data, error } = await supabase.storage
+          .from('aeglekart')
+          .upload(filePath, file, options);
+        
+        if (error) {
+          console.error('Error uploading image:', error);
+          throw new Error(`Error uploading image: ${error.message}`);
+        }
+        
+        // Get public URL for the uploaded image
+        const { data: urlData } = supabase.storage
+          .from('aeglekart')
+          .getPublicUrl(filePath);
+        
+        uploadedUrls.push(urlData.publicUrl);
+        
+        // Update progress
+        setUploadProgress(Math.floor(((i + 1) / imageFiles.length) * 100));
+      }
+      
+      return uploadedUrls;
+    } catch (error) {
+      console.error('Error in uploading images:', error);
+      throw error;
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
   };
 
   // Handle form submission
@@ -161,16 +234,21 @@ const AddProductPage = () => {
     setSubmitSuccess(false);
     
     try {
-      // Convert blob URLs to strings that can be saved
-      const safeImages = formData.images.map(image => {
-        // If it's a blob URL from local preview, replace with placeholder
-        if (image.startsWith('blob:')) {
-          return `https://placeholder.com/product-image-${Math.random().toString(36).substring(2, 8)}`;
+      // First, upload images to Supabase
+      let uploadedImageUrls = [];
+      
+      if (imageFiles.length > 0) {
+        try {
+          uploadedImageUrls = await uploadImagesToSupabase();
+        } catch (uploadError) {
+          console.error("Upload error:", uploadError);
+          setSubmitError(`Image upload failed: ${uploadError.message}. Please try again.`);
+          setIsSubmitting(false);
+          return;
         }
-        return image;
-      });
-
-      // Prepare the final form data
+      }
+      
+      // Prepare the final form data with Supabase image URLs
       const finalFormData = {
         ...formData,
         id: generateProductId(),
@@ -188,11 +266,11 @@ const AddProductPage = () => {
         // Convert dates if provided
         mfgDate: formData.mfgDate ? formData.mfgDate : null,
         expDate: formData.expDate ? formData.expDate : null,
-        // Use the safe images array
-        images: safeImages
+        // Use the Supabase uploaded image URLs
+        images: uploadedImageUrls
       };
       
-      console.log("Sending product data:", finalFormData); // Log the data being sent
+      console.log("Sending product data:", finalFormData);
       
       // Make API call to create the product
       const response = await fetch('http://localhost:3000/products/add', {
@@ -582,18 +660,32 @@ const AddProductPage = () => {
                       accept="image/*"
                       onChange={handleImageUpload}
                       className={styles.imageUploadInput}
-                      disabled={formData.images.length >= 5}
+                      disabled={imageFiles.length >= 5 || isUploading}
                     />
                     
-                    {formData.images.length > 0 && (
+                    {/* Upload Progress */}
+                    {isUploading && (
+                      <div className={styles.uploadProgress}>
+                        <div className={styles.progressBar}>
+                          <div 
+                            className={styles.progressFill} 
+                            style={{ width: `${uploadProgress}%` }}
+                          ></div>
+                        </div>
+                        <span>Uploading images: {uploadProgress}%</span>
+                      </div>
+                    )}
+                    
+                    {imagePreviewUrls.length > 0 && (
                       <div className={styles.imagePreviewContainer}>
-                        {formData.images.map((image, index) => (
+                        {imagePreviewUrls.map((image, index) => (
                           <div key={index} className={styles.imagePreview}>
                             <img src={image} alt={`Product ${index + 1}`} />
                             <button 
                               type="button" 
                               className={styles.removeImageButton}
                               onClick={() => handleRemoveImage(index)}
+                              disabled={isUploading}
                             >
                               <X size={16} />
                             </button>
@@ -610,14 +702,14 @@ const AddProductPage = () => {
                   type="button" 
                   className={styles.cancelButton}
                   onClick={() => navigate('/admin')}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isUploading}
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
                   className={styles.submitButton}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isUploading}
                 >
                   {isSubmitting ? 'Adding Product...' : 'Add Product'}
                 </button>

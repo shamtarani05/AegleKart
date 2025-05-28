@@ -5,7 +5,7 @@ export default function QuantitySelector({
   quantity, 
   increment, 
   decrement, 
-  isInStock,
+  isOutStock,
   maxQuantity,
   cartQuantity,
   packSize
@@ -19,7 +19,7 @@ export default function QuantitySelector({
             className={styles.quantityButton}
             onClick={decrement}
             aria-label="Decrease quantity"
-            disabled={!isInStock || quantity <= 1}
+            disabled={isOutStock || quantity <= 1}
           >
             <Minus size={16} />
           </button>
@@ -28,7 +28,7 @@ export default function QuantitySelector({
             className={styles.quantityButton}
             onClick={increment}
             aria-label="Increase quantity"
-            disabled={!isInStock || (maxQuantity && (quantity + cartQuantity) >= maxQuantity)}
+            disabled={isOutStock || (maxQuantity && (quantity + cartQuantity) >= maxQuantity)}
           >
             <Plus size={16} />
           </button>
@@ -42,7 +42,7 @@ export default function QuantitySelector({
         </div>
       )}
       
-      {maxQuantity && isInStock && (
+      {maxQuantity && !isOutStock && (
         <div className={styles.availableStock}>
           <span className={styles.stockLabel}>Available: </span>
           <span className={styles.stockValue}>

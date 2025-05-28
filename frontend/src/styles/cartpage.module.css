@@ -703,3 +703,154 @@
     margin-top: 0.25rem;
     font-style: italic;
   }
+
+  .availableCouponsSection {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .couponsTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.1rem;
+    color: #334155;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px dashed #e2e8f0;
+  }
+
+  .couponsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .couponCard {
+    position: relative;
+    background: white;
+    border: 2px dashed #e2e8f0;
+    border-radius: 10px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    overflow: hidden;
+  }
+
+  .couponCard::before,
+  .couponCard::after {
+    content: '';
+    position: absolute;
+    background: #f8fafc;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+  }
+
+  .couponCard::before {
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-right: 2px dashed #e2e8f0;
+  }
+
+  .couponCard::after {
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left: 2px dashed #e2e8f0;
+  }
+
+  .couponCard:hover:not(.ineligibleCoupon):not(.appliedCoupon) {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  }
+
+  .couponHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .couponCode {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #1e293b;
+    letter-spacing: 0.5px;
+  }
+
+  .discountValue {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .couponDetails {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+
+  .couponDescription {
+    margin-bottom: 0.5rem;
+    color: #475569;
+  }
+
+  .minOrder {
+    font-weight: 500;
+    color: #475569;
+    margin: 0.5rem 0;
+  }
+
+  .addMore {
+    color: #3b82f6;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+  }
+
+  .expired {
+    color: #ef4444;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+  }
+
+  .appliedCoupon {
+    border: 2px solid #22c55e;
+    background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%);
+  }
+
+  .ineligibleCoupon {
+    opacity: 0.7;
+    background: #f1f5f9;
+    cursor: not-allowed;
+    border: 2px dashed #cbd5e1;
+  }
+
+  .appliedBadge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #22c55e;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
+    z-index: 1;
+  }

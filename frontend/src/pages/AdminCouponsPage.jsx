@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search,
   Plus,
-  Edit,
   Trash2,
-  X,
-  Calendar
+  X
 } from 'lucide-react';
 import useAuthStore from '../stores/auth-store';
 import AdminSidebar from '../components/admin/AdminSidebar';
@@ -15,63 +13,36 @@ const AdminCouponsPage = () => {
   const user = useAuthStore((state) => state.user);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
-  
-  // Form state for adding new coupon
+
+  // Updated form state to match schema
   const [couponForm, setCouponForm] = useState({
     code: '',
-    discountType: 'percentage', // percentage or fixed
-    discountValue: '',
-    minOrderValue: '',
-    maxDiscount: '',
-    validFrom: '',
-    validUntil: '',
+    discountType: 'percentage',
+    discount: '',
     description: '',
-    usageLimit: ''
+    minOrder: '',
+    validFrom: '',
+    validUntil: ''
   });
-  
-  // Mock coupons data - in a real app, fetch from API
-  const [coupons, setCoupons] = useState([
-    {
-      id: 'CPN001',
-      code: 'WELCOME20',
-      discountType: 'percentage',
-      discountValue: 20,
-      minOrderValue: 500,
-      maxDiscount: 200,
-      validFrom: '2023-11-01',
-      validUntil: '2023-12-31',
-      description: 'Welcome discount for new users',
-      usageLimit: 1,
-      status: 'active'
-    },
-    {
-      id: 'CPN002',
-      code: 'SUMMER15',
-      discountType: 'percentage',
-      discountValue: 15,
-      minOrderValue: 800,
-      maxDiscount: 300,
-      validFrom: '2023-06-01',
-      validUntil: '2023-09-30',
-      description: 'Summer season discount',
-      usageLimit: 0, // Unlimited
-      status: 'expired'
-    },
-    {
-      id: 'CPN003',
-      code: 'FLAT100',
-      discountType: 'fixed',
-      discountValue: 100,
-      minOrderValue: 1000,
-      maxDiscount: 100,
-      validFrom: '2023-11-15',
-      validUntil: '2024-01-15',
-      description: 'Flat discount on medicines',
-      usageLimit: 0,
-      status: 'active'
+
+  const [coupons, setCoupons] = useState([]);
+
+  // Fetch coupons on component mount
+  useEffect(() => {
+    fetchCoupons();
+  }, []);
+
+  const fetchCoupons = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/coupons');
+      if (!response.ok) throw new Error('Failed to fetch coupons');
+      const data = await response.json();
+      setCoupons(data);
+    } catch (error) {
+      console.error('Error fetching coupons:', error);
     }
-  ]);
-  
+  };
+
   // Handle input change for coupon form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -80,66 +51,77 @@ const AdminCouponsPage = () => {
       [name]: value
     });
   };
-  
-  // Generate a unique coupon ID
-  const generateCouponId = () => {
-    return 'CPN' + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  };
-  
+
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form
-    if (!couponForm.code || !couponForm.discountValue || !couponForm.validFrom || !couponForm.validUntil) {
-      alert('Please fill all required fields');
-      return;
+    try {
+      const couponData = {
+        code: couponForm.code.toUpperCase(),
+        discountType: couponForm.discountType,
+        value: parseFloat(couponForm.discount), // Changed from discount to value
+        description: couponForm.description,
+        minOrder: parseFloat(couponForm.minOrder),
+        validFrom: couponForm.validFrom,
+        validUntil: couponForm.validUntil,
+        isActive: true
+      };
+
+      const response = await fetch('http://localhost:3000/api/coupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(couponData)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create coupon');
+      }
+      
+      const newCoupon = await response.json();
+      setCoupons([newCoupon, ...coupons]);
+      setShowAddForm(false);
+      
+      // Reset form
+      setCouponForm({
+        code: '',
+        discountType: 'percentage',
+        discount: '',
+        description: '',
+        minOrder: '',
+        validFrom: '',
+        validUntil: ''
+      });
+    } catch (error) {
+      console.error('Error creating coupon:', error);
+      alert(error.message);
     }
-    
-    // Prepare new coupon data
-    const newCoupon = {
-      id: generateCouponId(),
-      ...couponForm,
-      discountValue: Number(couponForm.discountValue),
-      minOrderValue: Number(couponForm.minOrderValue) || 0,
-      maxDiscount: Number(couponForm.maxDiscount) || 0,
-      usageLimit: Number(couponForm.usageLimit) || 0,
-      status: new Date(couponForm.validUntil) >= new Date() ? 'active' : 'expired'
-    };
-    
-    // Add new coupon to the list
-    setCoupons([...coupons, newCoupon]);
-    
-    // Reset form
-    setCouponForm({
-      code: '',
-      discountType: 'percentage',
-      discountValue: '',
-      minOrderValue: '',
-      maxDiscount: '',
-      validFrom: '',
-      validUntil: '',
-      description: '',
-      usageLimit: ''
-    });
-    
-    // Hide the form
-    setShowAddForm(false);
   };
-  
+
   // Delete coupon
-  const handleDeleteCoupon = (id) => {
+  const handleDeleteCoupon = async (id) => {
     if (window.confirm('Are you sure you want to delete this coupon?')) {
-      setCoupons(coupons.filter(coupon => coupon.id !== id));
+      try {
+        const response = await fetch(`http://localhost:3000/api/coupons/${id}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) throw new Error('Failed to delete coupon');
+        setCoupons(coupons.filter(coupon => coupon._id !== id));
+      } catch (error) {
+        console.error('Error deleting coupon:', error);
+        alert(error.message);
+      }
     }
   };
-  
+
   // Filter coupons based on search
   const filteredCoupons = coupons.filter(coupon => 
     coupon.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
     coupon.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
+
   // Format date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -215,14 +197,14 @@ const AdminCouponsPage = () => {
                   </div>
                   
                   <div className={styles.formGroup}>
-                    <label htmlFor="discountValue">
+                    <label htmlFor="name">
                       Discount {couponForm.discountType === 'percentage' ? '(%)' : '(₹)'} *
                     </label>
                     <input
                       type="number"
-                      id="discountValue"
-                      name="discountValue"
-                      value={couponForm.discountValue}
+                      id="value"
+                      name="discount"
+                      value={couponForm.discount}
                       onChange={handleInputChange}
                       className={styles.formControl}
                       placeholder={couponForm.discountType === 'percentage' ? "e.g. 10" : "e.g. 100"}
@@ -233,34 +215,18 @@ const AdminCouponsPage = () => {
                   </div>
                   
                   <div className={styles.formGroup}>
-                    <label htmlFor="minOrderValue">Min. Order Value (₹)</label>
+                    <label htmlFor="minOrder">Min. Order Value (₹)</label>
                     <input
                       type="number"
-                      id="minOrderValue"
-                      name="minOrderValue"
-                      value={couponForm.minOrderValue}
+                      id="minOrder"
+                      name="minOrder"
+                      value={couponForm.minOrder}
                       onChange={handleInputChange}
                       className={styles.formControl}
                       placeholder="e.g. 500"
                       min="0"
                     />
                   </div>
-                  
-                  {couponForm.discountType === 'percentage' && (
-                    <div className={styles.formGroup}>
-                      <label htmlFor="maxDiscount">Max Discount (₹)</label>
-                      <input
-                        type="number"
-                        id="maxDiscount"
-                        name="maxDiscount"
-                        value={couponForm.maxDiscount}
-                        onChange={handleInputChange}
-                        className={styles.formControl}
-                        placeholder="e.g. 200"
-                        min="0"
-                      />
-                    </div>
-                  )}
                   
                   <div className={styles.formGroup}>
                     <label htmlFor="validFrom">Valid From*</label>
@@ -287,32 +253,19 @@ const AdminCouponsPage = () => {
                       required
                     />
                   </div>
-                  
-                  <div className={styles.formGroup}>
-                    <label htmlFor="usageLimit">Usage Limit (0 = unlimited)</label>
-                    <input
-                      type="number"
-                      id="usageLimit"
-                      name="usageLimit"
-                      value={couponForm.usageLimit}
-                      onChange={handleInputChange}
-                      className={styles.formControl}
-                      placeholder="e.g. 1"
-                      min="0"
-                    />
-                  </div>
                 </div>
                 
                 <div className={styles.formGroupFull}>
-                  <label htmlFor="description">Description</label>
+                  <label htmlFor="description">Description*</label>
                   <textarea
                     id="description"
                     name="description"
                     value={couponForm.description}
                     onChange={handleInputChange}
                     className={`${styles.formControl} ${styles.textarea}`}
-                    placeholder="Describe the coupon purpose"
+                    placeholder="Describe what this coupon offers"
                     rows="2"
+                    required
                   ></textarea>
                 </div>
                 
@@ -350,59 +303,39 @@ const AdminCouponsPage = () => {
                   <th>Min. Order</th>
                   <th>Valid From</th>
                   <th>Valid Until</th>
-                  <th>Status</th>
-                  <th>Usage Limit</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredCoupons.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className={styles.noCoupons}>
+                    <td colSpan="6" className={styles.noCoupons}>
                       No coupons found matching your search.
                     </td>
                   </tr>
                 ) : (
                   filteredCoupons.map((coupon) => (
-                    <tr key={coupon.id}>
+                    <tr key={coupon._id}>
                       <td className={styles.couponCodeCell}>
                         <span className={styles.couponCode}>{coupon.code}</span>
-                        {coupon.description && (
-                          <span className={styles.couponDescription}>{coupon.description}</span>
-                        )}
+                        <span className={styles.couponDescription}>{coupon.description}</span>
                       </td>
                       <td>
                         {coupon.discountType === 'percentage' ? 
-                          `${coupon.discountValue}% ${coupon.maxDiscount ? `(max PKR ${coupon.maxDiscount})` : ''}` : 
-                          `PKR ${coupon.discountValue}`
+                          `${coupon.value}%` : 
+                          `PKR ${coupon.value}`
                         }
                       </td>
-                      <td>{coupon.minOrderValue ? `PKR ${coupon.minOrderValue}` : '-'}</td>
+                      <td>PKR {coupon.minOrder}</td>
                       <td>{formatDate(coupon.validFrom)}</td>
                       <td>{formatDate(coupon.validUntil)}</td>
                       <td>
-                        <span className={`${styles.couponStatus} ${styles[coupon.status]}`}>
-                          {coupon.status === 'active' ? 'Active' : 'Expired'}
-                        </span>
-                      </td>
-                      <td>{coupon.usageLimit === 0 ? 'Unlimited' : coupon.usageLimit}</td>
-                      <td>
-                        <div className={styles.actionButtons}>
-                          <button
-                            className={styles.actionButton}
-                            title="Edit Coupon"
-                            onClick={() => alert('Edit coupon: ' + coupon.code)}
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            className={`${styles.actionButton} ${styles.deleteButton}`}
-                            title="Delete Coupon"
-                            onClick={() => handleDeleteCoupon(coupon.id)}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
+                        <button
+                          className={`${styles.actionButton} ${styles.deleteButton}`}
+                          onClick={() => handleDeleteCoupon(coupon._id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </td>
                     </tr>
                   ))

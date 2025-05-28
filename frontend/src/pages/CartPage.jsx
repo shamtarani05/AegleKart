@@ -26,13 +26,7 @@ const CartPage = () => {
   const [checkoutSuccess, setCheckoutSuccess] = useState('');
   const user = useAuthStore((state) => state.user);
   const token = localStorage.getItem('token');
-
-  // Available promo codes - in a real app, these would be fetched from an API
-  const availablePromoCodes = [
-    { code: 'WELCOME20', discountType: 'percentage', value: 20, description: '20% off your order', minOrder: 2000 },
-    { code: 'FREESHIP', discountType: 'shipping', value: 0, description: 'Free shipping', minOrder: 1500 },
-    { code: 'FLAT500', discountType: 'fixed', value: 500, description: 'PKR 500 off your order', minOrder: 3000 }
-  ];
+  const userCoupons = user?.coupons || [];
 
   // Check if there's a successful checkout in the URL (returning from Stripe)
   useEffect(() => {
@@ -89,16 +83,7 @@ const CartPage = () => {
   const updateQuantity = (id, change) => {
     const item = cartItems.find(i => i.id === id);
     if (!item) return;
-    
     const newQuantity = Math.max(1, item.quantity + change);
-    
-    // Check if the new quantity exceeds the maximum available
-    if (item.maxQuantity !== undefined && newQuantity > item.maxQuantity) {
-      alert(`Sorry, only ${item.maxQuantity} items are available in stock.`);
-      return;
-    }
-    
-    // Use the addToCart function with the delta quantity
     addToCart({ ...item, quantity: newQuantity - item.quantity });
   };
 
@@ -114,7 +99,7 @@ const CartPage = () => {
       return;
     }
 
-    const foundPromo = availablePromoCodes.find(
+    const foundPromo = userCoupons.find(
       promo => promo.code.toLowerCase() === promoCode.toLowerCase()
     );
 
@@ -131,6 +116,24 @@ const CartPage = () => {
     } else {
       setPromoError('Invalid promo code');
     }
+  };
+
+  // Apply coupon
+  const applyCoupon = (coupon) => {
+    if (subtotal < coupon.minOrder) {
+      setPromoError(`Minimum order of PKR ${coupon.minOrder} required`);
+      return;
+    }
+    setAppliedPromo({
+      code: coupon.code,
+      discountType: coupon.discountType,
+      value: coupon.value,
+      description: coupon.description,
+      minOrder: coupon.minOrder,
+      id : coupon._id
+    });
+    setPromoCode('');
+    setPromoError('');
   };
 
   // Remove applied promo code
@@ -173,7 +176,6 @@ const CartPage = () => {
   };
 
   // Handle Stripe checkout
-  // Modified handleCheckout function in CartPage.js
   const handleCheckout = async () => {
     try {
       setIsProcessing(true);
@@ -224,11 +226,12 @@ const CartPage = () => {
       let discountData = null;
       if (discount > 0) {
         discountData = {
-          type: appliedPromo.discountType === 'percentage' ? 'percent' : 'fixed_amount',
+          type: appliedPromo.discountType === 'percentage' ? 'percentage' : 'fixed',
           amount: appliedPromo.discountType === 'percentage'
-            ? appliedPromo.value * 100 // For percentage, convert to basis points
-            : Math.round(discount * 100), // For fixed amount, convert to PKR paisa
+            ? appliedPromo.value // Don't multiply by 100, send raw percentage
+            : Math.round(discount * 100), // Convert to paisa for fixed amount
           name: `Promo: ${appliedPromo.code}`,
+          id: appliedPromo.id,
         };
       }
 
@@ -240,6 +243,7 @@ const CartPage = () => {
         quantity: item.quantity,
         category: item.category || 'uncategorized' // Include category here
       }));
+    
 
       // Call our backend API to create a Stripe checkout session
       const response = await fetch('http://localhost:3000/stripe/create-checkout-session', {
@@ -377,7 +381,6 @@ const CartPage = () => {
                               onClick={() => updateQuantity(item.id, -1)}
                               className={styles.quantityButton}
                               aria-label="Decrease quantity"
-                              disabled={item.quantity <= 1}
                             >
                               <Minus size={16} />
                             </button>
@@ -386,7 +389,6 @@ const CartPage = () => {
                               onClick={() => updateQuantity(item.id, 1)}
                               className={styles.quantityButton}
                               aria-label="Increase quantity"
-                              disabled={item.maxQuantity && item.quantity >= item.maxQuantity}
                             >
                               <Plus size={16} />
                             </button>
@@ -401,12 +403,6 @@ const CartPage = () => {
                           </button>
                         </div>
 
-                        {item.maxQuantity && (
-                          <div className={styles.stockLimit}>
-                            <span>{item.quantity} of {item.maxQuantity} available</span>
-                          </div>
-                        )}
-
                         <div className={styles.itemTotal}>
                           <p>{formatPKR(item.price * item.quantity)}</p>
                         </div>
@@ -414,7 +410,16 @@ const CartPage = () => {
                     ))}
                   </div>
 
-                  <div className={styles.cartActions}>
+                  {/* Verification Message if needed */}
+                  {user?.needsVerification && (
+                    <div className={styles.verificationMessage}>
+                      <AlertCircle size={16} />
+                      <span>Please verify your account to use coupons</span>
+                    </div>
+                  )}
+
+                  {/* Continue Shopping Section */}
+                  <div className={styles.continueShoppingSection}>
                     <button
                       className={styles.continueShoppingButton}
                       onClick={() => navigate('/products/medicine')}
@@ -423,6 +428,76 @@ const CartPage = () => {
                       Continue Shopping
                     </button>
                   </div>
+
+                  {/* Available Coupons Section */}
+                  {cartItems.length > 0 && userCoupons?.length > 0 && (
+                    <div className={styles.availableCouponsSection}>
+                      <h3 className={styles.couponsTitle}>
+                        <Tag size={16} />
+                        Your Available Coupons
+                      </h3>
+                      <div className={styles.couponsList}>
+                        {userCoupons.map((coupon) => {
+                          const isEligible = subtotal >= coupon.minOrder;
+                          const isActive = new Date(coupon.validUntil) > new Date() && coupon.isActive;
+                          
+                          return (
+                            <div 
+                              key={coupon._id} 
+                              className={`${styles.couponCard} 
+                                ${appliedPromo?.code === coupon.code ? styles.appliedCoupon : ''}
+                                ${!isEligible || !isActive ? styles.ineligibleCoupon : ''}`
+                              }
+                              onClick={() => {
+                                if (isEligible && isActive && !appliedPromo) {
+                                  applyCoupon(coupon);
+                                }
+                              }}
+                              role="button"
+                              tabIndex={0}
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  if (isEligible && isActive && !appliedPromo) {
+                                    applyCoupon(coupon);
+                                  }
+                                }
+                              }}
+                            >
+                              <div className={styles.couponHeader}>
+                                <span className={styles.couponCode}>{coupon.code}</span>
+                                <span className={styles.discountValue}>
+                                  {coupon.discountType === 'percentage' 
+                                    ? `${coupon.value}% OFF`
+                                    : coupon.discountType === 'shipping'
+                                    ? 'FREE SHIPPING'
+                                    : `PKR ${coupon.value} OFF`}
+                                </span>
+                              </div>
+                              <div className={styles.couponDetails}>
+                                {coupon.description && (
+                                  <p className={styles.couponDescription}>{coupon.description}</p>
+                                )}
+                                <p className={styles.minOrder}>
+                                  Min. Order: PKR {coupon.minOrder}
+                                </p>
+                                {!isEligible && (
+                                  <p className={styles.addMore}>
+                                    Add PKR {coupon.minOrder - subtotal} more to use
+                                  </p>
+                                )}
+                                {!isActive && (
+                                  <p className={styles.expired}>Expired</p>
+                                )}
+                              </div>
+                              {appliedPromo?.code === coupon.code && (
+                                <div className={styles.appliedBadge}>Applied</div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className={styles.orderSummary}>

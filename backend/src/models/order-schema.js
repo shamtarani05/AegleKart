@@ -19,6 +19,7 @@ const OrderSchema = new mongoose.Schema({
   
   // Order items
   products: [{
+    id : {type : String},
     name: {
       type: String,
       required: true
@@ -90,12 +91,14 @@ const OrderSchema = new mongoose.Schema({
     },
     type: {
       type: String,
-      enum: ['percent', 'fixed', 'shipping', null],
-      default: null
+      enum: ['percentage', 'fixed', 'shipping'], // Match with frontend discount types
     },
     value: {
       type: Number,
       default: null
+    },
+    id: {
+      type: String
     }
   },
   

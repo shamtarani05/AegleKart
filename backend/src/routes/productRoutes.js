@@ -6,7 +6,7 @@ const {
   createProduct, 
   deleteProduct,
   updateProduct,
-  getProductById
+  getProductById,
 } = require('../controller/productController');
 
 // Debug middleware to log requests

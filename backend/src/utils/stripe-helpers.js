@@ -9,26 +9,26 @@
  * @returns {Promise<string|null>} Coupon ID or null if creation fails
  */
 async function createStripeCoupon(discount, stripe) {
-  if (!discount) return null;
-  
   try {
     const couponData = {
       name: discount.name,
+      currency: 'pkr',
       duration: 'once',
     };
-    
-    if (discount.type === 'percent') {
-      couponData.percent_off = discount.amount / 100; // Convert from basis points
-    } else {
+
+    // Map our discount types to Stripe's types
+    if (discount.type === 'percentage' || discount.type === 'percent') {
+      couponData.percent_off = discount.amount;
+    } else if (discount.type === 'fixed' || discount.type === 'fixed_amount') {
       couponData.amount_off = discount.amount;
-      couponData.currency = 'usd';
+      couponData.currency = 'pkr';
     }
-    
+
     const coupon = await stripe.coupons.create(couponData);
     return coupon.id;
   } catch (error) {
     console.error('Error creating Stripe coupon:', error);
-    return null;
+    throw error;
   }
 }
 
