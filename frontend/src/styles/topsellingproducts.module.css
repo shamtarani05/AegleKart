@@ -1,0 +1,246 @@
+.outerContainer {
+  background-color: white;
+  padding: 2rem 0;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden; /* Prevent horizontal scrollbar */
+  overflow-y: hidden;
+}
+
+/* Add green bar above the component */
+.outerContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background-color: var(--color-sage-muted);
+  z-index: 1;
+}
+
+.outerContainer::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: -100%;
+  width: 70%; /* Reduce width for a cleaner look */
+  height: 4.5px;
+  background: var(--color-sage);
+  /* Remove transparent edges that cause blurry appearance */
+  animation: movingLine 6s linear infinite;
+  box-shadow: 0 0 10px rgba(156, 122, 211, 0.5);
+  z-index: 1;
+}
+
+/* Add a second moving line with delay */
+.outerContainer .secondLine {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: -100%;
+  width: 70%;
+  height: 4.5px;
+  background: var(--color-sage);
+  animation: movingLine 6s linear infinite;
+  animation-delay: 3s; /* Start halfway through the first animation */
+  box-shadow: 0 0 10px rgba(156, 122, 211, 0.5);
+  z-index: 1;
+}
+
+@keyframes movingLine {
+  0% {
+    transform: translateX(0%);
+    left: -100%;
+  }
+  100% {
+    transform: translateX(0%);
+    left: 100%;
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  margin-top: 5vh;
+  position: relative; /* Added positioning context for arrows */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-forest);
+  margin: 0;
+  position: relative;
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background-color: var(--color-forest);
+}
+
+.viewAllButton {
+  background-color: var(--color-forest);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.viewAllButton:hover {
+  background-color: #56a036;
+}
+
+.swiperContainer {
+  position: relative;
+  margin: 0px; /* Add equal margins on both sides */
+  padding: 0 35px; /* Increase padding for more arrow space */
+  box-sizing: border-box;
+}
+
+.swiper {
+  width: 100%;
+  height: 100%;
+  position: static;
+  padding: 10px 0 30px; /* Remove horizontal padding from swiper */
+}
+
+.swiperSlide {
+  height: auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* Custom navigation buttons */
+.customNavPrev,
+.customNavNext {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  color: #67b346;
+  transition: all 0.2s ease;
+}
+
+.customNavPrev:hover,
+.customNavNext:hover {
+  background-color: #67b346;
+  color: white;
+}
+
+.customNavPrev {
+  left: 5px; /* Position slightly inside the container padding */
+}
+
+.customNavNext {
+  right: 5px; /* Position slightly inside the container padding */
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+  width: 100%;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e9e9e9;
+  border-top: 4px solid #67b346;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.errorContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  color: #666;
+  padding: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .container {
+    margin: 2rem auto;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .swiperContainer {
+    padding: 0 20px; /* Slightly smaller padding on smaller screens */
+  }
+
+  .customNavPrev,
+  .customNavNext {
+    width: 28px;
+    height: 28px;
+  }
+
+  .customNavPrev {
+    left: 0px;
+  }
+
+  .customNavNext {
+    right: 0px;
+  }
+}
+
+@media (max-width: 480px) {
+  .outerContainer {
+    padding: 1.5rem 0;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .viewAllButton {
+    align-self: flex-end;
+  }
+}

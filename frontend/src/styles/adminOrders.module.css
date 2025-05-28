@@ -1,0 +1,503 @@
+/* Reuse common admin styles */
+.adminPageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fb;
+  margin-left: 260px; /* Add margin to account for fixed sidebar */
+}
+
+.adminContentWrapper {
+  display: flex;
+  flex: 1;
+}
+
+.adminMainContent {
+  flex: 1;
+  padding: 30px;
+  overflow-x: hidden;
+}
+
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.adminHeader h1 {
+  font-size: 28px;
+  color: #1c2033;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Order stats */
+.orderStats {
+  display: flex;
+  gap: 20px;
+}
+
+.orderStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  padding: 12px 20px;
+  min-width: 100px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.statNumber {
+  font-size: 20px;
+  font-weight: 700;
+  color: #5469d4;
+  margin-bottom: 5px;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #637381;
+}
+
+/* Search and filter styles */
+.searchFilterBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  padding: 0 12px;
+  border: 1px solid #eaedf3;
+  flex: 1;
+  max-width: 500px;
+  height: 44px;
+}
+
+.searchIcon {
+  color: #637381;
+  margin-right: 8px;
+}
+
+.searchInput {
+  border: none;
+  outline: none;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-size: 14px;
+}
+
+.filterContainer {
+  display: flex;
+  align-items: center;
+}
+
+.filterLabel {
+  font-size: 14px;
+  color: #637381;
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+.filterSelect {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #eaedf3;
+  background-color: white;
+  font-size: 14px;
+  color: #1c2033;
+  cursor: pointer;
+  outline: none;
+  height: 44px;
+  min-width: 180px;
+}
+
+/* Orders table styles */
+.ordersTableContainer {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.ordersTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.ordersTable th {
+  background-color: #f9fafc;
+  text-align: left;
+  padding: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #637381;
+  border-bottom: 1px solid #eaedf3;
+  white-space: nowrap;
+}
+
+.ordersTable th:nth-child(1) { width: 12%; } /* Order ID */
+.ordersTable th:nth-child(2) { width: 15%; } /* Date */
+.ordersTable th:nth-child(3) { width: 22%; } /* Customer */
+.ordersTable th:nth-child(4) { width: 8%;  } /* Items */
+.ordersTable th:nth-child(5) { width: 10%; } /* Total */
+.ordersTable th:nth-child(6) { width: 15%; } /* Payment Method */
+.ordersTable th:nth-child(7) { width: 15%; } /* Status */
+.ordersTable th:nth-child(8) { width: 10%; } /* Actions */
+
+.ordersTable td {
+  padding: 16px;
+  font-size: 14px;
+  border-bottom: 1px solid #eaedf3;
+  color: #1c2033;
+  vertical-align: middle;
+}
+
+.ordersTable tbody tr:hover {
+  background-color: #f9fafc;
+}
+
+.orderId {
+  font-weight: 600;
+}
+
+.customerInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.customerName {
+  font-weight: 500;
+}
+
+.customerEmail {
+  font-size: 12px;
+  color: #637381;
+  margin-top: 3px;
+}
+
+.orderTotal {
+  font-weight: 600;
+  color: #1c2033;
+}
+
+/* Order status styles */
+.orderStatus {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pending {
+  background-color: #fff4e6;
+  color: #f59e0b;
+}
+
+.processing {
+  background-color: #f0f4ff;
+  color: #5469d4;
+}
+
+.shipped {
+  background-color: #e7f5ff;
+  color: #0ea5e9;
+}
+
+.delivered {
+  background-color: #e6f7ef;
+  color: #10b981;
+}
+
+.cancelled {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.refunded {
+  background-color: #f3effc;
+  color: #8b5cf6;
+}
+
+/* Add these styles for the status dropdown */
+.statusDropdownContainer {
+  position: relative;
+  width: 110px;
+}
+
+.statusDropdown {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  appearance: none;
+  text-align: center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+.statusDropdown:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Style each status option */
+.statusDropdown.pending {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.statusDropdown.processing {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.statusDropdown.shipped {
+  background-color: #e0e7ff;
+  color: #4338ca;
+}
+
+.statusDropdown.delivered {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusDropdown.cancelled {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.statusDropdown.refunded {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+/* Loading indicator while updating */
+.loadingStatus {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  text-align: center;
+  width: 110px;
+}
+
+/* Action buttons styles */
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.actionButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #eaedf3;
+  cursor: pointer;
+  color: #5469d4;
+  transition: all 0.2s;
+}
+
+.actionButton:hover {
+  background-color: #f5f7fe;
+  border-color: #5469d4;
+}
+
+.cancelButton {
+  color: #ef4444;
+}
+
+.cancelButton:hover {
+  background-color: #fee2e2;
+  border-color: #ef4444;
+}
+
+/* Empty state */
+.noOrders {
+  text-align: center;
+  padding: 30px;
+  color: #637381;
+}
+
+/* Pagination styles */
+.paginationContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.paginationButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: white;
+  border: 1px solid #eaedf3;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #5469d4;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: #f5f7fe;
+  border-color: #5469d4;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationInfo {
+  font-size: 14px;
+  color: #637381;
+}
+
+/* Loading and Error States */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  width: 100%;
+  color: #5469d4;
+}
+
+.loadingIcon {
+  animation: spin 1.5s linear infinite;
+  margin-bottom: 15px;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  width: 100%;
+  color: #ef4444;
+  text-align: center;
+}
+
+.refreshButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #5469d4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.refreshButton:hover {
+  background-color: #4054b3;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .orderStats {
+    flex-wrap: wrap;
+  }
+
+  .ordersTable {
+    table-layout: auto;
+  }
+  
+  .ordersTable th, .ordersTable td {
+    padding: 12px 10px;
+  }
+}
+
+@media (max-width: 992px) {
+  .searchFilterBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .searchContainer {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .filterContainer {
+    width: 100%;
+  }
+  
+  .filterSelect {
+    width: 100%;
+  }
+  
+  .ordersTableContainer {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .adminPageContainer {
+    margin-left: 0; /* Remove margin on mobile */
+  }
+  
+  .adminMainContent {
+    padding: 20px 15px;
+  }
+  
+  .adminHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .orderStats {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .orderStat {
+    padding: 10px;
+    min-width: auto;
+    flex: 1;
+  }
+}

@@ -1,0 +1,325 @@
+const Order = require('../models/order-schema');
+const Payment = require('../models/payment-schema');
+const { generateOrderId, generatePaymentId } = require('../utils/generateIds');
+const { createStripeCoupon, parseSessionToOrderData } = require('../utils/stripe-helpers');
+const stripe = require('../config/stripeConfig');
+const { sendOrderConfirmationEmail } = require('../utils/orderEmailNotification');
+const productSchema = require('../models/product-schema');
+
+/**
+ * Create a Stripe checkout session
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Promise<void>}
+ */
+const createCheckoutSession = async (req, res) => {
+  try {
+    const { 
+      line_items, 
+      products, // New parameter containing products with categories 
+      discount, 
+      success_url, 
+      cancel_url, 
+      customer_email, 
+      customer_phone,
+      shipping_address, // Add shipping address from request if available
+      metadata,
+      tax, 
+      shipping
+    } = req.body;
+
+    const orderId = generateOrderId();
+
+    const sessionMetadata = {
+      order_id: orderId,
+      customer_phone: customer_phone, // Add phone to metadata so it's accessible later
+      ...metadata,
+    };
+
+    // Create Stripe coupon if discount exists
+    let couponId = null;
+    if (discount) {
+      couponId = await createStripeCoupon(discount, stripe);
+    }
+
+    const subtotalAmount = line_items.reduce((total, item) => {
+      // Only include actual product items (exclude shipping and tax for subtotal calculation)
+      if (item.price_data?.product_data?.name !== 'Shipping' && 
+          item.price_data?.product_data?.name !== 'Estimated Tax') {
+        return total + (item.price_data.unit_amount * item.quantity);
+      }
+      return total;
+    }, 0);
+
+    const shippingIncludedInItems = line_items.some(item =>
+      item.price_data?.product_data?.name === 'Shipping'
+    );
+
+    // Free shipping threshold in PKR paisa
+    const freeShippingThreshold = 300000; // PKR 3,000 in paisa
+    const shouldChargeShipping = !shippingIncludedInItems && subtotalAmount < freeShippingThreshold;
+
+    // Standard shipping cost in PKR paisa
+    const shippingAmount = shouldChargeShipping ? 25000 : 0; // PKR 250 in paisa
+
+    // Ensure all line items have PKR currency
+    const pkrLineItems = line_items.map(item => ({
+      ...item,
+      price_data: {
+        ...item.price_data,
+        currency: 'pkr',
+      }
+    }));
+
+    // Create session options
+    const sessionOptions = {
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: pkrLineItems,
+      customer_email: customer_email,
+      metadata: sessionMetadata,
+      phone_number_collection: {
+        enabled: true, // Enable phone number collection
+      },
+      shipping_address_collection: {
+        allowed_countries: ['PK'],
+      },
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: {
+              amount: shippingAmount,
+              currency: 'pkr',
+            },
+            display_name: 'Standard Shipping',
+            delivery_estimate: {
+              minimum: {
+                unit: 'business_day',
+                value: 3,
+              },
+              maximum: {
+                unit: 'business_day',
+                value: 5,
+              },
+            },
+          },
+        },
+      ],
+      ...(couponId && {
+        discounts: [{ coupon: couponId }],
+      }),
+      success_url: `${success_url}?session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
+      cancel_url: cancel_url,
+    };
+
+    // Add pre-filled shipping address if available
+    if (shipping_address) {
+      sessionOptions.shipping_details = {
+        name: shipping_address.name,
+        phone: customer_phone,
+        address: {
+          line1: shipping_address.line1,
+          line2: shipping_address.line2 || '',
+          city: shipping_address.city,
+          state: shipping_address.state,
+          postal_code: shipping_address.postal_code,
+          country: shipping_address.country || 'PK',
+        }
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionOptions);
+     console.log(products);
+    // Create a new order with product categories
+    const newOrder = new Order({
+      orderId: orderId,
+      stripeSessionId: session.id,
+      // Use the products array that includes categories
+      products: products 
+        ? products.map(item => ({
+            name: item.name,
+            price: item.price, // Already in PKR
+            quantity: item.quantity,
+            category: item.category || 'uncategorized' ,// Store category
+            id : item.id,
+          }))
+        : pkrLineItems
+            .filter(item => 
+              item.price_data?.product_data?.name !== 'Shipping' && 
+              item.price_data?.product_data?.name !== 'Estimated Tax'
+            )
+            .map(item => ({
+              name: item.price_data.product_data.name,
+              price: item.price_data.unit_amount / 100, // Convert from paisa to PKR
+              quantity: item.quantity,
+              // No category available in this fallback case
+            })),
+      customer: {
+        email: customer_email,
+        phone: customer_phone,
+      },
+      shippingAddress: shipping_address || null,
+      discount: discount ? {
+
+        code: discount.name.replace('Promo: ', ''),
+        type: discount.type,
+        value: discount.type === 'percent' ? discount.amount / 100 : discount.amount / 100, // Convert from paisa to PKR or basis points to percentage
+        id : discount.id
+      } : null,
+      subtotal: subtotalAmount / 100, // Convert from paisa to PKR
+      total: null, // Will be updated after payment is completed
+      status: 'Pending',
+      shipping: shipping,
+      tax: tax,
+      currency: 'PKR',
+      createdAt: new Date(),
+    });
+
+    await newOrder.save();
+
+    res.status(200).json({
+      sessionId: session.id,
+      orderId: orderId,
+    });
+
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    res.status(500).json({ message: 'Error creating checkout session', error: error.message });
+  }
+};
+
+/**
+ * Handle Stripe webhook events
+ */
+const handleWebhook = async (req, res) => {
+  const event = req.stripeEvent;
+
+  switch (event.type) {
+    case 'checkout.session.completed':
+      await handleCheckoutSessionCompleted(event.data.object);
+      break;
+    case 'payment_intent.payment_failed':
+      await handlePaymentIntentFailed(event.data.object);
+      break;
+  }
+
+  res.json({ received: true });
+};
+
+/**
+ * Handle checkout.session.completed event
+ */
+const handleCheckoutSessionCompleted = async (session) => {
+  const orderId = session.metadata.order_id;
+  const customerPhone = session.metadata.customer_phone;
+
+  try {
+    const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
+      expand: ['line_items', 'customer', 'payment_intent'],
+    });
+
+    const order = await Order.findOne({ orderId: orderId });
+    if (!order) {
+      console.error(`Order not found: ${orderId}`);
+      return;
+    }
+
+    const orderData = parseSessionToOrderData(expandedSession);
+    console.log('Order data:', orderData);
+
+    // Update customer with phone from metadata if not available in session
+    order.customer = {
+      ...orderData.customer,
+      phone: session.customer_details?.phone || customerPhone || order.customer.phone
+    };
+    
+    order.paymentMethod = 'Card';
+    order.shippingAddress = orderData.shippingAddress;
+    order.total = orderData.total;
+    order.status = 'Processing'; // Update status to paid
+    order.updatedAt = new Date();
+
+    await order.save();
+    console.log(order)
+    // Extract payment intent ID string instead of using the whole object
+    const paymentIntentId = typeof expandedSession.payment_intent === 'string' 
+      ? expandedSession.payment_intent 
+      : expandedSession.payment_intent.id;
+
+    const paymentId = generatePaymentId();
+    const payment = new Payment({
+      paymentId: paymentId,
+      orderId: orderId,
+      stripePaymentIntentId: paymentIntentId,
+      amount: expandedSession.amount_total / 100, // Convert from paisa to PKR
+      currency: 'PKR',
+      paymentMethod: 'card',
+      status: 'succeeded',
+      customer: {
+        email: expandedSession.customer_details.email,
+        name: expandedSession.customer_details.name,
+        phone: expandedSession.customer_details.phone || customerPhone || null,
+      },
+      billing: {
+        name: expandedSession.customer_details.name,
+        email: expandedSession.customer_details.email,
+        phone: expandedSession.customer_details.phone || customerPhone || null,
+        address: {
+          line1: expandedSession.customer_details.address?.line1 || null,
+          line2: expandedSession.customer_details.address?.line2 || null,
+          city: expandedSession.customer_details.address?.city || null,
+          state: expandedSession.customer_details.address?.state || null,
+          postalCode: expandedSession.customer_details.address?.postal_code || null,
+          country: expandedSession.customer_details.address?.country || null,
+        },
+      },
+      metadata: session.metadata,
+      createdAt: new Date(),
+    });
+
+    await payment.save();
+
+
+        
+    // Prepare complete order data for email notification
+    const completeOrderData = {
+      ...order.toObject(),
+      paymentDetails: payment.toObject()
+    };
+
+    // Send confirmation email to customer
+    const emailResult = await sendOrderConfirmationEmail(completeOrderData);
+    
+    if (!emailResult.success) {
+      console.error(`Failed to send order confirmation email: ${emailResult.error}`);
+    }
+
+  } catch (error) {
+    console.error(`Error processing checkout session: ${error.message}`);
+  }
+};
+
+/**
+ * Handle payment_intent.payment_failed event
+ */
+const handlePaymentIntentFailed = async (paymentIntent) => {
+  const orderId = paymentIntent.metadata.order_id;
+
+  try {
+    await Order.findOneAndUpdate(
+      { orderId: orderId },
+      {
+        status: 'failed',
+        updatedAt: new Date(),
+      }
+    );
+  } catch (error) {
+    console.error(`Error updating failed order: ${error.message}`);
+  }
+};
+
+module.exports = {
+  createCheckoutSession,
+  handleWebhook,
+};
